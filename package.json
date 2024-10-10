@@ -9,12 +9,17 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.8",
     "@invertase/react-native-apple-authentication": "^2.4.0",
     "@react-native-google-signin/google-signin": "^13.1.0",
     "expo": "~51.0.28",
     "expo-status-bar": "~1.12.1",
+    "formik": "^2.4.6",
+    "graphql": "^15.8.0",
     "react": "18.2.0",
-    "react-native": "0.74.5"
+    "react-native": "0.74.5",
+    "react-native-keychain": "^9.0.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
