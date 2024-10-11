@@ -3,35 +3,60 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import ComponentCompiler from './src/ComponentCompiler';
 import * as Font from 'expo-font';
-import CustomLoadingScreen from './src/Loading/CustomLoadingScreen'; // Importar la pantalla de carga personalizada
+import CustomLoadingScreen from './src/Loading/CustomLoadingScreen';
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SignUp from './src/pages/SignUp';
+import Login from './src/pages/Login';
+import HomePage from './src/pages/HomePage';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  // Función para cargar las fuentes
   const loadFonts = async () => {
-    await Font.loadAsync({
-      Aleo: require('./assets/Fonts/Aleo-VariableFont_wght.ttf'),
-      BostonRegular: require('./assets/Fonts/BostonRegular.otf'),
-    });
+    try {
+      await Font.loadAsync({
+        Aleo: require('./assets/Fonts/Aleo-VariableFont_wght.ttf'),
+        BostonRegular: require('./assets/Fonts/BostonRegular.otf'),
+      });
+      setFontsLoaded(true);
+    } catch (error) {
+      console.error('Error loading fonts', error);
+    }
   };
 
   useEffect(() => {
-    loadFonts().then(() => setFontsLoaded(true));
+    loadFonts();
   }, []);
 
-  // Si las fuentes no están cargadas, muestra la pantalla de carga personalizada
   if (!fontsLoaded) {
     return <CustomLoadingScreen />;
   }
 
-  // Si las fuentes están cargadas, renderiza la app normalmente
+  const client = new ApolloClient({
+    // uri: 'http://172.20.10.3:4000/graphql',
+    uri: 'http://98.81.234.60/api/graphql',
+    cache: new InMemoryCache(),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // connectToDevTools: true,
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={{ fontFamily: 'Aleo', fontSize: 20 }}>Welcome to your app using Aleo font!</Text>
-      <ComponentCompiler />
-      <StatusBar style="auto" />
-    </View>
+    <ApolloProvider client={client}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="SignUp" component={SignUp} />
+          <Stack.Screen name="HomePage" component={HomePage} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ApolloProvider>
   );
 }
 
