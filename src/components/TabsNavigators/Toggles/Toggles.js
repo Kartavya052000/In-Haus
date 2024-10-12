@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Switch, StyleSheet } from 'react-native';
-import Typography from '../typography/Typography'; // Importa el componente Typography
+import Typography from '../../typography/Typography'; // Importa el componente Typography
 
 const CustomToggle = ({ label, initialValue, onToggle }) => {
   const [isEnabled, setIsEnabled] = useState(initialValue);
