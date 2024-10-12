@@ -13,6 +13,11 @@ import DropdownExample from './Dropdown/DropdownExample';
 import RadioButtonExample from './Selectors/RadioButtons/RadioButtonExample';
 import Checkbox from './Selectors/Checkbox/Checkbox';
 import SliderExample from './sliders/SliderExample';
+import CreateTask from './TaskComponent/CreateTask';
+import EditTask from './TaskComponent/EditTask';
+import CreateEvent from './EventComponent/CreateEvent';
+import EditEvent from './EventComponent/EditEvent';
+// import CalendarPage from './pages/CalenderPage';
 
 const ComponentCompiler = () => {
   return (
@@ -42,6 +47,17 @@ const ComponentCompiler = () => {
         <Checkbox label="Label 1" />
         {/* Adding the SliderExample component for visualization */}
         <SliderExample />
+
+        <CreateTask />
+
+        <EditTask />
+
+        <CreateEvent />
+
+        <EditEvent />
+
+       
+        {/* <CalendarPage /> */}
 
       </ScrollView>
     </SafeAreaView>
