@@ -50,9 +50,9 @@ export default function App() {
     <ApolloProvider client={client}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="HomePage" component={HomePage} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
+          <Stack.Screen name="HomePage" component={HomePage} />
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>

@@ -7,6 +7,7 @@ import * as Keychain from 'react-native-keychain';
 import InputField from '../Inputs/InputField';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
+
 // Storing the token
 const storeToken = async (token) => {
   try {
@@ -30,6 +31,7 @@ const SignUp = () => {
     storeToken(data.signup.token);
     navigation.replace('HomePage'); // Use replace here
     Alert.alert('Signup Successful', 'You have successfully signed up!');
+
       // Optionally navigate to another screen or reset form here
     },
     onError: (error) => {
@@ -44,6 +46,7 @@ const SignUp = () => {
     // Call the sign-up mutation when saving the event
     if (username && email && password) {
       signUp({
+
         variables: {
           username,
           email,

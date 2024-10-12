@@ -12,6 +12,7 @@ const storeToken = async (token) => {
     await Keychain.setGenericPassword('authToken', token); // Use a descriptive key name
   } catch (error) {
     console.error('Error storing token:', error);
+
   }
 };
 
@@ -37,6 +38,7 @@ const Login = () => {
     // Check if fields are filled before logging in
     if (email && password) {
       logIn({
+
         variables: {
           email,
           password,
@@ -44,6 +46,8 @@ const Login = () => {
       });
     } else {
       Alert.alert('Validation Error', 'Both email and password are required.');
+
+
     }
   };
 
@@ -75,6 +79,7 @@ const Login = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+
   );
 };
 
@@ -103,6 +108,7 @@ const styles = StyleSheet.create({
     color: 'blue',
     textAlign: 'center',
     marginTop: 20,
+
   },
 });
 
