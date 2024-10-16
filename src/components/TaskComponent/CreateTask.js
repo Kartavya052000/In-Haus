@@ -1,45 +1,109 @@
-import React, { useState } from "react";
-import { View,Text, ScrollView, TouchableOpacity, StyleSheet} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useMutation, useQuery } from "@apollo/client";
 import InputField from "../Inputs/InputField";
 import Dropdown from "../Dropdown/Dropdown";
 import DateTimeComponent from "../DateTime/DateTimeComponent";
+import { CREATE_TASK } from "../../graphql/mutations/taskMutations";
+import { GET_GROUP } from "../../graphql/mutations/taskMutations";
+import * as SecureStore from 'expo-secure-store'; 
 
 const CreateTask = () => {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(new Date());
-  const [category, setCategory] = useState("Cleaning");
-  const [assignedTo, setAssignedTo] = useState("Me");
+  const [startDateTime, setStartDateTime] = useState(new Date());
+  const [endDateTime, setEndDateTime] = useState(new Date());
+  const [category, setCategory] = useState("");
+  const [assignedTo, setAssignedTo] = useState(null);
   const [points, setPoints] = useState(100);
+  const [repeat, setRepeat] = useState("Never");
 
-  const handleSave = () => {
-    const task = {
-      title,
-      date,
-      time,
-      assignedTo,
-      points,
-      category,
+  const [authToken, setAuthToken] = useState(null);
+
+  // Fetch auth token
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('authToken'); 
+        if (token) {
+          setAuthToken(token);
+          console.log('Token retrieved:', token);
+        } else {
+          console.error('No auth token found');
+        }
+      } catch (error) {
+        console.error('Error retrieving auth token:', error);
+      }
     };
-    console.log("Task saved:", task);
-    // Add logic to save task to backend
+
+    getToken();
+  }, []);
+
+  const [createTask, { loading, error, data }] = useMutation(CREATE_TASK);
+
+  const groupId = "670622bdd001f960932e8c20";
+
+  // Fetch group data 
+  const { loading: groupLoading, error: groupError, data: groupData } = useQuery(GET_GROUP, {
+    variables: { groupId },
+  });
+
+  const handleDateTimeChange = (startDateTime, endDateTime, repeatValue) => {
+    setStartDateTime(startDateTime);
+    setEndDateTime(endDateTime);
+    setRepeat(repeatValue);
+    console.log("Repeat value in CreateTask:", repeatValue);
   };
 
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
+  const handleSave = async () => {
+    try {
+      const startDateTimeISO = startDateTime.toISOString();
+      const endDateTimeISO = endDateTime.toISOString();
+
+      // Log values 
+      console.log("Start DateTime:", startDateTimeISO);
+      console.log("End DateTime:", endDateTimeISO);
+      console.log("Repeat:", repeat);
+      console.log("Title:", title);
+      console.log("Points:", points);
+      console.log("Assigned To User ID:", assignedTo);
+
+      // Execute mutation 
+      const response = await createTask({
+        variables: {
+          taskName: title,
+          startDate: startDateTimeISO,
+          endDate: endDateTimeISO,
+          repeat: repeat,
+          assignedTo: assignedTo, 
+          points: points,
+          type: "task",
+        },
+        context: {
+          headers: {
+            Authorization: authToken ? `${authToken}` : '',
+          },
+        },
+      });
+
+      console.log("Task saved:", response.data);
+    } catch (error) {
+      console.error("Error saving task:", error);
+    }
   };
 
-  const onTimeChange = (event, selectedTime) => {
-    const currentTime = selectedTime || time;
-    setShowTimePicker(false);
-    setTime(currentTime);
-  };
+  if (groupLoading) {
+    return <Text>Loading group data...</Text>;
+  }
+
+  if (groupError) {
+    return <Text>Error loading group data: {groupError.message}</Text>;
+  }
+
+  // Extract members from the group data
+  const members = groupData?.getGroup?.members || [];
 
   return (
     <ScrollView style={styles.container}>
-
       {/* Task Name */}
       <InputField
         label="Task name"
@@ -50,8 +114,8 @@ const CreateTask = () => {
       />
 
       <View style={styles.fieldContainer}>
-        {/* <Text style={styles.label}>Date & Time</Text> */}
-        <DateTimeComponent />
+        {/* DateTimeComponent */}
+        <DateTimeComponent onDateTimeChange={handleDateTimeChange} />
       </View>
 
       {/* Category */}
@@ -68,19 +132,25 @@ const CreateTask = () => {
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Assign to</Text>
         <Dropdown
-          options={["Me", "User 1", "User 2"]}
+          options={members}
           selectedValue={assignedTo}
-          onValueChange={setAssignedTo}
+          onValueChange={(value) => {
+            setAssignedTo(value);
+          }}
+          labelExtractor={(item) => item.username}
+          valueExtractor={(item) => item.id}
         />
       </View>
 
-      {/* Amount of Points */}
+      {/* Points */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Amount of Points</Text>
         <Dropdown
           options={[100, 200, 300]}
           selectedValue={points}
-          onValueChange={setPoints}
+          onValueChange={(value) => {
+            setPoints(value);
+          }}
         />
       </View>
 
@@ -96,6 +166,10 @@ const CreateTask = () => {
           <Text style={styles.saveText}>Save</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Loading/Error Handling */}
+      {loading && <Text>Saving...</Text>}
+      {error && <Text>Error saving task: {error.message}</Text>}
     </ScrollView>
   );
 };
@@ -104,44 +178,12 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  toggleContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 10,
-  },
-  toggleButton: {
-    marginHorizontal: 10,
-    backgroundColor: "black",
-    paddingVertical: 10,
-    paddingHorizontal: 60,
-    borderRadius: 20,
-  },
-  toggleText: {
-    fontSize: 16,
-    color: "white",
-  },
-  inputField: {},
   fieldContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
     marginBottom: 10,
-  },
-  dropdownContainer: {
-    padding: 15,
-    borderWidth: 1,
-  },
-  dropdownText: {
-    color: "#333",
   },
   buttonContainer: {
     marginTop: 30,
