@@ -13,7 +13,6 @@ const CreateTaskEvent = () => {
     console.log("Active Tab:", tabName);
   };
 
-  // Define the options for the tabs
   const options = [
     { name: 'Task' },
     { name: 'Event' },
@@ -24,8 +23,16 @@ const CreateTaskEvent = () => {
       <ScrollView>
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.title}>Edit</Text>
+          <Text style={styles.title}>Create</Text>
         </View>
+
+        <OptionTabs
+          options={options}
+          activeColor="black"
+          inactiveColor="gray"
+          textColor="white"
+          onTabChange={handleTabChange}
+        />
 
         {/* Display Content Based on Selected Tab */}
         {activeTab === "Task" ? (

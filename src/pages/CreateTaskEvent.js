@@ -13,7 +13,6 @@ const CreateTaskEvent = () => {
     console.log("Active Tab:", tabName);
   };
 
-  // Define the options for the tabs
   const options = [
     { name: 'Task' },
     { name: 'Event' },
@@ -27,7 +26,6 @@ const CreateTaskEvent = () => {
           <Text style={styles.title}>Create</Text>
         </View>
 
-        {/* Option Tabs for Task and Event */}
         <OptionTabs
           options={options}
           activeColor="black"

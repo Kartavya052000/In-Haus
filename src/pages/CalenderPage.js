@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, StyleSheet,TouchableOpacity } from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/CardComponent/TaskCard";
 import CreateTaskEvent from "./CreateTaskEvent";
 import { useNavigation } from '@react-navigation/native';
+
+
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -11,14 +13,12 @@ const CalendarPage = () => {
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
-    //logic based on the selected tab.
     console.log("Active Tab:", tabName);
   };
 
   const handleClick = () => {
     navigation.navigate('CreateTaskEvent');
     console.log("Tab Clicked:");
-    // Add logic to save task to backend
   };
 
   // Example Data
