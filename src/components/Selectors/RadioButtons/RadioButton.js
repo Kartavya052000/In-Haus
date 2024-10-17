@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Typography from '../../typography/Typography'; // Asegúrate de que la ruta a Typography.js sea la correcta
-import { AntDesign } from '@expo/vector-icons'; // Para el ícono del radio seleccionado
 
 const RadioButton = ({ options }) => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -18,11 +17,7 @@ const RadioButton = ({ options }) => {
           style={styles.radioOption}
           onPress={() => handlePress(option)}
         >
-          <View style={[styles.circle, selectedOption === option && styles.selectedCircle]}>
-            {selectedOption === option && (
-              <AntDesign name="checkcircle" size={16} color="#555" />
-            )}
-          </View>
+          <View style={[styles.circle, selectedOption === option && styles.selectedCircle]} />
           <Typography variant="BodyS" color="#333">
             {option}
           </Typography>
@@ -49,12 +44,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 10,
   },
   selectedCircle: {
-    borderColor: '#333',
+    backgroundColor: '#555', // Color de relleno cuando está seleccionado
   },
 });
 

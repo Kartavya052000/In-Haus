@@ -1,20 +1,25 @@
 import React from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet } from 'react-native';
 import Typography from '../typography/Typography'; // Usamos el componente de tipografía
 
-const InputField = ({ label, placeholder, value, onChangeText, disabled = false }) => {
+const InputField = ({ label, placeholder, value, onChangeText, disabled = false, inputHeight = 44, inputWidth = 208 }) => {
   return (
     <View style={styles.container}>
       {/* Etiqueta del campo (Label) */}
-      <Typography variant="H5" style={styles.label}>
+      <Typography variant="SH4" style={styles.label}>
         {label}
       </Typography>
 
+      {/* Espacio entre Label y el Input */}
+      <View style={{ height: 4 }} />
+
       {/* Campo de entrada (Input) */}
-      <Typography variant="BodyS" color="#000">
-      </Typography>  
       <TextInput
-        style={[styles.input, disabled ? styles.disabledInput:{}]}
+        style={[
+          styles.input,
+          { height: inputHeight, width: inputWidth },
+          disabled ? styles.disabledInput : {}
+        ]}
         placeholder={placeholder}
         value={value}
         onChangeText={onChangeText}
@@ -29,13 +34,16 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 20, // Espaciado entre campos
   },
+  label: {
+    // marginBottom: 4, // Espaciado entre label y campo de entrada
+  },
   input: {
-    height: 50,
     borderColor: '#000', // Color del borde
     borderWidth: 1,
-    borderRadius: 25, // Bordes redondeados
-    paddingHorizontal: 15, // Espaciado interno horizontal
+    borderRadius: 24, // Bordes redondeados
+    paddingHorizontal: 12, // Espaciado interno horizontal
     fontSize: 16, // Tamaño del texto del campo de entrada
+    fontFamily: 'BostonRegular',
   },
   disabledInput: {
     backgroundColor: '#f0f0f0', // Color de fondo más claro para indicar que está deshabilitado

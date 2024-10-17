@@ -1,63 +1,53 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import Typography from '../../typography/Typography'; // Importar Typography para estilos de texto
 
-const OptionTabs = ({ options = [], activeColor = '#ccc', inactiveColor = '#f9f9f9', textColor = '#333', onTabChange }) => {
-  const [activeOption, setActiveOption] = useState(options[0]?.name || 'Option 1'); // Por defecto seleccionamos la primera opción
+const OptionTabs = ({ options, activeColor, inactiveColor, textColor, onTabChange }) => {
+  const [activeTab, setActiveTab] = useState(options[0].name);
 
-  const handleTabPress = (option) => {
-    setActiveOption(option.name);
-    if (onTabChange) {
-      onTabChange(option.name);
-    }
+  const handlePress = (optionName) => {
+    setActiveTab(optionName);
+    onTabChange(optionName);
   };
 
   return (
     <View style={styles.container}>
-      {/* Distribuimos las opciones sin scroll */}
-      <View style={styles.optionsContainer}>
-        {options.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.option,
-              {
-                backgroundColor: activeOption === option.name ? activeColor : inactiveColor,
-              },
-            ]}
-            onPress={() => handleTabPress(option)}
-          >
-            <Text style={[styles.optionText, { color: textColor }]}>
-              {option.name.charAt(0).toUpperCase() + option.name.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {options.map((option) => (
+        <TouchableOpacity
+          key={option.name}
+          style={[
+            styles.tab,
+            activeTab === option.name
+              ? { backgroundColor: activeColor }
+              : inactiveColor ? { backgroundColor: inactiveColor } : {},
+          ]}
+          onPress={() => handlePress(option.name)}
+        >
+          <Typography variant="Body" color={textColor} style={styles.text}>
+            {option.name}
+          </Typography>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    backgroundColor: '#f9f9f9',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  optionsContainer: {
-    flexDirection: 'row', // Alineamos las opciones en una fila
-    justifyContent: 'space-evenly', // Distribuimos las opciones uniformemente
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderRadius: 16,
+    marginHorizontal: 4,
   },
-  option: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    marginHorizontal: 5,
-    flex: 1, // Cada opción ocupa el mismo ancho
-    alignItems: 'center', // Centrar el texto
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#333',
+  text: {
+    fontWeight: '600',
   },
 });
 
