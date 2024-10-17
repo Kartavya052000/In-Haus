@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import CustomLoadingScreen from './src/Loading/CustomLoadingScreen'; // Custom loading screen
+import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 // Import your screens
@@ -166,10 +166,10 @@ export default function App() {
     <ApolloProvider client={client}>
       <NavigationContainer>
         {/* <MainStackNavigator /> */}
-        <Stack.Navigator initialRouteName="HomePage">
+        <Stack.Navigator initialRouteName="HomePage" >
        <Stack.Screen name="Login" component={Login} />
        <Stack.Screen name="SignUp" component={SignUp} />
-       <Stack.Screen name="HomePage" component={HomePage} />
+       <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
        {/* <Stack.Screen name="MainTabs" component={TabNavigator} /> Tabs wrapped inside stack */}
      </Stack.Navigator>
       </NavigationContainer>

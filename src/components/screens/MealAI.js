@@ -19,7 +19,7 @@ export default function MealAI({ navigation }) {
       </View> 
 
       <View style={styles.row}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('MealPlanner')}>
           <FontAwesome6 name="calendar-plus" size={48} color="black" />
           <Text style={styles.label}>Meal Planner</Text>
         </TouchableOpacity>
