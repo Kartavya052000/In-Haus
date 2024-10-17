@@ -11,7 +11,7 @@ const MealCard = ({ mealName, portions, onAddPress }) => {
     >
       {mealName ? (
         <View style={styles.filledContent}>
-          <MealIcon style={styles.icon} />
+          {/* <MealIcon style={styles.icon} /> */}
           <View>
             <Typography variant="SH4" color="#333" style={styles.mealName}>{mealName}</Typography>
             <Typography variant="Caption" color="#999" style={styles.portions}>For {portions}</Typography>

@@ -1,27 +1,46 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar, ScrollView } from 'react-native';
 import Typography from '../../components/typography/Typography'; // Import Typography
-import { AddIcon } from '../../components/icons/icons'; // Import AddIcon
+import { AddIcon, OpenIcon, CloseIcon } from '../../components/icons/icons'; // Import AddIcon and dropdown icons
 import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; // Import OptionTabs
-import TaskCard from '../../components/calendar/TaskCard'; // Import TaskCard
+import MealCard from '../Cards/MealCards'; // Import MealCard
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
+import Checkbox from '../../components/Selectors/Checkbox/Checkbox'; // Import Checkbox
 
 const optionsFromDatabase = [
     { name: 'My Plan' },
     { name: 'Shopping List' },
   ];
 
-const MealPlannerDashboard = () => {
+const MealPlanner = () => {
+  const [selectedTab, setSelectedTab] = React.useState('My Plan');
+  
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const [meals, setMeals] = React.useState({
+    Breakfast: null,
+    Lunch: { mealName: 'Chicken Pesto', portions: 3 },
+    Dinner: null,
+    Snacks: null,
+  });
+
   const handleTabChange = (optionName) => {
-    Alert.alert(`Option changed to: ${optionName}`);
+    setSelectedTab(optionName);
+  };
+
+  const handleAddMeal = (mealType) => {
+    Alert.alert(`Add meal button pressed for ${mealType}`);
+  };
+
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
       {/* Header Section */}
       <View style={styles.headerContainer}>
         <Typography variant="H4" style={[styles.headerTitle]}>MealAI</Typography>
-        <TouchableOpacity style={styles.addMealButton}>
+        <TouchableOpacity style={styles.addMealButton} onPress={() => handleAddMeal('General')}>
           <View style={styles.addMealContent}>
             <Typography variant="Body" style={[styles.headerTitle, styles.addMealText]}>Add Meal</Typography>
             <View style={{ width: 4 }} />
@@ -39,31 +58,71 @@ const MealPlannerDashboard = () => {
         onTabChange={handleTabChange} // Maneja el cambio de pestaña
       />
 
-      {/* Calendar Section */}
-      <View style={styles.calendarSection}>
-        <CalendarComponent
-          markedDates={{}} // Placeholder for marked dates
-          activities={[]} // Placeholder for activities
-          themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
-        />
-      </View>
+      {selectedTab === 'My Plan' && (
+        <>
+          {/* Calendar Section */}
+          <View style={styles.calendarSection}>
+            <CalendarComponent
+              markedDates={{}} // Placeholder for marked dates
+              activities={[]} // Placeholder for activities
+              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
+            />
+          </View>
 
-      {/* Meal Cards Section */}
-      {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
-        <View key={index} style={styles.mealSection}>
-          <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
-          <TaskCard
-            cardColor="#f9f9f9"
-            textColor="#333"
-            style={styles.mealCard}
-          >
-            <View style={styles.addMealContentCenter}>
-              <Typography variant="SH4" style={styles.noMealText}>Add +</Typography>
+          {/* Meal Cards Section */}
+          {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
+            <View key={index} style={styles.mealSection}>
+              <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
+              {meals[meal] ? (
+                <MealCard
+                  mealName={meals[meal].mealName}
+                  portions={meals[meal].portions}
+                  onAddPress={() => handleAddMeal(meal)}
+                  style={styles.mealCard}
+                />
+              ) : (
+                <MealCard
+                  mealName={null}
+                  portions={null}
+                  onAddPress={() => handleAddMeal(meal)}
+                  style={styles.mealCard}
+                />
+              )}
             </View>
-          </TaskCard>
+          ))}
+        </>
+      )}
+
+      {selectedTab === 'Shopping List' && (
+        <View style={styles.shoppingListSection}>
+          {/* Filter Section */}
+          <View style={styles.filterSection}>
+            <Typography variant="SH3" style={styles.filterTitle}>Filter by</Typography>
+            <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
+              <Typography variant="Body" style={styles.filterText}>All</Typography>
+              {isFilterOpen ? <CloseIcon /> : <OpenIcon />}
+            </TouchableOpacity>
+          </View>
+          {/* Shopping List Items */}
+          {[
+            // Placeholder for items coming from API, replace with actual API data
+            // const apiData = responseFromAPI;
+            // apiData.map(item => (
+            //   { name: item.name, quantity: item.quantity }
+            // ))
+            { name: 'Chicken breasts', quantity: '500g' }
+          ].map((item, index) => (
+            <View key={index} style={styles.shoppingListItem}>
+              <View>
+                <Typography variant="SH4" style={styles.itemName}>{item.name}</Typography>
+                <Typography variant="Body" style={styles.itemQuantity}>{item.quantity}</Typography>
+              </View>
+              <Checkbox />
+            </View>
+          ))}
         </View>
-      ))}
-    </View>
+      )}
+    </ScrollView>
   );
 };
 
@@ -73,6 +132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 24,
     backgroundColor: '#fff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60, // Add padding to avoid the notch or island
   },
   headerContainer: {
     flexDirection: 'row',
@@ -101,6 +161,7 @@ const styles = StyleSheet.create({
   },
   calendarSection: {
     marginBottom: 24,
+    paddingHorizontal: 0,
   },
   mealSection: {
     marginBottom: 16,
@@ -113,9 +174,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mealCard: {
-
     marginBottom: 16, // Space between cards
-    backgroundColor: '#f9f9f9', // Set default background color for TaskCard
+    backgroundColor: '#f9f9f9', // Set default background color for MealCard
     borderRadius: 12, // Add rounded corners
     padding: 0, // Add padding inside the card
   },
@@ -128,6 +188,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#999',
   },
+  shoppingListSection: {
+    marginTop: 24,
+    paddingHorizontal: 16,
+  },
+  filterSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  filterTitle: {
+    fontWeight: 'bold',
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  filterText: {
+    marginRight: 4,
+  },
+  shoppingListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  itemName: {
+    fontWeight: 'bold',
+  },
+  itemQuantity: {
+    color: '#999',
+  },
 });
 
-export default MealPlannerDashboard;
+export default MealPlanner;

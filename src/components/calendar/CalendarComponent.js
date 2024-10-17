@@ -152,8 +152,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Boston',
+    fontSize: 20,
+    fontWeight: '600',
+    lineHeight: 24,
+    textAlign: 'left',
   },
   subtitle: {
     fontSize: 16,
