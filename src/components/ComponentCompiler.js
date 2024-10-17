@@ -12,6 +12,10 @@ import RadioButtonExample from './Selectors/RadioButtons/RadioButtonExample';
 import Checkbox from './Selectors/Checkbox/Checkbox';
 import SliderExample from './sliders/SliderExample';
 import CalendarGraph from './calendar/calendarGraph';
+import TaskCard from './calendar/TaskCard'; // Import the TaskCard component
+import RewardsCard2 from './Cards/RewardsCard2'; // Import the RewardsCard2 component
+import TextInputBoxExample from './Inputs/TexInputExample';
+import MealPlannerDashboard from '../pages/MealAI/MealPlannerDashboard';
 
 const taskData = [
   { day: 'Sun', tasksAssigned: 10, tasksCompleted: 7 },
@@ -91,6 +95,26 @@ const ComponentCompiler = () => {
 
         {/* Adding the SliderExample component for visualization */}
         <SliderExample />
+
+        {/* Adding the TaskCard component for visualization */}
+        <TaskCard taskName="Laundry" timeRange="10:00 - 11:00" cardColor="#fff" textColor="#000" />
+
+        {/* Adding the RewardsCard component for visualization */}
+
+        {/* Adding the RewardsCard2 component for visualization */}
+        <RewardsCard2
+          // imageSource={require('../../assets/icon-placeholder.png')}
+          cardColor="#f2f2f2"
+          textColor="#333"
+          rewardName="Optional Reward Name"
+        />
+          
+          {/* Adding the TextInputBoxExample component for visualization */}
+          <TextInputBoxExample />
+
+          {/* Adding screen MealAI */}
+          <MealPlannerDashboard />
+
       </ScrollView>
     </SafeAreaView>
   );
