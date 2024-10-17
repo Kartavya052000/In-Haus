@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Import your screens
-import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from '../components/screens';
+import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner } from '../components/screens';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -17,11 +17,12 @@ const MealStack = createStackNavigator();
 function MealAIStack() {
   return (
     <MealStack.Navigator initialRouteName="MealMenu">
-      <MealStack.Screen name="MealMenu" component={MealAI} />
+      <MealStack.Screen name="MealMenu" component={MealAI} options={{ headerShown: false }} />
       <MealStack.Screen name="CameraScreen" component={CameraScreen} options={{ headerShown: false }} />
-      <MealStack.Screen name="ResultScreen" component={ResultScreen} />
+      <MealStack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }}/>
       <MealStack.Screen name="FixMealCameraScreen" component={FixMealCameraScreen} options={{ headerShown: false }} />
-      <MealStack.Screen name="FixMealResultScreen" component={FixMealResultScreen} />
+      <MealStack.Screen name="FixMealResultScreen" component={FixMealResultScreen} options={{ headerShown: false }} />
+      <MealStack.Screen name="MealPlanner" component={MealPlanner} options={{ headerShown: false }} />
     </MealStack.Navigator>
   );
 }
@@ -127,16 +128,16 @@ export default function HomePage({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>HomePage</Text>
+      {/* <Text style={styles.title}>HomePage</Text> */}
 
       {/* Render the TabNavigator here */}
       <View style={{ flex: 1, width: '100%' }}>
         <TabNavigator />
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      {/* <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 0,
   },
   title: {
     fontSize: 24,

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'rea
 import { useMutation } from '@apollo/client';
 import { LOGIN_MUTATION } from '../graphql/mutations/authMutations';
 import * as Keychain from 'react-native-keychain';
-import InputField from '../Inputs/InputField';
+import InputField from '../components/Inputs/InputField';
 import { useNavigation } from '@react-navigation/native'; 
 
 // Storing the token securely
