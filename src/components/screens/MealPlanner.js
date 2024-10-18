@@ -6,6 +6,7 @@ import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; 
 import MealCard from '../Cards/MealCards'; // Import MealCard
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Checkbox from '../../components/Selectors/Checkbox/Checkbox'; // Import Checkbox
+import { useNavigation } from '@react-navigation/native';
 
 const optionsFromDatabase = [
     { name: 'My Plan' },
@@ -13,6 +14,7 @@ const optionsFromDatabase = [
   ];
 
 const MealPlanner = () => {
+  const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = React.useState('My Plan');
   
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
@@ -28,7 +30,9 @@ const MealPlanner = () => {
   };
 
   const handleAddMeal = (mealType) => {
-    Alert.alert(`Add meal button pressed for ${mealType}`);
+    navigation.navigate('SearchMeal', {
+      selectedMealType: mealType
+    });
   };
 
   const toggleFilter = () => {
@@ -36,9 +40,8 @@ const MealPlanner = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
+    <View style={styles.container}>
+    <View style={styles.headerContainer}>
         <Typography variant="H4" style={[styles.headerTitle]}>MealAI</Typography>
         <TouchableOpacity style={styles.addMealButton} onPress={() => handleAddMeal('General')}>
           <View style={styles.addMealContent}>
@@ -48,14 +51,17 @@ const MealPlanner = () => {
           </View>
         </TouchableOpacity>
       </View>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
+      {/* Header Section */}
+      
 
       {/* Option Tabs Section */}
       <OptionTabs
         options={optionsFromDatabase}
-        activeColor="#ccc" // Color para la opción seleccionada
-        inactiveColor="#f9f9f9" // Color para las opciones inactivas
-        textColor="#333" // Color del texto
-        onTabChange={handleTabChange} // Maneja el cambio de pestaña
+        activeColor="#ccc" // Color for the selected option
+        inactiveColor="#f9f9f9" // Color for inactive options
+        textColor="#333" // Text color
+        onTabChange={handleTabChange} // Handle tab change
       />
 
       {selectedTab === 'My Plan' && (
@@ -106,10 +112,6 @@ const MealPlanner = () => {
           {/* Shopping List Items */}
           {[
             // Placeholder for items coming from API, replace with actual API data
-            // const apiData = responseFromAPI;
-            // apiData.map(item => (
-            //   { name: item.name, quantity: item.quantity }
-            // ))
             { name: 'Chicken breasts', quantity: '500g' }
           ].map((item, index) => (
             <View key={index} style={styles.shoppingListItem}>
@@ -123,6 +125,7 @@ const MealPlanner = () => {
         </View>
       )}
     </ScrollView>
+    </View>
   );
 };
 
@@ -138,7 +141,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
+    marginTop: 16,
   },
   headerTitle: {
     fontWeight: 'bold',

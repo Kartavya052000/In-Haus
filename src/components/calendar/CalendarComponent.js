@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   title: {
-    fontFamily: 'Boston',
+    fontFamily: 'BostonRegular',
     fontSize: 20,
     fontWeight: '600',
     lineHeight: 24,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#6f6f6f',
-    fontFamily: 'Boston',
+    fontFamily: 'BostonRegular',
     lineHeight: 20,
     textAlign: 'left',
   },
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 16,
-    fontFamily: 'Boston',
+    fontFamily: 'BostonRegular',
     color: '#333',
     marginRight: 4,
   },
