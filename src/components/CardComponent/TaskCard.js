@@ -7,11 +7,13 @@ const TaskContainer = ({
   taskName = "No Task",
   startTime = "",
   endTime = "9:00",
+  id
 }) => {
   const navigation = useNavigation();
 
   const handleTaskPress = () => {
-    navigation.navigate("EditTaskEvent", { taskName, startTime, endTime });
+    console.log(id,"IDDD")
+    navigation.navigate("EditTaskEvent", {id});
   };
 
   return (

@@ -7,7 +7,8 @@ export const CREATE_TASK = gql`
     $endDate: String!,
     $repeat: String!,
     $assignedTo: ID!,
-    $points: Int!,
+    $description:String
+    $points: Int,
     $type: String!
   ) {
     createTask(
@@ -17,6 +18,7 @@ export const CREATE_TASK = gql`
       repeat: $repeat,
       assignedTo: $assignedTo,
       points: $points,
+      description: $description,
       type: $type
     ) {
       id
@@ -39,7 +41,7 @@ export const CREATE_TASK = gql`
 `;
 
 export const GET_GROUP = gql`
-  query GetGroup($groupId: ID!) {
+  query GetGroup($groupId: ID) {
     getGroup(groupId: $groupId) {
       id
       groupName
@@ -107,6 +109,23 @@ export const GET_TASK = gql`
       createdBy {
         id
         username
+      }
+    }
+  }
+`;
+export const GET_USER_TASK = gql`
+  query GetUserTasksInGroup($groupId: ID!,$userId: ID!) {
+    getUserTasksInGroup(groupId: $groupId,userId:$userId) {
+      id
+      username
+      filteredTasks {
+        id
+        taskName
+        startDate
+        endDate
+        assignedTo {
+          id
+        }
       }
     }
   }
