@@ -28,7 +28,7 @@ const MealCard = ({ mealName, portions, onAddPress }) => {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -41,14 +41,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f2f2f2',
     width: '100%',
     height: 72,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   filledContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    margin: 16,
     borderTopWidth: 2,
     borderTopColor: '#999',
+    width: '95%',
+    padding: 12,
   },
   icon: {
     width: 24,
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   mealName: {
-    fontFamily: 'Boston',
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 20,

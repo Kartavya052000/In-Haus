@@ -6,33 +6,80 @@ import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; 
 import MealCard from '../Cards/MealCards'; // Import MealCard
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Checkbox from '../../components/Selectors/Checkbox/Checkbox'; // Import Checkbox
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigating between screens
 
 const optionsFromDatabase = [
     { name: 'My Plan' },
     { name: 'Shopping List' },
   ];
 
-const MealPlanner = () => {
+const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
   const [selectedTab, setSelectedTab] = React.useState('My Plan');
-  
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [meals, setMeals] = React.useState({
     Breakfast: null,
-    Lunch: { mealName: 'Chicken Pesto', portions: 3 },
+    Lunch: { mealName: 'Chicken Pesto', portions: 3, ingredients: [{ name: 'Chicken breasts', quantity: '500g' }] },
     Dinner: null,
     Snacks: null,
   });
+  const [shoppingListItems, setShoppingListItems] = React.useState([]);
+
+  const navigation = useNavigation(); // Initialize navigation
+
+  React.useEffect(() => {
+    // Sync ingredients from meals to shopping list when meals change
+    const updatedShoppingList = [];
+    Object.values(meals).forEach((meal) => {
+      if (meal && meal.ingredients) {
+        meal.ingredients.forEach((ingredient) => {
+          updatedShoppingList.push({ ...ingredient, checked: false });
+        });
+      }
+    });
+    setShoppingListItems(updatedShoppingList);
+  }, [meals]);
 
   const handleTabChange = (optionName) => {
     setSelectedTab(optionName);
   };
 
   const handleAddMeal = (mealType) => {
-    Alert.alert(`Add meal button pressed for ${mealType}`);
+    navigation.navigate('MealAiFormat', { mealType, selectedDate });
+  };
+
+  const handleMealClick = (mealType) => {
+    if (meals[mealType]) {
+      navigation.navigate('MealAIResult', { meal: meals[mealType], selectedDate });
+    } else {
+      handleAddMeal(mealType);
+    }
   };
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleCheckboxToggle = (index) => {
+    const updatedItems = [...shoppingListItems];
+    updatedItems[index].checked = !updatedItems[index].checked;
+    setShoppingListItems(updatedItems);
+
+    // Send update to API (placeholder function, replace with actual API call)
+    const updatedItem = updatedItems[index];
+    fetch('https://api.example.com/update-shopping-list', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: updatedItem.name,
+        quantity: updatedItem.quantity,
+        checked: updatedItem.checked,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => console.log('Shopping list updated', data))
+      .catch(error => console.error('Error updating shopping list', error));
   };
 
   return (
@@ -66,6 +113,7 @@ const MealPlanner = () => {
               markedDates={{}} // Placeholder for marked dates
               activities={[]} // Placeholder for activities
               themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
+              selectedDate={selectedDate} // Pass selectedDate to CalendarComponent
             />
           </View>
 
@@ -73,21 +121,12 @@ const MealPlanner = () => {
           {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
             <View key={index} style={styles.mealSection}>
               <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
-              {meals[meal] ? (
-                <MealCard
-                  mealName={meals[meal].mealName}
-                  portions={meals[meal].portions}
-                  onAddPress={() => handleAddMeal(meal)}
-                  style={styles.mealCard}
-                />
-              ) : (
-                <MealCard
-                  mealName={null}
-                  portions={null}
-                  onAddPress={() => handleAddMeal(meal)}
-                  style={styles.mealCard}
-                />
-              )}
+              <MealCard
+                mealName={meals[meal]?.mealName || null}
+                portions={meals[meal]?.portions || null}
+                onAddPress={() => handleMealClick(meal)}
+                style={styles.mealCard}
+              />
             </View>
           ))}
         </>
@@ -104,20 +143,13 @@ const MealPlanner = () => {
             </TouchableOpacity>
           </View>
           {/* Shopping List Items */}
-          {[
-            // Placeholder for items coming from API, replace with actual API data
-            // const apiData = responseFromAPI;
-            // apiData.map(item => (
-            //   { name: item.name, quantity: item.quantity }
-            // ))
-            { name: 'Chicken breasts', quantity: '500g' }
-          ].map((item, index) => (
+          {shoppingListItems.map((item, index) => (
             <View key={index} style={styles.shoppingListItem}>
               <View>
-                <Typography variant="SH4" style={styles.itemName}>{item.name}</Typography>
-                <Typography variant="Body" style={styles.itemQuantity}>{item.quantity}</Typography>
+                <Typography variant="SH4" style={[styles.itemName, item.checked && styles.checkedText]}>{item.name}</Typography>
+                <Typography variant="Body" style={[styles.itemQuantity, item.checked && styles.checkedText]}>{item.quantity}</Typography>
               </View>
-              <Checkbox />
+              <Checkbox checked={item.checked} onPress={() => handleCheckboxToggle(index)} />
             </View>
           ))}
         </View>
@@ -220,6 +252,10 @@ const styles = StyleSheet.create({
   itemQuantity: {
     color: '#999',
   },
+  checkedText: {
+    textDecorationLine: 'line-through',
+  },
+
 });
 
 export default MealPlanner;
