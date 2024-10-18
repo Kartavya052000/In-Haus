@@ -16,15 +16,15 @@ const storeToken = async (token) => {
   }
 };
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('Kartavya@gmail.com');
+  const [password, setPassword] = useState('password123');
   const navigation = useNavigation();
   const [logIn] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       console.log('Login successful:', data.login.token);
       storeToken(data.login.token); // Store the token securely
       navigation.replace('CalenderPage'); // Navigate to HomePage upon success
-      Alert.alert('Login Successful', 'You have successfully logged in!');
+      // Alert.alert('Login Successful', 'You have successfully logged in!');
     },
     onError: (error) => {
       console.error('Login error:', error);

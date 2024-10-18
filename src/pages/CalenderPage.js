@@ -1,69 +1,151 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, StyleSheet,TouchableOpacity } from "react-native";
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/CardComponent/TaskCard";
-import CreateTaskEvent from "./CreateTaskEvent";
 import { useNavigation } from '@react-navigation/native';
+import { useLazyQuery } from "@apollo/client"; // Use useLazyQuery to control when query is triggered
+import { GET_GROUP, GET_USER_TASK } from '../graphql/mutations/taskMutations';
+import * as SecureStore from 'expo-secure-store';  // Import SecureStore
 
 
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const [token, setToken] = useState(null); // Add state for token
   const navigation = useNavigation();
+const [members,setMembers] = useState([]);
+const [tasks,setTasks] = useState([]);
+const [groupId,setGroupId] = useState('')
+  // Define lazy query for GET_GROUP
+  const [fetchGroup, { loading, error, data }] = useLazyQuery(GET_GROUP, {
+    onCompleted: (data) => {
+      const transformedMembers = data.getGroup.members.map((member) => ({
+        name: member.username,
+        id:member.id
+      }));
+      setTasks(data.getGroup.filteredTasks)
+      setMembers(transformedMembers); 
+      setGroupId(data.getGroup.id)  
+      console.log(data.getGroup.id,"GROUPPP")
+      // console.log(members);
+       
+     },
+    onError: (error) => {
+      console.error('Error fetching group:', error.message);
+    },
+  });
+  // function to get user task individual
+  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError, data: userTaskData }] = useLazyQuery(GET_USER_TASK, {
+  onCompleted: (data) => {
+    console.log(data, "IMAAA");
+    setTasks(data.getUserTasksInGroup.filteredTasks);
+  },
+  onError: (error) => {
+    console.error('Error fetching user tasks:', error.message);
+    // Optionally: set an error state here for UI feedback
+  },
+});
+// Function to retrieve the stored token
+const getToken = async () => {
+  try {
+    const token = await SecureStore.getItemAsync('authToken');
+    if (token) {
+      setToken(token);
+fetchGroupData(token)
+      return token;
+    }
+    console.log('No token found');
+    return null;
+  } catch (error) {
+    console.error('Error retrieving token:', error);
+    Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+    return null;
+  }
+};
+  // Fetch token and then trigger query
+  const fetchGroupData = async (token) => {
+    if (token) {
+      fetchGroup({
+        context: {
+          headers: {
+            Authorization: `${token}`, // Use token in headers
+          },
+        },
+        variables: {
+          groupID: "test", // Replace with actual groupID if necessary
+        },
+      });
+    }
+  };
+// fetch user data tasks
+const fetchUserData = async (token,userId) => {
+  console.log(token, "III", groupId); // Ensure groupId is defined in scope
+  if (token) {
+    fetchUserTask({
+      context: {
+        headers: {
+          Authorization: `${token}`, // Use token in headers
+        },
+      },
+      variables: {
+        groupId: groupId, // Make sure groupId is initialized and valid
+        userId
+      },
+    });
+  }
+};
+  useEffect(() => {
+    getToken(); // Fetch group data on component mount
+  }, []);
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error fetching data: {error.message}</Text>;
 
   const handleTabChange = (tabName) => {
-    setActiveTab(tabName);
-    console.log("Active Tab:", tabName);
+    setActiveTab(tabName.name);
+    console.log(tabName.name,"+++++")
+    if(tabName.name=='All'){
+      fetchGroupData(token)
+    }else{
+      fetchUserData(token,tabName.id)
+    }
   };
 
   const handleClick = () => {
     navigation.navigate('CreateTaskEvent');
-    console.log("Tab Clicked:");
   };
 
-  // Example Data
-  const users = [
-    { name: "Molly" },
-    { name: "Fred" },
-    { name: "George" },
-    { name: "Ron" },
-  ];
+  // const users = [
+  //   { name: "Molly" },
+  //   { name: "Fred" },
+  //   { name: "George" },
+  //   { name: "Ron" },
+  // ];
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.title}>Calendar</Text>
-        <TouchableOpacity style={styles.creteButton} onPress={handleClick}>
+        <TouchableOpacity style={styles.createButton} onPress={handleClick}>
           <Text style={styles.saveText}>Create</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tabs Navigation */}
       <TabsNavigation
-        users={users}
+        users={members}
         activeColor="black"
         inactiveColor="gray"
         onTabChange={handleTabChange}
       />
 
-      {/* Calendar Content */}
       <ScrollView style={styles.scrollView}>
-        <View>
-          <Text style={styles.sectionTitle}>Morning (05:00 - 11:59 AM)</Text>
-          {/* <TaskCard/> */}
-          <TaskCard taskName="Morning Meeting" startTime="7:00" endTime="9:00" />
-        </View>
+      {tasks?.map((data) => (
+  <View key={data.id}> 
+    {/* <Text style={styles.sectionTitle}>Morning (05:00 - 11:59 AM)</Text> */}
+    <TaskCard taskName={data.taskName} startTime={data.startDate} endTime={data.endDate} id={data.id}/>
+  </View>
+))}
 
-        <View>
-          <Text style={styles.sectionTitle}>Afternoon (12:00 - 6:59 PM)</Text>
-          <TaskCard />
-        </View>
-
-        <View>
-          <Text style={styles.sectionTitle}>Night (7:00 - 11:59 PM)</Text>
-          <TaskCard />
-        </View>
+        
       </ScrollView>
     </View>
   );
@@ -78,11 +160,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
   scrollView: {
     padding: 16,
   },
@@ -91,33 +168,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 20,
   },
-  taskContainer: {
-    backgroundColor: "#f0f0f0",
+  createButton: {
+    backgroundColor: '#007BFF',
     padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-    paddingVertical: 30,
-    position: "relative", 
-    overflow: "hidden",
+    borderRadius: 5,
   },
-  horizontalBar: {
-    height: 2,
-    backgroundColor: "black",
-    width: "100%",
-    position: "absolute",
-    top: 0, 
-  },
-  taskTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  taskTime: {
-    fontSize: 14,
-    color: "#888",
-  },
-  taskText: {
-    fontSize: 16,
-    textAlign: "center",
+  saveText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

@@ -1,20 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useMutation, useQuery } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useRoute } from '@react-navigation/native'; // Import useRoute
 import { GET_TASK, EDIT_TASK } from '../../graphql/mutations/taskMutations';
-import InputField from '../Inputs/InputField'; 
-import Dropdown from '../Dropdown/Dropdown'; 
+import InputField from '../Inputs/InputField';
+import Dropdown from '../Dropdown/Dropdown';
 import DateTimeComponent from '../DateTime/DateTimeComponent';
-import * as SecureStore from 'expo-secure-store'; 
+import * as SecureStore from 'expo-secure-store';
 
 const EditTask = () => {
-  // Hardcoded ID
-  const taskId = '6706f1f4c6f40e8246a2d6e7';
+  const route = useRoute(); // Get the route object
+  const { id } = route.params; // Destructure taskId from route.params
+  
 
-  const { loading, error, data } = useQuery(GET_TASK, {
-    variables: { taskId },
+  // Fetch task details
+  const [getTask, { loading, error, data }] = useLazyQuery(GET_TASK, {
+    variables: { taskId: id },
+    // Optionally, you can add `fetchPolicy`, `onCompleted`, etc.
   });
 
+  const fetchTaskData = async (token) => {
+    console.log(token,"++++",id)
+    if (token) {
+      getTask({
+        context: {
+          headers: {
+            Authorization: `${token}`, // Use token in headers
+          },
+        },
+        variables: {
+          taskID: id, // Replace with actual groupID if necessary
+        },
+      });
+    }
+  };
   const [editTask] = useMutation(EDIT_TASK);
 
   const [title, setTitle] = useState('');
@@ -24,15 +43,15 @@ const EditTask = () => {
   const [category, setCategory] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
   const [points, setPoints] = useState(100);
-
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
     const getToken = async () => {
       try {
-        const token = await SecureStore.getItemAsync('authToken'); 
+        const token = await SecureStore.getItemAsync('authToken');
         if (token) {
           setAuthToken(token);
+          fetchTaskData(token);
           console.log('Token retrieved:', token);
         } else {
           console.error('No auth token found');
@@ -45,16 +64,15 @@ const EditTask = () => {
     getToken();
   }, []);
 
-  // Populate form fields with fetched data
   useEffect(() => {
     if (data && data.getTask) {
       const task = data.getTask;
       setTitle(task.taskName);
       setStartDateTime(new Date(task.startDate));
       setEndDateTime(new Date(task.endDate));
-      setRepeat(task.repeat); 
+      setRepeat(task.repeat);
       setCategory(task.type);
-      setAssignedTo(task.assignedTo.id); 
+      setAssignedTo(task.assignedTo.id);
       setPoints(task.points);
 
       console.log('Fetched Task:', task);
@@ -72,26 +90,24 @@ const EditTask = () => {
         points,
         type: category,
       };
-    
+
       const response = await editTask({
         variables: {
-          taskId, 
-          updatedTaskDetails 
+          taskId:id,
+          updatedTaskDetails
         },
-
         context: {
           headers: {
             Authorization: authToken ? `${authToken}` : '',
           },
         },
       });
-    
+Alert.alert("Updated Successfully")
       console.log('Task updated:', response.data);
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
-  
 
   if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
   if (error) return <Text>Error loading task details: {error.message}</Text>;
@@ -101,7 +117,7 @@ const EditTask = () => {
       {/* Task Name */}
       <InputField
         label="Task name"
-        placeholder={title || "Task Name"} 
+        placeholder={title || "Task Name"}
         value={title}
         onChangeText={setTitle}
         style={styles.inputField}

@@ -35,11 +35,12 @@ const CreateTaskEvent = () => {
         />
 
         {/* Display Content Based on Selected Tab */}
-        {activeTab === "Task" ? (
+        {/* {activeTab === "Task" ? (
           <CreateTask />
         ) : (
           <CreateEvent />
-        )}
+        )} */}
+        <CreateTask activeTab={activeTab} />
       </ScrollView>
     </View>
   );

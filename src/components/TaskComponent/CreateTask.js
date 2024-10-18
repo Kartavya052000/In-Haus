@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useMutation, useQuery } from "@apollo/client";
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import InputField from "../Inputs/InputField";
 import Dropdown from "../Dropdown/Dropdown";
 import DateTimeComponent from "../DateTime/DateTimeComponent";
@@ -8,7 +8,7 @@ import { CREATE_TASK } from "../../graphql/mutations/taskMutations";
 import { GET_GROUP } from "../../graphql/mutations/taskMutations";
 import * as SecureStore from 'expo-secure-store'; 
 
-const CreateTask = () => {
+const CreateTask = (activetab) => {
   const [title, setTitle] = useState("");
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
@@ -16,16 +16,22 @@ const CreateTask = () => {
   const [assignedTo, setAssignedTo] = useState(null);
   const [points, setPoints] = useState(100);
   const [repeat, setRepeat] = useState("Never");
+  const [members,setMembers] = useState([]);
+  const [description, setDescription] = useState(''); 
 
   const [authToken, setAuthToken] = useState(null);
 
   // Fetch auth token
   useEffect(() => {
+    // Alert.alert(activetab)
+    console.log(activetab,"ACCC");
+    
     const getToken = async () => {
       try {
         const token = await SecureStore.getItemAsync('authToken'); 
         if (token) {
           setAuthToken(token);
+          fetchGroupData(token)
           console.log('Token retrieved:', token);
         } else {
           console.error('No auth token found');
@@ -38,15 +44,36 @@ const CreateTask = () => {
     getToken();
   }, []);
 
-  const [createTask, { loading, error, data }] = useMutation(CREATE_TASK);
+  const [createTask, { loading: taskLoading, error: taskError, data: taskData }] = useMutation(CREATE_TASK);
 
-  const groupId = "670622bdd001f960932e8c20";
 
   // Fetch group data 
-  const { loading: groupLoading, error: groupError, data: groupData } = useQuery(GET_GROUP, {
-    variables: { groupId },
+  const [fetchGroup, { loading, error, data }] = useLazyQuery(GET_GROUP, {
+    onCompleted: (data) => {
+  
+      console.log(data.getGroup.members);
+      
+      // setTasks(data.getGroup.filteredTasks)
+      setMembers(data.getGroup.members);   
+      // console.log(members);
+       
+     },
+    onError: (error) => {
+      console.error('Error fetching group:', error.message);
+    },
   });
-
+  const fetchGroupData = async (token) => {
+      fetchGroup({
+        context: {
+          headers: {
+            Authorization: `${authToken}`, // Use token in headers
+          },
+        },
+        variables: {
+          groupID: "test", // Replace with actual groupID if necessary
+        },
+      });
+  };
   const handleDateTimeChange = (startDateTime, endDateTime, repeatValue) => {
     setStartDateTime(startDateTime);
     setEndDateTime(endDateTime);
@@ -60,47 +87,44 @@ const CreateTask = () => {
       const endDateTimeISO = endDateTime.toISOString();
 
       // Log values 
-      console.log("Start DateTime:", startDateTimeISO);
-      console.log("End DateTime:", endDateTimeISO);
-      console.log("Repeat:", repeat);
-      console.log("Title:", title);
-      console.log("Points:", points);
-      console.log("Assigned To User ID:", assignedTo);
-
-      // Execute mutation 
-      const response = await createTask({
-        variables: {
+      let variables={}
+      if(activetab.activeTab=="Task"){
+        variables= {
           taskName: title,
           startDate: startDateTimeISO,
           endDate: endDateTimeISO,
           repeat: repeat,
           assignedTo: assignedTo, 
           points: points,
-          type: "task",
-        },
+          type:'task'
+        }
+      }else{
+        variables= {
+          taskName: title,
+          startDate: startDateTimeISO,
+          endDate: endDateTimeISO,
+          repeat: repeat,
+          assignedTo: assignedTo, 
+          description:description,
+          type:'event'
+        }
+      }
+      
+ 
+      const response = await createTask({
+     variables,
         context: {
           headers: {
             Authorization: authToken ? `${authToken}` : '',
           },
         },
       });
-
+Alert.alert(activetab.activeTab +" Saved Successfully")
       console.log("Task saved:", response.data);
     } catch (error) {
       console.error("Error saving task:", error);
     }
   };
-
-  if (groupLoading) {
-    return <Text>Loading group data...</Text>;
-  }
-
-  if (groupError) {
-    return <Text>Error loading group data: {groupError.message}</Text>;
-  }
-
-  // Extract members from the group data
-  const members = groupData?.getGroup?.members || [];
 
   return (
     <ScrollView style={styles.container}>
@@ -130,29 +154,45 @@ const CreateTask = () => {
 
       {/* Assign To */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Assign to</Text>
-        <Dropdown
-          options={members}
-          selectedValue={assignedTo}
-          onValueChange={(value) => {
-            setAssignedTo(value);
-          }}
-          labelExtractor={(item) => item.username}
-          valueExtractor={(item) => item.id}
-        />
-      </View>
+  <Text style={styles.label}>Assign to</Text>
+  <Dropdown
+    options={members}
+    selectedValue={assignedTo}
+    onValueChange={(value) => {
+      console.log('Selected user ID:', value); // Debugging log
+      setAssignedTo(value);
+    }}
+    labelExtractor={(item) => item.username}
+    valueExtractor={(item) => item.id}
+  />
+</View>
 
-      {/* Points */}
-      <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Amount of Points</Text>
-        <Dropdown
-          options={[100, 200, 300]}
-          selectedValue={points}
-          onValueChange={(value) => {
-            setPoints(value);
-          }}
+{/* Points */}
+{activetab.activeTab === "Task" && (
+  <View style={styles.fieldContainer}>
+    <Text style={styles.label}>Amount of Points</Text>
+    <Dropdown
+      options={[100, 200, 300]}
+      selectedValue={points}
+      onValueChange={(value) => {
+        setPoints(value);
+      }}
+    />
+  </View>
+)}
+{activetab.activeTab === "Event" && (
+
+<View style={styles.fieldContainer}>
+        <Text style={styles.label}>Description</Text>
+        <InputField
+          placeholder="Event description"
+          value={description}
+          onChangeText={setDescription}
+          style={[styles.inputField, styles.textArea]} 
         />
       </View>
+)}
+
 
       {/* Discard and Save Buttons */}
       <View style={styles.buttonContainer}>
