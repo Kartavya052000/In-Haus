@@ -6,7 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Import your screens
-import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner } from '../components/screens';
+import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails } from '../components/screens';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -23,6 +23,9 @@ function MealAIStack() {
       <MealStack.Screen name="FixMealCameraScreen" component={FixMealCameraScreen} options={{ headerShown: false }} />
       <MealStack.Screen name="FixMealResultScreen" component={FixMealResultScreen} options={{ headerShown: false }} />
       <MealStack.Screen name="MealPlanner" component={MealPlanner} options={{ headerShown: false }} />
+      <MealStack.Screen name="SearchMeal" component={SearchMeal} options={{ headerShown: false }} />
+      <MealStack.Screen name="SearchResults" component={SearchResults} options={{ headerShown: false }} />
+      <MealStack.Screen name="MealDetails" component={MealDetails} options={{ headerShown: false }} />
     </MealStack.Navigator>
   );
 }

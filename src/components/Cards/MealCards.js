@@ -59,20 +59,21 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   mealName: {
+    fontFamily: 'BostonRegular',
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 20,
     textAlign: 'left',
   },
   portions: {
-    fontFamily: 'Boston',
+    fontFamily: 'BostonRegular',
     fontSize: 12,
     fontWeight: '400',
     lineHeight: 16,
     textAlign: 'left',
   },
   addText: {
-    fontFamily: 'Boston',
+    fontFamily: 'BostonRegular',
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 20,

@@ -147,6 +147,7 @@ export default function App() {
       await Font.loadAsync({
         Aleo: require('./assets/Fonts/Aleo-VariableFont_wght.ttf'),
         BostonRegular: require('./assets/Fonts/BostonRegular.otf'),
+        BostonSemiBold: require('./assets/Fonts/BostonSemiBold.otf'),
       });
       setFontsLoaded(true);
     } catch (error) {

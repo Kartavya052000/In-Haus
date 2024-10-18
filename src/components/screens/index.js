@@ -8,6 +8,8 @@ import ResultScreen from './ResultScreen';
 import FixMealCameraScreen from './FixMealCameraScreen';
 import FixMealResultScreen from './FixMealResultScreen';
 import MealPlanner from './MealPlanner';
+import SearchMeal from './SearchMeal';
+import SearchResults from './SearchResults';
+import MealDetails from './MealDetails';
 
-
-export { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner };
+export { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails };

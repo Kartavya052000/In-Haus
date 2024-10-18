@@ -6,7 +6,8 @@ import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; 
 import MealCard from '../Cards/MealCards'; // Import MealCard
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Checkbox from '../../components/Selectors/Checkbox/Checkbox'; // Import Checkbox
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigating between screens
+import { useNavigation } from '@react-navigation/native';
+
 
 const optionsFromDatabase = [
     { name: 'My Plan' },
@@ -14,6 +15,7 @@ const optionsFromDatabase = [
   ];
 
 const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
+  const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = React.useState('My Plan');
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [meals, setMeals] = React.useState({
@@ -24,7 +26,7 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
   });
   const [shoppingListItems, setShoppingListItems] = React.useState([]);
 
-  const navigation = useNavigation(); // Initialize navigation
+ // const navigation = useNavigation(); // Initialize navigation
 
   React.useEffect(() => {
     // Sync ingredients from meals to shopping list when meals change
@@ -44,6 +46,9 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
   };
 
   const handleAddMeal = (mealType) => {
+    navigation.navigate('SearchMeal', {
+      selectedMealType: mealType
+    });
     navigation.navigate('MealAiFormat', { mealType, selectedDate });
   };
 
@@ -83,9 +88,8 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
+    <View style={styles.container}>
+    <View style={styles.headerContainer}>
         <Typography variant="H4" style={[styles.headerTitle]}>MealAI</Typography>
         <TouchableOpacity style={styles.addMealButton} onPress={() => handleAddMeal('General')}>
           <View style={styles.addMealContent}>
@@ -95,14 +99,17 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
           </View>
         </TouchableOpacity>
       </View>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
+      {/* Header Section */}
+      
 
       {/* Option Tabs Section */}
       <OptionTabs
         options={optionsFromDatabase}
-        activeColor="#ccc" // Color para la opción seleccionada
-        inactiveColor="#f9f9f9" // Color para las opciones inactivas
-        textColor="#333" // Color del texto
-        onTabChange={handleTabChange} // Maneja el cambio de pestaña
+        activeColor="#ccc" // Color for the selected option
+        inactiveColor="#f9f9f9" // Color for inactive options
+        textColor="#333" // Text color
+        onTabChange={handleTabChange} // Handle tab change
       />
 
       {selectedTab === 'My Plan' && (
@@ -155,6 +162,7 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
         </View>
       )}
     </ScrollView>
+    </View>
   );
 };
 
@@ -170,7 +178,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
+    marginTop: 16,
   },
   headerTitle: {
     fontWeight: 'bold',
