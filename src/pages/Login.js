@@ -2,43 +2,39 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useMutation } from '@apollo/client';
 import { LOGIN_MUTATION } from '../graphql/mutations/authMutations';
-import * as Keychain from 'react-native-keychain';
-import InputField from '../Inputs/InputField';
-import { useNavigation } from '@react-navigation/native'; 
-
-// Storing the token securely
+// import * as Keychain from 'react-native-keychain';
+import { useNavigation } from '@react-navigation/native';
+import InputField from '../components/Inputs/InputField';
+import * as SecureStore from 'expo-secure-store';
 const storeToken = async (token) => {
   try {
-    await Keychain.setGenericPassword('authToken', token); // Use a descriptive key name
+    await SecureStore.setItemAsync('authToken', token);
+    console.log('Token stored successfully');
   } catch (error) {
     console.error('Error storing token:', error);
-
+    Alert.alert('Storage Error', 'Failed to store authentication token securely.');
   }
 };
-
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation(); 
-
+  const [email, setEmail] = useState('Kartavya@gmail.com');
+  const [password, setPassword] = useState('password123');
+  const navigation = useNavigation();
   const [logIn] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       console.log('Login successful:', data.login.token);
       storeToken(data.login.token); // Store the token securely
-      navigation.replace('HomePage'); // Navigate to HomePage upon success
-      Alert.alert('Login Successful', 'You have successfully logged in!');
+      navigation.replace('CalenderPage'); // Navigate to HomePage upon success
+      // Alert.alert('Login Successful', 'You have successfully logged in!');
     },
     onError: (error) => {
       console.error('Login error:', error);
       Alert.alert('Login Error', error.message || 'An error occurred during login.');
     },
   });
-
   const handleLogin = () => {
     // Check if fields are filled before logging in
     if (email && password) {
       logIn({
-
         variables: {
           email,
           password,
@@ -46,11 +42,8 @@ const Login = () => {
       });
     } else {
       Alert.alert('Validation Error', 'Both email and password are required.');
-
-
     }
   };
-
   return (
     <ScrollView style={styles.container}>
       <InputField
@@ -69,7 +62,6 @@ const Login = () => {
         secureTextEntry
         style={styles.inputField}
       />
-
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.saveButton} onPress={handleLogin}>
           <Text style={styles.saveText}>Login</Text>
@@ -79,10 +71,8 @@ const Login = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
-
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -108,7 +98,6 @@ const styles = StyleSheet.create({
     color: 'blue',
     textAlign: 'center',
     marginTop: 20,
-
   },
 });
 
