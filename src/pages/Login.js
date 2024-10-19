@@ -26,7 +26,7 @@ const Login = () => {
     onCompleted: (data) => {
       console.log('Login successful:', data.login.token);
       storeToken(data.login.token); // Store the token securely
-      navigation.replace('CalenderPage'); // Navigate to HomePage upon success
+      navigation.replace('HomePage'); // Navigate to HomePage upon success
       // Alert.alert('Login Successful', 'You have successfully logged in!');
     },
     onError: (error) => {

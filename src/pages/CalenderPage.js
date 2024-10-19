@@ -1,113 +1,112 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform } from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/CardComponent/TaskCard";
 import { useNavigation } from '@react-navigation/native';
-import { useLazyQuery } from "@apollo/client"; // Use useLazyQuery to control when query is triggered
+import { useLazyQuery } from "@apollo/client"; 
 import { GET_GROUP, GET_USER_TASK } from '../graphql/mutations/taskMutations';
-import * as SecureStore from 'expo-secure-store';  // Import SecureStore
-
-
+import * as SecureStore from 'expo-secure-store';  
+import Typography from "../components/typography/Typography";
+import { AddIcon } from "../components/icons/icons";
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
-  const [token, setToken] = useState(null); // Add state for token
+  const [token, setToken] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [groupId, setGroupId] = useState('');
+  
   const navigation = useNavigation();
-const [members,setMembers] = useState([]);
-const [tasks,setTasks] = useState([]);
-const [groupId,setGroupId] = useState('')
-  // Define lazy query for GET_GROUP
-  const [fetchGroup, { loading, error, data }] = useLazyQuery(GET_GROUP, {
+  
+  const [fetchGroup, { loading, error }] = useLazyQuery(GET_GROUP, {
     onCompleted: (data) => {
       const transformedMembers = data.getGroup.members.map((member) => ({
         name: member.username,
-        id:member.id
+        id: member.id
       }));
-      setTasks(data.getGroup.filteredTasks)
+      setTasks(data.getGroup.filteredTasks);
       setMembers(transformedMembers); 
-      setGroupId(data.getGroup.id)  
-      console.log(data.getGroup.id,"GROUPPP")
-      // console.log(members);
-       
-     },
+      setGroupId(data.getGroup.id);  
+    },
     onError: (error) => {
       console.error('Error fetching group:', error.message);
     },
   });
-  // function to get user task individual
-  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError, data: userTaskData }] = useLazyQuery(GET_USER_TASK, {
-  onCompleted: (data) => {
-    console.log(data, "IMAAA");
-    setTasks(data.getUserTasksInGroup.filteredTasks);
-  },
-  onError: (error) => {
-    console.error('Error fetching user tasks:', error.message);
-    // Optionally: set an error state here for UI feedback
-  },
-});
-// Function to retrieve the stored token
-const getToken = async () => {
-  try {
-    const token = await SecureStore.getItemAsync('authToken');
-    if (token) {
-      setToken(token);
-fetchGroupData(token)
-      return token;
+
+  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] = useLazyQuery(GET_USER_TASK, {
+    onCompleted: (data) => {
+      setTasks(data.getUserTasksInGroup.filteredTasks);
+    },
+    onError: (error) => {
+      console.error('Error fetching user tasks:', error.message);
+    },
+  });
+
+  const getToken = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('authToken');
+      if (token) {
+        setToken(token);
+        fetchGroupData(token);
+      } else {
+        console.log('No token found');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
     }
-    console.log('No token found');
-    return null;
-  } catch (error) {
-    console.error('Error retrieving token:', error);
-    Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
-    return null;
-  }
-};
-  // Fetch token and then trigger query
+  };
+
   const fetchGroupData = async (token) => {
     if (token) {
       fetchGroup({
         context: {
           headers: {
-            Authorization: `${token}`, // Use token in headers
+            Authorization: `${token}`,
           },
         },
         variables: {
-          groupID: "test", // Replace with actual groupID if necessary
+          groupID: "test", 
         },
       });
     }
   };
-// fetch user data tasks
-const fetchUserData = async (token,userId) => {
-  console.log(token, "III", groupId); // Ensure groupId is defined in scope
-  if (token) {
-    fetchUserTask({
-      context: {
-        headers: {
-          Authorization: `${token}`, // Use token in headers
+
+  const fetchUserData = async (token, userId) => {
+    if (token && groupId) {
+      fetchUserTask({
+        context: {
+          headers: {
+            Authorization: `${token}`,
+          },
         },
-      },
-      variables: {
-        groupId: groupId, // Make sure groupId is initialized and valid
-        userId
-      },
-    });
-  }
-};
+        variables: {
+          groupId: groupId,
+          userId,
+        },
+      });
+    }
+  };
+
   useEffect(() => {
-    getToken(); // Fetch group data on component mount
+    getToken(); 
   }, []);
 
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text>Error fetching data: {error.message}</Text>;
+  // useEffect(() => {
+  //   if (token && groupId) {
+  //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
+  //   }
+  // }, [groupId]);
+
+  if (loading || userTaskLoading) return <Text>Loading...</Text>;
+  if (error || userTaskError) return <Text>Error fetching data: {error?.message}</Text>;
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName.name);
-    console.log(tabName.name,"+++++")
-    if(tabName.name=='All'){
-      fetchGroupData(token)
-    }else{
-      fetchUserData(token,tabName.id)
+    if (tabName.name === 'All') {
+      fetchGroupData(token);
+    } else {
+      fetchUserData(token, tabName.id);
     }
   };
 
@@ -115,21 +114,16 @@ const fetchUserData = async (token,userId) => {
     navigation.navigate('CreateTaskEvent');
   };
 
-
-
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.createButton} onPress={handleClick}>
-          <Text style={styles.saveText}>Create</Text>
+      <View style={styles.headerContainer}>
+        <Typography variant="H4" style={styles.headerTitle}>Calendar</Typography>
+        <TouchableOpacity style={styles.addMealButton} onPress={handleClick}>
+          <View style={styles.addMealContent}>
+            <Typography variant="Body" style={styles.addMealText}>Create</Typography>
+            <AddIcon style={styles.addIcon} />
+          </View>
         </TouchableOpacity>
-        {/* <View style={styles.calendarSection}>
-            <CalendarComponent
-              markedDates={{}} // Placeholder for marked dates
-              activities={[]} // Placeholder for activities
-              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
-            />
-          </View> */}
       </View>
 
       <TabsNavigation
@@ -140,48 +134,52 @@ const fetchUserData = async (token,userId) => {
       />
 
       <ScrollView style={styles.scrollView}>
-      {tasks?.map((data) => (
-  <View key={data.id}> 
-    {/* <Text style={styles.sectionTitle}>Morning (05:00 - 11:59 AM)</Text> */}
-    <TaskCard taskName={data.taskName} startTime={data.startDate} endTime={data.endDate} id={data.id}/>
-  </View>
-))}
-
-        
+        {tasks?.map((data) => (
+          <View key={data.id}> 
+            <TaskCard taskName={data.taskName} startTime={data.startDate} endTime={data.endDate} id={data.id} />
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    backgroundColor: '#fff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
   },
-  header: {
-    marginBottom: 20,
-    alignItems: "center",
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  headerTitle: {
+    fontWeight: 'bold',
+  },
+  addMealButton: {
+    position: 'absolute',
+    right: 0,
+    padding: 8,
+  },
+  addMealContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -2,
+  },
+  addMealText: {
+    lineHeight: 17,
+  },
+  addIcon: {
+    marginBottom: -2,
   },
   scrollView: {
     padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginVertical: 20,
-  },
-  createButton: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
-  },
-  saveText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
 });
 
