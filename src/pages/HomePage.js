@@ -7,6 +7,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Import your screens
 import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails } from '../components/screens';
+import CalendarPage from './CalenderPage';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -62,7 +63,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen 
         name="Calendar" 
-        component={Calendar} 
+        component={CalendarPage} 
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: "center", justifyContent: "center" }}>

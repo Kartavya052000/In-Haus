@@ -3,9 +3,12 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'rea
 import { useMutation } from '@apollo/client';
 import { LOGIN_MUTATION } from '../graphql/mutations/authMutations';
 // import * as Keychain from 'react-native-keychain';
-import { useNavigation } from '@react-navigation/native';
 import InputField from '../components/Inputs/InputField';
 import * as SecureStore from 'expo-secure-store';
+import { useNavigation } from '@react-navigation/native'; 
+import GoogleLogIN from '../components/google/GoogleLogIN';
+
+// Storing the token securely
 const storeToken = async (token) => {
   try {
     await SecureStore.setItemAsync('authToken', token);
@@ -70,6 +73,7 @@ const Login = () => {
           <Text style={styles.createAccountText}>Create New Account</Text>
         </TouchableOpacity>
       </View>
+      <GoogleLogIN />
     </ScrollView>
   );
 };
