@@ -8,6 +8,7 @@ const TabsNavigation = ({ users = [], activeColor = '#000', inactiveColor = '#88
   // "All" y "Me" son fijos, añadimos el resto de los usuarios dinámicamente
   // const initialTabs = [{ name: 'All' }, { name: 'Me' }, ...users];
   const initialTabs = [{ name: 'All' }, ...users];
+
   
   // Estado para la pestaña seleccionada
   const [activeTab, setActiveTab] = useState('All');
@@ -17,6 +18,7 @@ const TabsNavigation = ({ users = [], activeColor = '#000', inactiveColor = '#88
     setActiveTab(tab.name);
     if (onTabChange) {
       onTabChange(tab); // Se ejecuta si hay un evento asociado al cambio de pestaña
+
     }
   };
 
