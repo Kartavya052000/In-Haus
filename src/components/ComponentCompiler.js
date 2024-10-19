@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import ParentComponent from './calendar/ParentComponent';
@@ -11,6 +12,11 @@ import DropdownExample from './Dropdown/DropdownExample';
 import RadioButtonExample from './Selectors/RadioButtons/RadioButtonExample';
 import Checkbox from './Selectors/Checkbox/Checkbox';
 import SliderExample from './sliders/SliderExample';
+import CreateTask from './TaskComponent/CreateTask';
+import EditTask from './TaskComponent/EditTask';
+import CreateEvent from './EventComponent/CreateEvent';
+import EditEvent from './EventComponent/EditEvent';
+// import CalendarPage from './pages/CalenderPage';
 import CalendarGraph from './calendar/calendarGraph';
 import TaskCard from './calendar/TaskCard'; // Import the TaskCard component
 import RewardsCard2 from './Cards/RewardsCard2'; // Import the RewardsCard2 component
@@ -127,5 +133,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
 });
+
 
 export default ComponentCompiler;

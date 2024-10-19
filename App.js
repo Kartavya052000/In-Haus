@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,6 +14,9 @@ import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, F
 import SignUp from './src/pages/SignUp';
 import Login from './src/pages/Login';
 import HomePage from './src/pages/HomePage';
+import CalendarPage from './src/pages/CalenderPage';
+import CreateTaskEvent from './src/pages/CreateTaskEvent';
+import EditTaskEvent from './src/pages/EditTaskEvent'
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -163,16 +167,27 @@ export default function App() {
     return <CustomLoadingScreen />;
   }
 
+  const client = new ApolloClient({
+    uri: 'http://10.128.226.175:4000/graphql',
+    // uri: 'http://98.81.234.60/api/graphql',
+    cache: new InMemoryCache(),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // connectToDevTools: true,
+  });
+
   return (
     <ApolloProvider client={client}>
       <NavigationContainer>
-        {/* <MainStackNavigator /> */}
-        <Stack.Navigator initialRouteName="HomePage" >
-       <Stack.Screen name="Login" component={Login} />
-       <Stack.Screen name="SignUp" component={SignUp} />
-       <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
-       {/* <Stack.Screen name="MainTabs" component={TabNavigator} /> Tabs wrapped inside stack */}
-     </Stack.Navigator>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="SignUp" component={SignUp} />
+         <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
+          <Stack.Screen name="CalenderPage" component={CalendarPage} />
+          <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
+          <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+        </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>
   );
