@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; // Para el ícono de flecha hacia abajo
 import Typography from '../typography/Typography'; // Asegúrate de que el path a Typography sea el correcto
+import { OpenIcon, CloseIcon } from '../icons/icons'; // Importamos los íconos desde el archivo icons.js
 
 const Dropdown = ({ label, options, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +39,7 @@ const Dropdown = ({ label, options, disabled }) => {
           value={selectedOption || ''}
           editable={false} // Deshabilitar la edición directa
         />
-        <AntDesign name={isOpen ? 'up' : 'down'} size={16} color={disabled ? '#ccc' : '#000'} />
+        <View style={styles.icon}>{isOpen ? <CloseIcon /> : <OpenIcon />}</View>
       </TouchableOpacity>
 
       {isOpen && !disabled && (
@@ -103,6 +103,9 @@ const styles = StyleSheet.create({
   },
   disabledInput: {
     color: '#ccc',
+  },
+  icon: {
+    marginLeft: 10,
   },
 });
 
