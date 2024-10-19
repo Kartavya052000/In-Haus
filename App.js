@@ -27,27 +27,14 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
-  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// MealAI Stack Navigator
-// function MealAIStack() {
-//   return (
-//     <MealStack.Navigator initialRouteName="MealMenu">
-//       <MealStack.Screen name="MealMenu" component={MealAI} />
-//       <MealStack.Screen name="CameraScreen" component={CameraScreen} options={{ headerShown: false }} />
-//       <MealStack.Screen name="ResultScreen" component={ResultScreen} />
-//       <MealStack.Screen name="FixMealCameraScreen" component={FixMealCameraScreen} options={{ headerShown: false }} />
-//       <MealStack.Screen name="FixMealResultScreen" component={FixMealResultScreen} />
-//     </MealStack.Navigator>
-//   );
-// }
-
-// Screen options for the tab bar
 const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
@@ -61,86 +48,6 @@ const screenOptions = {
     backgroundColor: '#ffffff',
   },
 };
-
-// Main Tab Navigator
-// const TabNavigator = () => {
-//   return (
-//     <Tab.Navigator screenOptions={screenOptions}>
-//       <Tab.Screen 
-//         name="Haus" 
-//         component={Haus} 
-//         options={{
-//           tabBarIcon: ({ focused }) => (
-//             <View style={{ alignItems: "center", justifyContent: "center" }}>
-//               <FontAwesome6 name="house" size={24} color="black" />
-//               <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Haus</Text>
-//             </View>
-//           ),
-//         }} 
-//       />
-//       <Tab.Screen 
-//         name="Calendar" 
-//         component={Calendar} 
-//         options={{
-//           tabBarIcon: ({ focused }) => (
-//             <View style={{ alignItems: "center", justifyContent: "center" }}>
-//               <FontAwesome6 name="calendar-day" size={24} color="black" />
-//               <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Calendar</Text>
-//             </View>
-//           ),
-//         }} 
-//       />
-//       <Tab.Screen 
-//         name="MealAI" 
-//         component={MealAIStack} 
-//         options={{
-//           tabBarIcon: ({ focused }) => (
-//             <View style={{ alignItems: "center", justifyContent: "center" }}>
-//               <FontAwesome6 name="bowl-food" size={24} color="black" />
-//               <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>MealAI</Text>
-//             </View>
-//           ),
-//         }} 
-//       />
-//       <Tab.Screen 
-//         name="Rewards" 
-//         component={Rewards} 
-//         options={{
-//           tabBarIcon: ({ focused }) => (
-//             <View style={{ alignItems: "center", justifyContent: "center" }}>
-//               <FontAwesome6 name="ranking-star" size={24} color="black" />
-//               <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Rewards</Text>
-//             </View>
-//           ),
-//         }} 
-//       />
-//       <Tab.Screen 
-//         name="Profile" 
-//         component={Profile} 
-//         options={{
-//           tabBarIcon: ({ focused }) => (
-//             <View style={{ alignItems: "center", justifyContent: "center" }}>
-//               <FontAwesome6 name="user-large" size={24} color="black" />
-//               <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Profile</Text>
-//             </View>
-//           ),
-//         }} 
-//       />
-//     </Tab.Navigator>
-//   );
-// };
-
-// Main Stack Navigator
-// const MainStackNavigator = () => {
-//   return (
-//     <Stack.Navigator initialRouteName="Login">
-//       <Stack.Screen name="Login" component={Login} />
-//       <Stack.Screen name="SignUp" component={SignUp} />
-//       <Stack.Screen name="HomePage" component={HomePage} />
-//       <Stack.Screen name="MainTabs" component={TabNavigator} /> {/* Tabs wrapped inside stack */}
-//     </Stack.Navigator>
-//   );
-// };
 
 // App component
 export default function App() {
@@ -180,7 +87,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="HomePage">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
          <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />

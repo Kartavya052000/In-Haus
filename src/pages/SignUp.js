@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useMutation } from '@apollo/client';
 import { SIGN_UP_MUTATION } from '../graphql/mutations/authMutations';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import * as Keychain from 'react-native-keychain';
 import InputField from '../components/Inputs/InputField';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import * as SecureStore from 'expo-secure-store';
 // Storing the token
 const storeToken = async (token) => {

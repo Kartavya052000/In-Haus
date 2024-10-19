@@ -115,12 +115,7 @@ const fetchUserData = async (token,userId) => {
     navigation.navigate('CreateTaskEvent');
   };
 
-  // const users = [
-  //   { name: "Molly" },
-  //   { name: "Fred" },
-  //   { name: "George" },
-  //   { name: "Ron" },
-  // ];
+
 
   return (
     <View style={styles.container}>
@@ -128,6 +123,13 @@ const fetchUserData = async (token,userId) => {
         <TouchableOpacity style={styles.createButton} onPress={handleClick}>
           <Text style={styles.saveText}>Create</Text>
         </TouchableOpacity>
+        {/* <View style={styles.calendarSection}>
+            <CalendarComponent
+              markedDates={{}} // Placeholder for marked dates
+              activities={[]} // Placeholder for activities
+              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
+            />
+          </View> */}
       </View>
 
       <TabsNavigation
@@ -152,6 +154,10 @@ const fetchUserData = async (token,userId) => {
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
