@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; // Para el ícono de flecha hacia abajo
 import Typography from '../typography/Typography'; // Asegúrate de que el path a Typography sea el correcto
@@ -7,11 +8,13 @@ const Dropdown = ({ label, options, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
+
   const toggleDropdown = () => {
     if (!disabled) {
       setIsOpen(!isOpen);
     }
   };
+
 
   const handleOptionPress = (option) => {
     setSelectedOption(option);
@@ -23,11 +26,13 @@ const Dropdown = ({ label, options, disabled }) => {
       <Typography variant="SH4" color="#000">
         {label}
       </Typography>
+
       <TouchableOpacity
         style={[styles.dropdown, disabled && styles.disabledDropdown]}
         onPress={toggleDropdown}
         disabled={disabled}
       >
+
         <TextInput
           style={[styles.input, disabled && styles.disabledInput]}
           placeholder="Text"
@@ -39,6 +44,7 @@ const Dropdown = ({ label, options, disabled }) => {
 
       {isOpen && !disabled && (
         <View style={styles.dropdownOptions}>
+
           {options.map((option, index) => (
             <TouchableOpacity
               key={index}
@@ -71,6 +77,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 6,
   },
+
   input: {
     flex: 1,
     fontSize: 16,

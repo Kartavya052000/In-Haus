@@ -3,18 +3,21 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Slider from '@react-native-community/slider';
 import Typography from '../typography/Typography'; // Asegúrate de que Typography esté correctamente implementado
 
+
 const { width } = Dimensions.get('window');
 
 const SliderGroup = ({ slidersData }) => {
   const [values, setValues] = useState(
     slidersData.map((slider) => slider.initialValue || 0)
   );
+
   const [showValue, setShowValue] = useState(false); // Estado para mostrar u ocultar el valor del slider
 
   const handleSliderChange = (value, index) => {
     const newValues = [...values];
     newValues[index] = value;
     setValues(newValues);
+
     setShowValue(true); // Mostrar el valor al mover el slider
   };
 
@@ -24,6 +27,7 @@ const SliderGroup = ({ slidersData }) => {
 
   return (
     <View style={styles.container}>
+
       {slidersData.map((slider, index) => {
         let valuePosition = ((values[index] - slider.minValue) / (slider.maxValue - slider.minValue)) * (width - 110); // Calcula la posición del valor basado en el ancho completo
 
