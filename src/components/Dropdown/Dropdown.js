@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import Typography from '../typography/Typography';
 
-const Dropdown = ({ label, options, selectedValue, onValueChange, disabled, labelExtractor, valueExtractor }) => {
+import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { AntDesign } from '@expo/vector-icons'; // Para el ícono de flecha hacia abajo
+import Typography from '../typography/Typography'; // Asegúrate de que el path a Typography sea el correcto
+
+const Dropdown = ({ label, options, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
 
   const toggleDropdown = () => {
     if (!disabled) {
@@ -12,54 +15,47 @@ const Dropdown = ({ label, options, selectedValue, onValueChange, disabled, labe
     }
   };
 
-  const handleOptionPress = (value) => {
-    onValueChange(value); 
+
+  const handleOptionPress = (option) => {
+    setSelectedOption(option);
     setIsOpen(false);
   };
 
-  const selectedOption = options.find((opt) => {
-    const optValue = valueExtractor ? valueExtractor(opt) : opt;
-    return optValue === selectedValue;
-  });
-
   return (
     <View style={[styles.container, disabled && styles.disabledContainer]}>
-      {label && (
-        <Typography variant="SH4" color="#000">
-          {label}
-        </Typography>
-      )}
+      <Typography variant="SH4" color="#000">
+        {label}
+      </Typography>
+
       <TouchableOpacity
         style={[styles.dropdown, disabled && styles.disabledDropdown]}
         onPress={toggleDropdown}
         disabled={disabled}
       >
-        <Text style={[styles.inputText, disabled && styles.disabledInput]}>
-          {selectedOption
-            ? labelExtractor
-              ? labelExtractor(selectedOption)
-              : selectedValue.toString()
-            : 'Select an option'}
-        </Text>
+
+        <TextInput
+          style={[styles.input, disabled && styles.disabledInput]}
+          placeholder="Text"
+          value={selectedOption || ''}
+          editable={false} // Deshabilitar la edición directa
+        />
         <AntDesign name={isOpen ? 'up' : 'down'} size={16} color={disabled ? '#ccc' : '#000'} />
       </TouchableOpacity>
 
       {isOpen && !disabled && (
         <View style={styles.dropdownOptions}>
-          {options.map((option, index) => {
-            const optionValue = valueExtractor ? valueExtractor(option) : option;
-            return (
-              <TouchableOpacity
-                key={index}
-                style={styles.option}
-                onPress={() => handleOptionPress(optionValue)}
-              >
-                <Typography variant="BodyS" color="#333">
-                  {labelExtractor ? labelExtractor(option) : optionValue.toString()}
-                </Typography>
-              </TouchableOpacity>
-            );
-          })}
+
+          {options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.option}
+              onPress={() => handleOptionPress(option)}
+            >
+              <Typography variant="BodyS" color="#333">
+                {option}
+              </Typography>
+            </TouchableOpacity>
+          ))}
         </View>
       )}
     </View>
@@ -81,7 +77,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 6,
   },
-  inputText: {
+
+  input: {
     flex: 1,
     fontSize: 16,
     color: '#333',
