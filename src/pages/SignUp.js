@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useMutation } from '@apollo/client';
 import { SIGN_UP_MUTATION } from '../graphql/mutations/authMutations';
-// import * as Keychain from 'react-native-keychain';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import InputField from '../components/Inputs/InputField';
 import * as SecureStore from 'expo-secure-store';

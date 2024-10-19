@@ -1,93 +1,95 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import axios from 'axios'; // Para hacer la solicitud a la API
+
+// Importar el componente Typography para usar los estilos
+import Typography from '../typography/Typography';
 
 export default function Profile() {
-  const [facing, setFacing] = useState('back');
-  const [permission, requestPermission] = useCameraPermissions();
+  const [joke, setJoke] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [currentEmoji, setCurrentEmoji] = useState('😆');
 
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
-  }
+  // Set de emojis chistosos
+  const emojis = ['😆', '😂', '🤣', '😜', '😛', '🤪', '🙃', '😹', '🥳'];
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
-  }
+  // Función para obtener un chiste de la API
+  const fetchJoke = async () => {
+    try {
+      const response = await axios.get('https://icanhazdadjoke.com/', {
+        headers: { Accept: 'application/json' },
+      });
+      setJoke(response.data.joke); // Guardar el chiste en el estado
+    } catch (error) {
+      setJoke('Failed to load a joke. Please try again.'); // Si falla la API
+    } finally {
+      if (loading) setLoading(false); // Solo cambiar el estado de carga al inicio
+    }
+  };
 
-  function toggleCameraFacing() {
-    setFacing("front");
-  }
+  useEffect(() => {
+    // Obtener el chiste inicialmente
+    fetchJoke();
 
+    // Crear un intervalo para actualizar el chiste cada 15 segundos
+    const jokeIntervalId = setInterval(() => {
+      fetchJoke();
+    }, 15000);
+
+    // Crear un intervalo para rotar los emojis cada 2 segundos
+    const emojiIntervalId = setInterval(() => {
+      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+      setCurrentEmoji(randomEmoji);
+    }, 2000);
+
+    // Limpiar los intervalos al desmontar el componente
+    return () => {
+      clearInterval(jokeIntervalId);
+      clearInterval(emojiIntervalId);
+    };
+  }, []);
+
+  // Mostrar la pantalla de perfil con el chiste y el indicador de carga
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.flip_camera_btn} onPress={() => {console.log('take picture')}}>
-          <FontAwesome6 name="camera" size={44} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.take_photo_btn} onPress={() => {facing=='back'?setFacing('front'):setFacing('back')}}>
-          <FontAwesome6 name="camera-rotate" size={44} color="white" />
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      <Text style={styles.profileText}>Profile</Text>
+      {joke && (
+        <Typography style={styles.joke}>
+          {joke}
+        </Typography>
+      )}
+      {/* Mostrar un emoji chistoso que se rota aleatoriamente */}
+      <Text style={styles.emoji}>{currentEmoji}</Text>
     </View>
   );
 }
 
+// Estilos para la pantalla de perfil y el texto del chiste
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'center',
-  },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-  },
-  camera: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  flip_camera_btn: {
-    flex: 1,
-    borderRadius: 50,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginBottom:30,
-    alignSelf: 'flex-end',
     alignItems: 'center',
-    marginRight: 20,
+    padding: 20,
   },
-  take_photo_btn: {
-    flex: 1,
-    borderRadius: 50,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginBottom:30,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  text: {
+  profileText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#000',
+  },
+  joke: {
+    fontFamily: 'Boston',
+    fontSize: 24,
+    fontWeight: '800',
+    lineHeight: 20,
+    textAlign: 'center',
+    color: '#333',
+    marginTop: 20,
+  },
+  emoji: {
+    marginTop: 20,
+    fontSize: 40,
+    textAlign: 'center',
   },
 });

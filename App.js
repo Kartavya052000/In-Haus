@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import CustomLoadingScreen from './src/Loading/CustomLoadingScreen'; // Custom loading screen
+import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 // Import your screens
@@ -151,6 +151,7 @@ export default function App() {
       await Font.loadAsync({
         Aleo: require('./assets/Fonts/Aleo-VariableFont_wght.ttf'),
         BostonRegular: require('./assets/Fonts/BostonRegular.otf'),
+        BostonSemiBold: require('./assets/Fonts/BostonSemiBold.otf'),
       });
       setFontsLoaded(true);
     } catch (error) {
@@ -182,12 +183,11 @@ export default function App() {
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="HomePage" component={HomePage} />
+         <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
           <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
         </Stack.Navigator>
-
       </NavigationContainer>
     </ApolloProvider>
   );
