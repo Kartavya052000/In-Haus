@@ -4,7 +4,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Dropdown from "../Dropdown/Dropdown";
 import { AntDesign } from "@expo/vector-icons";
 
-const DateTimeComponent = ({ onDateTimeChange }) => {
+const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -16,6 +16,12 @@ const DateTimeComponent = ({ onDateTimeChange }) => {
   const [repeat, setRepeat] = useState("Never");
   const [isExpanded, setIsExpanded] = useState(false);
 
+  useEffect(() => {
+    console.log(repeat2,"repeat2")
+    if (repeat2) {
+        setRepeat(repeat2);
+    }
+}, [repeat2])
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
