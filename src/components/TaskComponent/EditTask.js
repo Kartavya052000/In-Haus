@@ -39,7 +39,7 @@ const EditTask = () => {
   const [title, setTitle] = useState('');
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [repeat, setRepeat] = useState('');
+  const [repeat, setRepeat] = useState('Never');
   const [category, setCategory] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
   const [points, setPoints] = useState(100);
@@ -74,8 +74,8 @@ const EditTask = () => {
       setCategory(task.type);
       setAssignedTo(task.assignedTo.id);
       setPoints(task.points);
-
-      console.log('Fetched Task:', task);
+console.log(repeat)
+      // console.log('Fetched Task:', task);
     }
   }, [data]);
 
@@ -103,6 +103,8 @@ const EditTask = () => {
         },
       });
 Alert.alert("Updated Successfully")
+navigation.navigate('CalenderPage');
+
       console.log('Task updated:', response.data);
     } catch (error) {
       console.error('Error updating task:', error);
@@ -132,18 +134,19 @@ Alert.alert("Updated Successfully")
             setStartDateTime(start);
             setEndDateTime(end);
           }}
+          repeat2={repeat}
         />
       </View>
 
       {/* Repeat */}
-      <View style={styles.fieldContainer}>
+      {/* <View style={styles.fieldContainer}>
         <Text style={styles.label}>Repeat</Text>
         <Dropdown
           options={['Never', 'Daily', 'Weekly', 'Monthly']}
           selectedValue={repeat}
           onValueChange={setRepeat}
         />
-      </View>
+      </View> */}
 
       {/* Category */}
       <View style={styles.fieldContainer}>

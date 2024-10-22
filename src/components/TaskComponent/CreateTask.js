@@ -3,10 +3,12 @@ import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Alert } from "rea
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import InputField from "../Inputs/InputField";
 import Dropdown from "../Dropdown/Dropdown";
+import DropDownTask from "../Dropdown/DropDownTask";
 import DateTimeComponent from "../DateTime/DateTimeComponent";
 import { CREATE_TASK } from "../../graphql/mutations/taskMutations";
 import { GET_GROUP } from "../../graphql/mutations/taskMutations";
 import * as SecureStore from 'expo-secure-store'; 
+import { useNavigation } from "@react-navigation/native";
 
 const CreateTask = (activetab) => {
   const [title, setTitle] = useState("");
@@ -18,6 +20,7 @@ const CreateTask = (activetab) => {
   const [repeat, setRepeat] = useState("Never");
   const [members,setMembers] = useState([]);
   const [description, setDescription] = useState(''); 
+  const navigation = useNavigation();
 
   const [authToken, setAuthToken] = useState(null);
 
@@ -120,6 +123,8 @@ const CreateTask = (activetab) => {
         },
       });
 Alert.alert(activetab.activeTab +" Saved Successfully")
+navigation.navigate('CalenderPage');
+
       console.log("Task saved:", response.data);
     } catch (error) {
       console.error("Error saving task:", error);
@@ -155,7 +160,7 @@ Alert.alert(activetab.activeTab +" Saved Successfully")
       {/* Assign To */}
       <View style={styles.fieldContainer}>
   <Text style={styles.label}>Assign to</Text>
-  <Dropdown
+  <DropDownTask
     options={members}
     selectedValue={assignedTo}
     onValueChange={(value) => {
