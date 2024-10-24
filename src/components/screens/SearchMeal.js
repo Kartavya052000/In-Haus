@@ -44,7 +44,7 @@ const SearchMeal = ({ navigation }) => {
   };
 
   const handleCameraPress = () => {
-    navigation.navigate('CameraScreen');
+    navigation.navigate('SearchCameraScreen');
   };
 
   const handleSearch = () => {
