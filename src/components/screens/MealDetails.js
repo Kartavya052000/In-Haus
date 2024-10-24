@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Dropdown from '../../components/Dropdown/Dropdown'; // Import Dropdown
 import { useMutation } from '@apollo/client';
 import { CREATE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations'
+import { ShoppingListContext  } from '../../components/contexts/ShoppingListContext';
 
 const { height } = Dimensions.get('window');
 
@@ -17,6 +18,30 @@ const MealDetails = ({ route, navigation }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
   const [mealType, setMealType] = useState('Lunch'); // Default to Lunch
   const [createMeal] = useMutation(CREATE_MEAL); // Mutation to create meal in the database
+  const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
+
+
+  const addToShoppingList = () => {
+    const newMeal = {
+      mealId: recipeDetails.id,
+      mealTitle: recipeDetails.title,
+      ingredients: recipeDetails.extendedIngredients.map(ingredient => ({
+        name: ingredient.name,
+        amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
+        unit: ingredient.unit || '',
+        checked: false, // Initially unchecked
+      }))
+    };
+  
+    setShoppingListItems([...shoppingListItems, newMeal]);
+  
+    // Navigate to MealPlanner with the Shopping List tab active
+    navigation.navigate('MealPlanner', {
+      selectedTab: 'Shopping List', // This ensures the shopping list tab will be active
+    });
+  };
+  
+  
 
   // Fetch recipe details from Spoonacular API
   const fetchRecipeDetails = async () => {
@@ -49,11 +74,11 @@ const MealDetails = ({ route, navigation }) => {
   };
 
   const addToPlan = async () => {
-    const ingredients = recipeDetails.extendedIngredients.map(ingredient => ({
-      name: ingredient.name,
-      amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
-      unit: ingredient.unit
-    }));
+    // const ingredients = recipeDetails.extendedIngredients.map(ingredient => ({
+    //   name: ingredient.name,
+    //   amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
+    //   unit: ingredient.unit
+    // }));
 
     try {
       // Store meal in the database
@@ -160,6 +185,10 @@ const MealDetails = ({ route, navigation }) => {
             <Text style={styles.ingredientName}>{ingredient.name}</Text>
           </View>
         ))}
+
+<TouchableOpacity style={styles.addButton} onPress={addToShoppingList}  activeOpacity={0.7} >
+  <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
+</TouchableOpacity>
 
         {/* Instructions */}
         <Text style={styles.ingredientsTitle}>Instructions</Text>
@@ -291,6 +320,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
+  addButton: {
+    backgroundColor: '#2e86de', // Blue background color
+    paddingVertical: 16,        // Vertical padding for a larger button
+    paddingHorizontal: 24,      // Horizontal padding
+    borderRadius: 10,           // Rounded corners
+    alignItems: 'center',       // Center the text
+    marginVertical: 16,         // Margin between button and other elements
+    shadowColor: '#000',        // Button shadow
+    shadowOffset: { width: 0, height: 4 }, // Shadow direction
+    shadowOpacity: 0.3,         // Shadow opacity
+    shadowRadius: 5,            // Shadow blur radius
+    elevation: 5,               // Elevation for Android shadow
+  },
+
+  addButtonText: {
+    color: '#fff',              // White text
+    fontWeight: 'bold',         // Bold text
+    fontSize: 16,               // Larger text size
+  }
 });
 
 export default MealDetails;

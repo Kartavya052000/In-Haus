@@ -124,6 +124,7 @@ const SearchResults = ({ navigation }) => {
                 healthScore: item.healthScore,
                 servings: item.servings,
                 ingredients: item.missedIngredients, // assuming ingredients come under 'missedIngredients'
+
               })
             }
           >

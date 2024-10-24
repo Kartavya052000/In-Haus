@@ -44,7 +44,7 @@ const SearchMeal = ({ navigation }) => {
   };
 
   const handleCameraPress = () => {
-    navigation.navigate('CameraScreen');
+    navigation.navigate('SearchCameraScreen');
   };
 
   const handleSearch = () => {
@@ -54,7 +54,8 @@ const SearchMeal = ({ navigation }) => {
       navigation.navigate('SearchResults', {
         selectedMealStyles: selectedMealStyles,   // Selected meal styles array
         selectedCuisines: selectedCuisines,       // Selected cuisines array
-        searchInput: searchInputText              // Pass the search input text
+        searchInput: searchInputText,             // Pass the search input text
+
       });
     }, 1000); // Simulate loading time
   };
