@@ -1,45 +1,61 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar, ScrollView } from 'react-native';
 import Typography from '../../components/typography/Typography'; // Import Typography
-import { AddIcon, OpenIcon, CloseIcon } from '../../components/icons/icons'; // Import AddIcon and dropdown icons
+import { AddIcon, OpenIcon, CloseIcon, DeleteIcon } from '../../components/icons/icons'; // Import AddIcon and dropdown icons
 import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; // Import OptionTabs
 import MealCard from '../Cards/MealCards'; // Import MealCard
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Checkbox from '../../components/Selectors/Checkbox/Checkbox'; // Import Checkbox
 import { useNavigation } from '@react-navigation/native';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_USER_MEALS_BY_DATE, GET_USER_MEAL_DATES } from '../../graphql/mutations/mealMutations/mealQueries';
+import { DELETE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations';
 
 
 const optionsFromDatabase = [
-    { name: 'My Plan' },
-    { name: 'Shopping List' },
-  ];
+  { name: 'My Plan' },
+  { name: 'Shopping List' },
+];
 
-const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
+const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = React.useState('My Plan');
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const [meals, setMeals] = React.useState({
     Breakfast: null,
-    Lunch: { mealName: 'Chicken Pesto', portions: 3, ingredients: [{ name: 'Chicken breasts', quantity: '500g' }] },
+    Lunch: null,
     Dinner: null,
     Snacks: null,
   });
   const [shoppingListItems, setShoppingListItems] = React.useState([]);
+  const [mealDates, setMealDates] = React.useState({});
 
- // const navigation = useNavigation(); // Initialize navigation
+  // GraphQL queries and mutations
+  const { data: mealsData, refetch: refetchMeals } = useQuery(GET_USER_MEALS_BY_DATE, {
+    variables: { userId, date: selectedDate },
+  });
+  const { data: mealDatesData } = useQuery(GET_USER_MEAL_DATES, { variables: { userId } });
+  const [deleteMeal] = useMutation(DELETE_MEAL);
 
   React.useEffect(() => {
-    // Sync ingredients from meals to shopping list when meals change
-    const updatedShoppingList = [];
-    Object.values(meals).forEach((meal) => {
-      if (meal && meal.ingredients) {
-        meal.ingredients.forEach((ingredient) => {
-          updatedShoppingList.push({ ...ingredient, checked: false });
-        });
-      }
-    });
-    setShoppingListItems(updatedShoppingList);
-  }, [meals]);
+    if (mealsData) {
+      const fetchedMeals = mealsData.getUserMealsByDate.reduce((acc, meal) => {
+        acc[meal.mealType] = meal;
+        return acc;
+      }, { Breakfast: null, Lunch: null, Dinner: null, Snacks: null });
+      setMeals(fetchedMeals);
+    }
+  }, [mealsData]);
+
+  React.useEffect(() => {
+    if (mealDatesData) {
+      const datesWithMeals = mealDatesData.getUserMealDates.dates.reduce((acc, date) => {
+        acc[date] = { marked: true, dotColor: 'blue' }; // Mark dates with meals
+        return acc;
+      }, {});
+      setMealDates(datesWithMeals);
+    }
+  }, [mealDatesData]);
 
   const handleTabChange = (optionName) => {
     setSelectedTab(optionName);
@@ -47,9 +63,9 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
 
   const handleAddMeal = (mealType) => {
     navigation.navigate('SearchMeal', {
-      selectedMealType: mealType
+      selectedMealType: mealType,
+      selectedDate,
     });
-    navigation.navigate('MealAiFormat', { mealType, selectedDate });
   };
 
   const handleMealClick = (mealType) => {
@@ -58,6 +74,30 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
     } else {
       handleAddMeal(mealType);
     }
+  };
+
+  const handleDeleteMeal = (mealId, mealType) => {
+    Alert.alert('Delete Meal', 'Are you sure you want to delete this meal?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          deleteMeal({ variables: { mealId } })
+            .then(() => {
+              setMeals((prevMeals) => ({
+                ...prevMeals,
+                [mealType]: null,
+              }));
+              refetchMeals(); // Refresh after deletion
+            })
+            .catch(error => console.error('Error deleting meal', error));
+        },
+      },
+    ]);
   };
 
   const toggleFilter = () => {
@@ -69,7 +109,7 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
     updatedItems[index].checked = !updatedItems[index].checked;
     setShoppingListItems(updatedItems);
 
-    // Send update to API (placeholder function, replace with actual API call)
+    // Placeholder for API call
     const updatedItem = updatedItems[index];
     fetch('https://api.example.com/update-shopping-list', {
       method: 'POST',
@@ -89,7 +129,7 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
 
   return (
     <View style={styles.container}>
-    <View style={styles.headerContainer}>
+      <View style={styles.headerContainer}>
         <Typography variant="H4" style={[styles.headerTitle]}>MealAI</Typography>
         <TouchableOpacity style={styles.addMealButton} onPress={() => handleAddMeal('General')}>
           <View style={styles.addMealContent}>
@@ -99,69 +139,72 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
           </View>
         </TouchableOpacity>
       </View>
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
-      {/* Header Section */}
-      
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 }}>
+        {/* Option Tabs Section */}
+        <OptionTabs
+          options={optionsFromDatabase}
+          activeColor="#ccc" // Color for the selected option
+          inactiveColor="#f9f9f9" // Color for inactive options
+          textColor="#333" // Text color
+          onTabChange={handleTabChange} // Handle tab change
+        />
 
-      {/* Option Tabs Section */}
-      <OptionTabs
-        options={optionsFromDatabase}
-        activeColor="#ccc" // Color for the selected option
-        inactiveColor="#f9f9f9" // Color for inactive options
-        textColor="#333" // Text color
-        onTabChange={handleTabChange} // Handle tab change
-      />
-
-      {selectedTab === 'My Plan' && (
-        <>
-          {/* Calendar Section */}
-          <View style={styles.calendarSection}>
-            <CalendarComponent
-              markedDates={{}} // Placeholder for marked dates
-              activities={[]} // Placeholder for activities
-              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
-              selectedDate={selectedDate} // Pass selectedDate to CalendarComponent
-            />
-          </View>
-
-          {/* Meal Cards Section */}
-          {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
-            <View key={index} style={styles.mealSection}>
-              <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
-              <MealCard
-                mealName={meals[meal]?.mealName || null}
-                portions={meals[meal]?.portions || null}
-                onAddPress={() => handleMealClick(meal)}
-                style={styles.mealCard}
+        {selectedTab === 'My Plan' && (
+          <>
+            {/* Calendar Section */}
+            <View style={styles.calendarSection}>
+              <CalendarComponent
+                markedDates={mealDates} // Show dates with meals
+                activities={[]} // Placeholder for activities
+                themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
+                selectedDate={selectedDate} // Pass selectedDate to CalendarComponent
               />
             </View>
-          ))}
-        </>
-      )}
 
-      {selectedTab === 'Shopping List' && (
-        <View style={styles.shoppingListSection}>
-          {/* Filter Section */}
-          <View style={styles.filterSection}>
-            <Typography variant="SH3" style={styles.filterTitle}>Filter by</Typography>
-            <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
-              <Typography variant="Body" style={styles.filterText}>All</Typography>
-              {isFilterOpen ? <CloseIcon /> : <OpenIcon />}
-            </TouchableOpacity>
-          </View>
-          {/* Shopping List Items */}
-          {shoppingListItems.map((item, index) => (
-            <View key={index} style={styles.shoppingListItem}>
-              <View>
-                <Typography variant="SH4" style={[styles.itemName, item.checked && styles.checkedText]}>{item.name}</Typography>
-                <Typography variant="Body" style={[styles.itemQuantity, item.checked && styles.checkedText]}>{item.quantity}</Typography>
+            {/* Meal Cards Section */}
+            {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
+              <View key={index} style={styles.mealSection}>
+                <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
+                <MealCard
+                  mealName={meals[meal]?.mealName || null}
+                  portions={meals[meal]?.portions || null}
+                  onAddPress={() => handleMealClick(meal)}
+                  style={styles.mealCard}
+                  onSwipeRight={() => meals[meal] && handleDeleteMeal(meals[meal].id, meal)}
+                  rightSwipeActions={() => (
+                    <View style={styles.deleteAction}>
+                      <DeleteIcon style={styles.deleteIcon} />
+                    </View>
+                  )}
+                />
               </View>
-              <Checkbox checked={item.checked} onPress={() => handleCheckboxToggle(index)} />
+            ))}
+          </>
+        )}
+
+        {selectedTab === 'Shopping List' && (
+          <View style={styles.shoppingListSection}>
+            {/* Filter Section */}
+            <View style={styles.filterSection}>
+              <Typography variant="SH3" style={styles.filterTitle}>Filter by</Typography>
+              <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
+                <Typography variant="Body" style={styles.filterText}>All</Typography>
+                {isFilterOpen ? <CloseIcon /> : <OpenIcon />}
+              </TouchableOpacity>
             </View>
-          ))}
-        </View>
-      )}
-    </ScrollView>
+            {/* Shopping List Items */}
+            {shoppingListItems.map((item, index) => (
+              <View key={index} style={styles.shoppingListItem}>
+                <View>
+                  <Typography variant="SH4" style={[styles.itemName, item.checked && styles.checkedText]}>{item.name}</Typography>
+                  <Typography variant="Body" style={[styles.itemQuantity, item.checked && styles.checkedText]}>{item.quantity}</Typography>
+                </View>
+                <Checkbox checked={item.checked} onPress={() => handleCheckboxToggle(index)} />
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 };
@@ -219,6 +262,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9', // Set default background color for MealCard
     borderRadius: 12, // Add rounded corners
     padding: 0, // Add padding inside the card
+  },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 12,
+    width: 75,
+    height: '100%',
+  },
+  deleteIcon: {
+    color: '#fff',
   },
   addMealContentCenter: {
     flex: 1,

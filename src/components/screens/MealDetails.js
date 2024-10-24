@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
+import Dropdown from '../../components/Dropdown/Dropdown'; // Import Dropdown
+import { useMutation } from '@apollo/client';
+import { CREATE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations'
 
 const { height } = Dimensions.get('window');
 
@@ -10,8 +14,9 @@ const MealDetails = ({ route, navigation }) => {
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentServings, setCurrentServings] = useState(1);
-  const [shoppingList, setShoppingList] = useState([]);
-  const [mealPlan, setMealPlan] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
+  const [mealType, setMealType] = useState('Lunch'); // Default to Lunch
+  const [createMeal] = useMutation(CREATE_MEAL); // Mutation to create meal in the database
 
   // Fetch recipe details from Spoonacular API
   const fetchRecipeDetails = async () => {
@@ -43,37 +48,39 @@ const MealDetails = ({ route, navigation }) => {
     }
   };
 
-  const addToShoppingList = () => {
-    const list = recipeDetails.extendedIngredients.map(ingredient => ({
-      name: ingredient.name,
-      amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
-      unit: ingredient.unit
-    }));
-    setShoppingList(list);
-    console.log("Shopping List:", list);
-  };
-
-  const addToPlan = () => {
+  const addToPlan = async () => {
     const ingredients = recipeDetails.extendedIngredients.map(ingredient => ({
       name: ingredient.name,
       amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
       unit: ingredient.unit
     }));
 
-    const planItem = {
-      id,
-      image,
-      title,
-      time: recipeDetails.readyInMinutes,
-      healthScore: recipeDetails.healthScore,
-      servings: currentServings,
-      ingredients,
-      instructions: recipeDetails.analyzedInstructions.length > 0
-        ? recipeDetails.analyzedInstructions[0].steps.map(step => step.step)
-        : []
-    };
-    setMealPlan([...mealPlan, planItem]);
-    console.log("Meal Plan:", [...mealPlan, planItem]);
+    try {
+      // Store meal in the database
+      await createMeal({
+        variables: {
+          userId: 1, // Assuming the user ID is 1, replace this with actual user data
+          mealName: title,
+          mealType: mealType,
+          date: selectedDate,
+          portions: currentServings,
+          ingredients: ingredients,
+        },
+      });
+
+      // Navigate back to MealPlanner or show a success message
+      navigation.navigate('MealPlanner', {
+        meal: {
+          mealName: title,
+          portions: currentServings,
+          ingredients: ingredients,
+          date: selectedDate,
+          mealType: mealType,
+        },
+      });
+    } catch (error) {
+      console.error('Error adding meal to plan:', error);
+    }
   };
 
   if (loading) {
@@ -110,6 +117,24 @@ const MealDetails = ({ route, navigation }) => {
           <Text style={styles.mealDetailText}>Health Score: {recipeDetails.healthScore}</Text>
         </View>
 
+        {/* Dropdown for Date Selection */}
+        <Text style={styles.dropdownLabel}>Select Date</Text>
+        <CalendarComponent
+          markedDates={{}} // Placeholder for marked dates
+          selectedDate={selectedDate}
+          onDateChange={(date) => setSelectedDate(date)}
+        />
+
+        {/* Dropdown for Meal Type */}
+        <Text style={styles.dropdownLabel}>Select Meal Type</Text>
+        <Dropdown
+          label="Meal Type"
+          options={['Breakfast', 'Lunch', 'Dinner', 'Snacks']}
+          selectedOption={mealType} // Show the selected meal type
+          onOptionSelect={setMealType} // Set the selected meal type
+          disabled={false}
+        />
+
         {/* Servings */}
         <View style={styles.servingsContainer}>
           <Text style={styles.servingsText}>{currentServings} Servings</Text>
@@ -134,11 +159,6 @@ const MealDetails = ({ route, navigation }) => {
             <Text style={styles.ingredientName}>{ingredient.name}</Text>
           </View>
         ))}
-
-        {/* Add to Shopping List Button */}
-        <TouchableOpacity style={styles.addToShoppingListButton} onPress={addToShoppingList}>
-          <Text style={styles.addToShoppingListText}>Add to Shopping List</Text>
-        </TouchableOpacity>
 
         {/* Instructions */}
         <Text style={styles.ingredientsTitle}>Instructions</Text>
@@ -210,6 +230,12 @@ const styles = StyleSheet.create({
   mealDetailText: {
     fontSize: 16,
   },
+  dropdownLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+  },
   servingsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -255,18 +281,6 @@ const styles = StyleSheet.create({
   },
   ingredientName: {
     fontSize: 16,
-  },
-  addToShoppingListButton: {
-    marginVertical: 16,
-    padding: 12,
-    backgroundColor: '#4caf50',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  addToShoppingListText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   instructionText: {
     fontSize: 16,

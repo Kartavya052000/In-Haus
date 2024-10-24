@@ -1,15 +1,15 @@
-//CalendarComponent.js
+// CalendarComponent.js
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Button, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import moment from 'moment'; // Para manejar fechas y obtener el día actual
-import { OpenIcon, CloseIcon } from '../icons/icons'; // Importar íconos para abrir y cerrar el calendario
+import moment from 'moment'; 
+import { OpenIcon, CloseIcon } from '../icons/icons'; 
 
-const CalendarComponent = ({ markedDates, activities, themeColors }) => {
-  const [selectedTask, setSelectedTask] = useState(null); // Estado de la tarea seleccionada
-  const [modalVisible, setModalVisible] = useState(false); // Visibilidad del modal
-  const [selectedRange, setSelectedRange] = useState({}); // Estado para manejar el rango de fechas seleccionadas
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false); // Estado para manejar si el calendario está abierto o cerrado
+const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {} }) => {  // Valores predeterminados
+  const [selectedTask, setSelectedTask] = useState(null); 
+  const [modalVisible, setModalVisible] = useState(false); 
+  const [selectedRange, setSelectedRange] = useState({}); 
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false); 
 
   // Obtener el día actual
   const today = moment().format('YYYY-MM-DD');
@@ -29,7 +29,7 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
   const handleDayRangeSelect = (day) => {
     if (Object.keys(selectedRange).length === 0) {
       setSelectedRange({
-        [day.dateString]: { startingDay: true, color: themeColors.primary, textColor: '#fff' }
+        [day.dateString]: { startingDay: true, color: themeColors.primary || '#000', textColor: '#fff' }
       });
     } else {
       const newRange = {};
@@ -43,12 +43,12 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
 
       while (currentDate <= endDate) {
         const dateString = currentDate.toISOString().split('T')[0];
-        newRange[dateString] = { color: themeColors.primary, textColor: '#fff' };
+        newRange[dateString] = { color: themeColors.primary || '#000', textColor: '#fff' };
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      newRange[start] = { startingDay: true, color: themeColors.primary, textColor: '#fff' };
-      newRange[day.dateString] = { endingDay: true, color: themeColors.primary, textColor: '#fff' };
+      newRange[start] = { startingDay: true, color: themeColors.primary || '#000', textColor: '#fff' };
+      newRange[day.dateString] = { endingDay: true, color: themeColors.primary || '#000', textColor: '#fff' };
 
       setSelectedRange(newRange);
     }
@@ -56,16 +56,17 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
 
   // Función para marcar los días con actividades y personalizar el día actual
   const generateMarkedDates = () => {
-    const marked = { ...markedDates };
+    const marked = { ...markedDates }; // Use default markedDates or an empty object
 
     activities.forEach(activity => {
-      marked[activity.date] = {
-        marked: true,
-        dotColor: activity.date === today ? '#ffffff' : '#333', // Punto blanco si es hoy
-      };
+      if (activity && activity.date) {
+        marked[activity.date] = {
+          marked: true,
+          dotColor: activity.date === today ? '#ffffff' : '#333', 
+        };
+      }
     });
 
-    // Añadimos el día actual con fondo gris si no está ya marcado
     if (!marked[today]) {
       marked[today] = { selected: true, selectedColor: '#D3D3D3' };
     } else {
@@ -73,7 +74,7 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
         ...marked[today],
         selected: true,
         selectedColor: '#D3D3D3',
-        dotColor: '#ffffff', // Punto blanco si el día actual tiene actividad
+        dotColor: '#ffffff', 
       };
     }
 
@@ -102,8 +103,8 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
             selectedDayTextColor: '#ffffff',
             todayTextColor: '#333',
             dayTextColor: '#2d4150',
-            arrowColor: themeColors.arrowColor || 'black', // Color configurable
-            monthTextColor: themeColors.monthTextColor || 'black', // Color configurable
+            arrowColor: themeColors.arrowColor || 'black', // Set default arrowColor
+            monthTextColor: themeColors.monthTextColor || 'black', // Set default monthTextColor
             textMonthFontWeight: 'bold',
             textDayFontWeight: '300',
             textDayHeaderFontWeight: '300',
@@ -111,15 +112,14 @@ const CalendarComponent = ({ markedDates, activities, themeColors }) => {
             textMonthFontSize: 20,
             textDayHeaderFontSize: 14,
           }}
-          markedDates={generateMarkedDates()} // Generar fechas marcadas dinámicamente
-          markingType={'period'} // Esto habilita la selección de un rango
-          firstDay={1} // El primer día de la semana será lunes
-          onDayPress={handleDayPress} // Para manejar la selección de un día específico
-          onDayLongPress={handleDayRangeSelect} // Para manejar la selección de un rango
+          markedDates={generateMarkedDates()} 
+          markingType={'period'} 
+          firstDay={1} 
+          onDayPress={handleDayPress} 
+          onDayLongPress={handleDayRangeSelect} 
         />
       )}
 
-      {/* Modal para mostrar detalles de la tarea */}
       {selectedTask && (
         <Modal
           animationType="slide"
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   calendar: {
-    width: Dimensions.get('window').width - 40, // Ajustar al ancho de la pantalla
+    width: Dimensions.get('window').width - 40, 
     alignSelf: 'center',
   },
   modalContainer: {
