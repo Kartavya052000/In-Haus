@@ -66,7 +66,7 @@ const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
       selectedMealType: mealType,
       selectedDate,
     });
-  };
+    };
 
   const handleMealClick = (mealType) => {
     if (meals[mealType]) {
