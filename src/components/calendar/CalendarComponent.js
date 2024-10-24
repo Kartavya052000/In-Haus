@@ -89,7 +89,7 @@ const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}
           <Text style={styles.subtitle}>{moment().format('dddd, DD MMM')}</Text>
         </View>
         <TouchableOpacity onPress={() => setIsCalendarOpen(!isCalendarOpen)} style={styles.filterButton}>
-          <Text style={styles.filterText}>Filter</Text>
+          <Text style={styles.filterText}>Calendar</Text>
           {isCalendarOpen ? <CloseIcon /> : <OpenIcon />}
         </TouchableOpacity>
       </View>

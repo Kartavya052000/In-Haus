@@ -8,7 +8,7 @@ import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
-
+import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
 // Import your screens
 import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
 import SignUp from './src/pages/SignUp';
@@ -27,8 +27,8 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
-   uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
- // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -86,16 +86,19 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
-      <NavigationContainer>
+      <ShoppingListProvider>
+        <NavigationContainer>
         <Stack.Navigator initialRouteName="HomePage">
           {/* <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} /> */}
-         <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
+
+          <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
           <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
         </Stack.Navigator>
       </NavigationContainer>
+      </ShoppingListProvider>
     </ApolloProvider>
   );
 }

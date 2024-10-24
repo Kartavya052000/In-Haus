@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar, ScrollView } from 'react-native';
+import React,  { useContext }  from 'react';
+import { View, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar, ScrollView, Text } from 'react-native';
 import Typography from '../../components/typography/Typography'; // Import Typography
 import { AddIcon, OpenIcon, CloseIcon, DeleteIcon } from '../../components/icons/icons'; // Import AddIcon and dropdown icons
 import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs'; // Import OptionTabs
@@ -10,25 +10,32 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_USER_MEALS_BY_DATE, GET_USER_MEAL_DATES } from '../../graphql/mutations/mealMutations/mealQueries';
 import { DELETE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations';
-
+import { ShoppingListContext  } from '../../components/contexts/ShoppingListContext';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const optionsFromDatabase = [
   { name: 'My Plan' },
   { name: 'Shopping List' },
 ];
 
-const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
+const MealPlanner = ({ route, selectedDate, userId }) => { // Accept userId as a prop
   const navigation = useNavigation();
-  const [selectedTab, setSelectedTab] = React.useState('My Plan');
-  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const [selectedTab, setSelectedTab] = React.useState(route?.params?.selectedTab || 'Shopping List');
+
+  const [selectedFilter, setSelectedFilter] = React.useState('All'); // Initial filter is "All"
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false); // For opening/closing the filter dropdown
+  
+  
   const [meals, setMeals] = React.useState({
     Breakfast: null,
     Lunch: null,
     Dinner: null,
     Snacks: null,
   });
-  const [shoppingListItems, setShoppingListItems] = React.useState([]);
+
+  const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
   const [mealDates, setMealDates] = React.useState({});
+
 
   // GraphQL queries and mutations
   const { data: mealsData, refetch: refetchMeals } = useQuery(GET_USER_MEALS_BY_DATE, {
@@ -61,10 +68,30 @@ const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
     setSelectedTab(optionName);
   };
 
+  const confirmAction = (action, message) => {
+    Alert.alert('Confirm Action', message, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Yes', onPress: action, style: 'destructive' }
+    ]);
+  };
+
+  const handleRemoveSelectedIngredients = () => {
+    const updatedMeals = shoppingListItems.map(meal => ({
+      ...meal,
+      ingredients: meal.ingredients.filter(ingredient => !ingredient.checked),
+    })).filter(meal => meal.ingredients.length > 0);
+  
+    setShoppingListItems(updatedMeals);
+  };
+
+  const handleClearList = () => {
+    setShoppingListItems([]);
+  };
+
   const handleAddMeal = (mealType) => {
     navigation.navigate('SearchMeal', {
       selectedMealType: mealType,
-      selectedDate,
+    selectedDate: selectedDate,
     });
     };
 
@@ -75,6 +102,13 @@ const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
       handleAddMeal(mealType);
     }
   };
+
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+  };
+  const filteredItems = selectedFilter === 'All'
+  ? shoppingListItems.flatMap(meal => meal.ingredients) // Flatten all ingredients across meals
+  : shoppingListItems; // Show by meal when filtered by "Recipe"
 
   const handleDeleteMeal = (mealId, mealType) => {
     Alert.alert('Delete Meal', 'Are you sure you want to delete this meal?', [
@@ -101,31 +135,40 @@ const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
   };
 
   const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen);
+    setIsFilterOpen(!isFilterOpen); // Toggle the dropdown visibility
   };
 
-  const handleCheckboxToggle = (index) => {
-    const updatedItems = [...shoppingListItems];
-    updatedItems[index].checked = !updatedItems[index].checked;
-    setShoppingListItems(updatedItems);
-
-    // Placeholder for API call
-    const updatedItem = updatedItems[index];
-    fetch('https://api.example.com/update-shopping-list', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: updatedItem.name,
-        quantity: updatedItem.quantity,
-        checked: updatedItem.checked,
-      }),
-    })
-      .then(response => response.json())
-      .then(data => console.log('Shopping list updated', data))
-      .catch(error => console.error('Error updating shopping list', error));
+  const selectFilter = (filter) => {
+    setSelectedFilter(filter); // Update the selected filter ("All" or "Recipe")
+    setIsFilterOpen(false); // Close the dropdown after selection
   };
+
+  const handleCheckboxToggle = (ingredientIndex, mealIndex = null) => {
+    // For 'All' filter, toggle the flattened list
+    if (selectedFilter === 'All') {
+      const updatedIngredients = [...filteredItems]; // Get the flattened list
+      updatedIngredients[ingredientIndex].checked = !updatedIngredients[ingredientIndex].checked; // Toggle the checked state
+      
+      // Update the original shoppingListItems state based on these changes
+      const updatedShoppingList = shoppingListItems.map(meal => ({
+        ...meal,
+        ingredients: meal.ingredients.map(ingredient => 
+          updatedIngredients.find(updatedIngredient => updatedIngredient.name === ingredient.name && updatedIngredient.checked === ingredient.checked) || ingredient
+        ),
+      }));
+    
+      setShoppingListItems(updatedShoppingList);
+  
+    } else {
+      // For 'Recipe' filter, toggle the ingredients within each meal
+      const updatedMeals = [...shoppingListItems]; // Copy shopping list
+      updatedMeals[mealIndex].ingredients[ingredientIndex].checked = !updatedMeals[mealIndex].ingredients[ingredientIndex].checked; // Toggle checkbox
+      setShoppingListItems(updatedMeals); // Update state
+    }
+  };
+  
+  
+  
 
   return (
     <View style={styles.container}>
@@ -184,24 +227,106 @@ const MealPlanner = ({ selectedDate, userId }) => { // Accept userId as a prop
 
         {selectedTab === 'Shopping List' && (
           <View style={styles.shoppingListSection}>
-            {/* Filter Section */}
-            <View style={styles.filterSection}>
-              <Typography variant="SH3" style={styles.filterTitle}>Filter by</Typography>
-              <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
-                <Typography variant="Body" style={styles.filterText}>All</Typography>
-                {isFilterOpen ? <CloseIcon /> : <OpenIcon />}
-              </TouchableOpacity>
-            </View>
+{/* Filter Section */}
+<View style={styles.filterSection}>
+  <Typography variant="SH3" style={styles.filterTitle}>Filter by</Typography>
+  <TouchableOpacity onPress={toggleFilter} style={styles.filterButton}>
+    <Typography variant="Body" style={styles.filterText}>{selectedFilter}</Typography>
+    {isFilterOpen ? <CloseIcon /> : <OpenIcon />}
+  </TouchableOpacity>
+
+  {isFilterOpen && (
+    <View style={styles.filterDropdown}>
+      {/* "All" filter option */}
+      <TouchableOpacity onPress={() => selectFilter('All')} style={styles.filterOption}>
+        <Typography variant="Body" style={styles.filterText}>All</Typography>
+      </TouchableOpacity>
+      
+      {/* "Recipe" filter option */}
+      <TouchableOpacity onPress={() => selectFilter('Recipe')} style={styles.filterOption}>
+        <Typography variant="Body" style={styles.filterText}>Recipe</Typography>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
+
             {/* Shopping List Items */}
-            {shoppingListItems.map((item, index) => (
-              <View key={index} style={styles.shoppingListItem}>
-                <View>
-                  <Typography variant="SH4" style={[styles.itemName, item.checked && styles.checkedText]}>{item.name}</Typography>
-                  <Typography variant="Body" style={[styles.itemQuantity, item.checked && styles.checkedText]}>{item.quantity}</Typography>
+            {selectedFilter === 'All' && filteredItems.map((ingredient, ingredientIndex) => (
+  <TouchableOpacity
+    key={ingredientIndex}
+    style={styles.shoppingListItem}
+    onPress={() => handleCheckboxToggle(ingredientIndex)} // No need for mealIndex here since it's a flat list
+  >
+    <Typography style={[styles.itemName, ingredient.checked && styles.checkedText]}>
+      {ingredient.name}
+    </Typography>
+    <Typography style={[styles.itemQuantity, ingredient.checked && styles.checkedText]}>
+      {ingredient.amount} {ingredient.unit}
+    </Typography>
+    <View style={styles.checkboxContainer}>
+      <FontAwesome6
+        name={ingredient.checked ? 'check-square' : 'square'}
+        size={24}
+        color={ingredient.checked ? '#2e86de' : '#ccc'}
+      />
+    </View>
+  </TouchableOpacity>
+))}
+
+
+{selectedFilter === 'Recipe' && shoppingListItems.map((meal, mealIndex) => (
+  <View key={meal.mealId} style={styles.mealSection}>
+    <TouchableOpacity>
+      <Typography variant="SH3" style={styles.mealTitle}>{meal.mealTitle}</Typography>
+    </TouchableOpacity>
+    
+    {meal.ingredients.map((ingredient, ingredientIndex) => (
+              <TouchableOpacity
+                key={ingredientIndex}
+                style={styles.shoppingListItem}
+                onPress={() => handleCheckboxToggle(ingredientIndex, mealIndex)} // Toggle on press
+              >
+                <Typography style={[styles.itemName, ingredient.checked && styles.checkedText]}>
+                  {ingredient.name}
+                </Typography>
+                <Typography style={[styles.itemQuantity, ingredient.checked && styles.checkedText]}>
+                  {ingredient.amount} {ingredient.unit}
+                </Typography>
+                <View style={styles.checkboxContainer}>
+                  <FontAwesome6
+                    name={ingredient.checked ? 'check-square' : 'square'}
+                    size={24}
+                    color={ingredient.checked ? '#2e86de' : '#ccc'}
+                  />
                 </View>
-                <Checkbox checked={item.checked} onPress={() => handleCheckboxToggle(index)} />
-              </View>
+              </TouchableOpacity>
             ))}
+  </View>
+))}
+
+{/* Button to Clear the Shopping List */}
+{shoppingListItems.length > 0 && (
+          <View style={styles.buttonRow}>
+            {/* Clear List Button */}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => confirmAction(handleClearList, 'Are you sure you want to clear the entire list?')}
+            >
+              <FontAwesome6 name="trash" size={16} color="#fff" />
+              <Text style={styles.buttonText}>Clear All</Text>
+            </TouchableOpacity>
+
+            {/* Remove Selected Ingredients Button */}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => confirmAction(handleRemoveSelectedIngredients, 'Are you sure you want to remove selected ingredients?')}
+            >
+              <FontAwesome6 name="circle-minus" size={16} color="#fff" />
+              <Text style={styles.buttonText}>Delete Checked</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
           </View>
         )}
       </ScrollView>
@@ -291,17 +416,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  filterTitle: {
-    fontWeight: 'bold',
+    marginVertical: 16,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
   filterText: {
-    marginRight: 4,
+    fontSize: 16,
+    color: '#333',
+  },
+  filterDropdown: {
+    position: 'absolute',
+    top: 40, // Adjust based on your layout
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    zIndex: 1, // Ensures it appears above other elements
+  },
+  filterOption: {
+    padding: 12,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
   },
   shoppingListItem: {
     flexDirection: 'row',
@@ -318,7 +463,70 @@ const styles = StyleSheet.create({
   checkedText: {
     textDecorationLine: 'line-through',
   },
-
+  clearButton: {
+    backgroundColor: '#e74c3c', // Red color
+    paddingVertical: 12,        // Vertical padding
+    paddingHorizontal: 24,      // Horizontal padding
+    borderRadius: 10,           // Rounded corners
+    alignItems: 'center',       // Center text
+    marginVertical: 10,         // Space between buttons
+  },
+  
+  clearButtonText: {
+    color: '#fff',              // White text color
+    fontWeight: 'bold',         // Bold text
+    fontSize: 16,               // Text size
+  },
+  mealSection: {
+    marginBottom: 16,
+  },
+  mealTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 8,
+  },
+  shoppingListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  itemName: {
+    fontSize: 16,
+    flex: 1,
+  },
+  itemQuantity: {
+    fontSize: 16,
+    flex: 1,
+    color: '#999',
+  },
+  checkedText: {
+    textDecorationLine: 'line-through',
+    color: '#999',
+  },
+  checkboxContainer: {
+    marginLeft: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e74c3c',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontWeight: 'bold',
+  },
 });
 
 export default MealPlanner;
