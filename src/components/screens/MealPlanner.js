@@ -49,8 +49,7 @@ const MealPlanner = ({ selectedDate }) => { // Accept selectedDate as a prop
     navigation.navigate('SearchMeal', {
       selectedMealType: mealType
     });
-    navigation.navigate('MealAiFormat', { mealType, selectedDate });
-  };
+    };
 
   const handleMealClick = (mealType) => {
     if (meals[mealType]) {
