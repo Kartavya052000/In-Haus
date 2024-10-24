@@ -65,6 +65,7 @@ const MealDetails = ({ route, navigation }) => {
           date: selectedDate,
           portions: currentServings,
           ingredients: ingredients,
+          mealImage: image,
         },
       });
 
@@ -83,7 +84,7 @@ const MealDetails = ({ route, navigation }) => {
     }
   };
 
-  if (loading) {
+  if (loading) {  
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000" />
