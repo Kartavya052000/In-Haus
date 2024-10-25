@@ -18,9 +18,10 @@ const optionsFromDatabase = [
   { name: 'Shopping List' },
 ];
 
-const MealPlanner = ({ route, selectedDate, userId }) => { // Accept userId as a prop
+const MealPlanner = ({ route,  userId }) => { // Accept userId as a prop
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = React.useState(route?.params?.selectedTab || 'Shopping List');
+  const [selectedDate, setSelectedDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const [selectedFilter, setSelectedFilter] = React.useState('All'); // Initial filter is "All"
   const [isFilterOpen, setIsFilterOpen] = React.useState(false); // For opening/closing the filter dropdown
@@ -196,12 +197,15 @@ const MealPlanner = ({ route, selectedDate, userId }) => { // Accept userId as a
           <>
             {/* Calendar Section */}
             <View style={styles.calendarSection}>
-              <CalendarComponent
-                markedDates={mealDates} // Show dates with meals
-                activities={[]} // Placeholder for activities
-                themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
-                selectedDate={selectedDate} // Pass selectedDate to CalendarComponent
-              />
+            <CalendarComponent
+  markedDates={mealDates}
+  activities={[]} // Placeholder for activities
+  themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }}
+  selectedDate={selectedDate}
+  setSelectedDate={setSelectedDate} // Pass selectedDate and setSelectedDate props
+/>
+
+              
             </View>
 
             {/* Meal Cards Section */}
