@@ -20,7 +20,7 @@ const optionsFromDatabase = [
 
 const MealPlanner = ({ route,  userId }) => { // Accept userId as a prop
   const navigation = useNavigation();
-  const [selectedTab, setSelectedTab] = React.useState(route?.params?.selectedTab || 'Shopping List');
+  const [selectedTab, setSelectedTab] = React.useState(route?.params?.selectedTab || 'My Plan');
   const [selectedDate, setSelectedDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const [selectedFilter, setSelectedFilter] = React.useState('All'); // Initial filter is "All"

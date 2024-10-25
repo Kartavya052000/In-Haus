@@ -3,6 +3,9 @@ import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'rea
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { CameraView } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
+import Typography from '../../components/typography/Typography'; // Import Typography
+import CustomLoadingScreen from '../../components/Loading/CustomLoadingScreen'; // Import CustomLoadingScreen
+
 
 export default function SearchCameraScreen({ navigation }) {
     const [facing, setFacing] = useState('back');
@@ -15,6 +18,7 @@ export default function SearchCameraScreen({ navigation }) {
     };
 
     const takePicture = async () => {
+        setLoading(true); // Start loading
         if (cameraRef.current) {
             const options = { quality: 0.5, base64: false };
             const photo = await cameraRef.current.takePictureAsync(options);
@@ -26,21 +30,81 @@ export default function SearchCameraScreen({ navigation }) {
                 { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
             );
 
-            setLoading(true); // Show loading indicator
 
-            // Navigate to ResultScreen with the resized image URI
-            navigation.navigate('ResultScreen', { imageUri: resizedImage.uri });
-            setLoading(false); // Hide loading indicator after navigation
+            try {
+                const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
+                const response = apiResponse.response;
+                console.log('AI Response:', apiResponse);
+                navigation.navigate('MealDetailsAI', {
+                    isRecognized: apiResponse.isRecognized, // Use apiResponse directly
+                    isMeal: apiResponse.isMeal,
+                    image: resizedImage.uri,
+                    title: apiResponse.title,
+                    fullDescription: apiResponse.fullDescription,
+                    recipe: apiResponse.recipe,
+                    servings: apiResponse.servings,
+                    ingredients: apiResponse.ingredients,
+                    readyInMinutes: apiResponse.readyInMinutes,
+                    healthScore: apiResponse.healthScore,
+                });
+            } catch (error) {
+                console.error('Failed to recognize image', error);
+            }
+
+            setLoading(false);
         }
     };
 
+
+    const fetchOpenAIWithImage = async (imageUri) => {
+        try {
+            const formData = new FormData();
+            formData.append('mealImage', {
+                uri: imageUri,
+                name: 'meal.jpg',
+                type: 'image/jpg',
+            });
+            formData.append('export', 'json'); // Ensure export format is set to JSON
+
+            var api_fetch = 'suggest-meal';
+            if (mode === 'Recognize') {
+                api_fetch = 'recognize-meal';
+            }
+
+            console.log('attempting to ' + api_fetch);
+            const response = await fetch('http://inhaus.wmdd4950.com:4000/api/' + api_fetch, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error('Failed to process image');
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('API call error:', error);
+            throw error;
+        }
+    };
+
+
+
     return (
         <View style={{ flex: 1 }}>
+            {/* Loading Overlay */}
+
             {loading && (
+
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#ffffff" />
+                    <CustomLoadingScreen style={styles.loadingText} />
+
                 </View>
+
             )}
+
+
 
             {/* Top bar with dismiss button */}
             <View style={styles.topBar}>
@@ -71,8 +135,10 @@ export default function SearchCameraScreen({ navigation }) {
                     <FontAwesome6 name="camera-rotate" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-        </View>
+
+        </View >
     );
+
 }
 
 const styles = StyleSheet.create({
@@ -81,9 +147,20 @@ const styles = StyleSheet.create({
     },
     loadingOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.85)',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 10,
+
+    },
+
+    loadingText: {
+
+        marginTop: 10,
+
+        color: '#fff',
+
+        fontSize: 18,
     },
     topBar: {
         position: 'absolute',
