@@ -79,7 +79,7 @@ export default function App() {
 
   const client = new ApolloClient({
     // uri: 'http://172.20.10.3:4000/graphql',
-    uri: 'http://192.168.1.249:4000/graphql',
+    uri: 'http://172.20.10.3:4000/graphql',
     cache: new InMemoryCache(),
     headers: {
       'Content-Type': 'application/json',

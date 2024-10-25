@@ -66,15 +66,7 @@ export const REDEEM_REWARD = gql`
       name
       pointsAssigned
       expiryDate
-      assignedTo {
-        id
-        username
-      }
-      category
-      createdBy {
-        id
-        username
-      }
+    
     }
   }
 `;
