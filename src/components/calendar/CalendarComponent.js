@@ -3,19 +3,26 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Button, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment'; 
-import { OpenIcon, CloseIcon } from '../icons/icons'; 
+import { OpenIcon, CloseIcon } from '../icons/icons'; // Ensure these icons are correctly defined in the specified path
 
-const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {} }) => {  // Valores predeterminados
+const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}, selectedDate, setSelectedDate }) => {// Valores predeterminados
   const [selectedTask, setSelectedTask] = useState(null); 
   const [modalVisible, setModalVisible] = useState(false); 
   const [selectedRange, setSelectedRange] = useState({}); 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false); 
+  //const [selected, setSelected] = useState('');
+  
+
+  console.log('selected date', selectedDate);
  
   // Obtener el día actual
   const today = moment().format('YYYY-MM-DD');
-
+if(selectedDate === ''){
+  setSelectedDate(moment().format('YYYY-MM-DD'));
+}
   // Función para manejar la selección de una fecha o un rango
   const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
     const selectedActivity = activities.find(activity => activity.date === day.dateString);
     
     // Si la fecha seleccionada tiene una actividad, abrimos el modal
@@ -62,21 +69,18 @@ const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}
       if (activity && activity.date) {
         marked[activity.date] = {
           marked: true,
-          dotColor: activity.date === today ? '#ffffff' : '#333', 
+          dotColor: activity.date === today ? '#ff0000' : '#333', // Change '#ff0000' to your desired color
         };
       }
     });
 
-    if (!marked[today]) {
-      marked[today] = { selected: true, selectedColor: '#D3D3D3' };
-    } else {
-      marked[today] = {
-        ...marked[today],
-        selected: true,
-        selectedColor: '#D3D3D3',
-        dotColor: '#ffffff', 
-      };
-    }
+   // Mark the selected date in the calendar
+   marked[selectedDate] = { selected: true, selectedColor: '#D3D3D3' };
+
+   // Highlight today if it's not already marked
+   if (!marked[today]) {
+     marked[today] = { selected: true, selectedColor: '#D3D3D3' };
+   }
 
     return marked;
   };
@@ -86,7 +90,7 @@ const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}
       <View style={styles.headerContainer}>
         <View>
           <Text style={styles.title}>Today</Text>
-          <Text style={styles.subtitle}>{moment().format('dddd, DD MMM')}</Text>
+          <Text style={styles.subtitle}>{moment(selectedDate).format('dddd, DD MMM')}</Text>
         </View>
         <TouchableOpacity onPress={() => setIsCalendarOpen(!isCalendarOpen)} style={styles.filterButton}>
           <Text style={styles.filterText}>Calendar</Text>
@@ -96,11 +100,13 @@ const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}
 
       {isCalendarOpen && (
         <Calendar
+       onDayPress={handleDayPress}
+       markedDates={generateMarkedDates()}
           style={styles.calendar}
           theme={{
             textSectionTitleColor: '#b6c1cd',
             selectedDayBackgroundColor: '#D3D3D3',
-            selectedDayTextColor: '#ffffff',
+            selectedDayTextColor: 'blue',
             todayTextColor: '#333',
             dayTextColor: '#2d4150',
             arrowColor: themeColors.arrowColor || 'black', // Set default arrowColor
@@ -112,11 +118,11 @@ const CalendarComponent = ({ markedDates = {}, activities = [], themeColors = {}
             textMonthFontSize: 20,
             textDayHeaderFontSize: 14,
           }}
-          markedDates={generateMarkedDates()} 
+          // markedDates={generateMarkedDates()} 
           markingType={'period'} 
           firstDay={1} 
-          onDayPress={handleDayPress} 
-          onDayLongPress={handleDayRangeSelect} 
+          // onDayPress={handleDayPress} 
+          // onDayLongPress={handleDayRangeSelect} 
         />
       )}
 

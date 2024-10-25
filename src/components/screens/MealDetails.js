@@ -32,6 +32,8 @@ const MealDetails = ({ route, navigation }) => {
         checked: false, // Initially unchecked
       }))
     };
+
+   
   
     setShoppingListItems([...shoppingListItems, newMeal]);
   
@@ -74,39 +76,62 @@ const MealDetails = ({ route, navigation }) => {
   };
 
   const addToPlan = async () => {
+
+    const newMealPlan = {
+      mealId: recipeDetails.id,
+      mealTitle: recipeDetails.title,
+      servings: currentServings,
+      selectedDate: selectedDate,
+      mealType: mealType,
+      
+    };
+
+   
+  
+    setShoppingListItems([...shoppingListItems, newMeal]);
+  
+    // Navigate to MealPlanner with the Shopping List tab active
+    navigation.navigate('MealPlanner', {
+      selectedTab: 'Shopping List', // This ensures the shopping list tab will be active
+    });
+
+
+   
+
+
     // const ingredients = recipeDetails.extendedIngredients.map(ingredient => ({
     //   name: ingredient.name,
     //   amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
     //   unit: ingredient.unit
     // }));
 
-    try {
-      // Store meal in the database
-      await createMeal({
-        variables: {
-          userId: 1, // Assuming the user ID is 1, replace this with actual user data
-          mealName: title,
-          mealType: mealType,
-          date: selectedDate,
-          portions: currentServings,
-          ingredients: ingredients,
-          mealImage: image,
-        },
-      });
+    // try {
+    //   // Store meal in the database
+    //   await createMeal({
+    //     variables: {
+    //       userId: 1, // Assuming the user ID is 1, replace this with actual user data
+    //       mealName: title,
+    //       mealType: mealType,
+    //       date: selectedDate,
+    //       portions: currentServings,
+    //       ingredients: ingredients,
+    //       mealImage: image,
+    //     },
+    //  });
 
       // Navigate back to MealPlanner or show a success message
-      navigation.navigate('MealPlanner', {
-        meal: {
-          mealName: title,
-          portions: currentServings,
-          ingredients: ingredients,
-          date: selectedDate,
-          mealType: mealType,
-        },
-      });
-    } catch (error) {
-      console.error('Error adding meal to plan:', error);
-    }
+    //   navigation.navigate('MealPlanner', {
+    //     meal: {
+    //       mealName: title,
+    //       portions: currentServings,
+    //       ingredients: ingredients,
+    //       date: selectedDate,
+    //       mealType: mealType,
+    //     },
+    //   });
+    // } catch (error) {
+    //   console.error('Error adding meal to plan:', error);
+    // }
   };
 
   if (loading) {  
