@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import Typography from '../../components/typography/Typography'; // Import Typography
 import axios from 'axios'; // Para hacer la solicitud a la API
 
-// Pantalla de carga personalizada
-const CustomLoadingScreen = () => {
+export default function CustomLoadingScreen() {
   const [joke, setJoke] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [currentEmoji, setCurrentEmoji] = useState('😆');
+
+  // Set de emojis chistosos
+  const emojis = ['😆', '😂', '🤣', '😜', '😛', '🤪', '🙃', '😹', '🥳'];
 
   // Función para obtener un chiste de la API
   const fetchJoke = async () => {
@@ -17,48 +20,71 @@ const CustomLoadingScreen = () => {
     } catch (error) {
       setJoke('Failed to load a joke. Please try again.'); // Si falla la API
     } finally {
-      setLoading(false);
+    //  if (loading) setLoading(false); // Solo cambiar el estado de carga al inicio
     }
   };
 
   useEffect(() => {
-    fetchJoke(); // Obtener el chiste al montar el componente
+    // Obtener el chiste inicialmente
+    fetchJoke();
+
+    // Crear un intervalo para actualizar el chiste cada 15 segundos
+    const jokeIntervalId = setInterval(() => {
+      fetchJoke();
+    }, 15000);
+
+    // Crear un intervalo para rotar los emojis cada 2 segundos
+    const emojiIntervalId = setInterval(() => {
+      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+      setCurrentEmoji(randomEmoji);
+    }, 2000);
+
+    // Limpiar los intervalos al desmontar el componente
+    return () => {
+      clearInterval(jokeIntervalId);
+      clearInterval(emojiIntervalId);
+    };
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        {/* Aquí puedes dejar un espacio para tu animación futura */}
-        {/* <YourAnimationComponent /> */}
+  // Mostrar la pantalla de perfil con el chiste y el indicador de carga
+  return (
+    <View style={styles.container}>
+          <Text style={styles.emoji}>{currentEmoji}</Text>
+      {joke && (
+        <Typography style={styles.joke}>
+          {joke}
+        </Typography>
+      )}
+      {/* Mostrar un emoji chistoso que se rota aleatoriamente */}
+  
+    </View>
+  );
+}
 
-        {/* Indicador de carga */}
-        <ActivityIndicator size="large" color="#0000ff" />
-
-        {/* Mostrar el chiste una vez que se haya cargado */}
-        {joke && <Text style={styles.joke}>{joke}</Text>}
-      </View>
-    );
-  }
-
-  return null; // Retorna null porque la pantalla de carga debe desaparecer una vez que cargue todo
-};
-
-// Estilos para la pantalla de carga
+// Estilos para la pantalla de perfil y el texto del chiste
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
+  profileText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
   joke: {
-    marginTop: 20,
-    fontSize: 18,
-    fontStyle: 'italic',
+    fontSize: 24,
+    fontWeight: '500',
+    lineHeight: 30,
     textAlign: 'center',
-    color: '#333',
+    color: '#fff',
+    marginTop: 20,
+  },
+  emoji: {
+    marginTop: 20,
+    fontSize: 40,
+    textAlign: 'center',
   },
 });
-
-export default CustomLoadingScreen;
