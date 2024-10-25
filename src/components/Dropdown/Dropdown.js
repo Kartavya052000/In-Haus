@@ -4,7 +4,7 @@ import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import Typography from '../typography/Typography'; // Asegúrate de que el path a Typography sea el correcto
 import { OpenIcon, CloseIcon } from '../icons/icons'; // Importamos los íconos desde el archivo icons.js
 
-const Dropdown = ({ label, options, disabled }) => {
+const Dropdown = ({ label, options, disabled,selectedValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
 
@@ -36,7 +36,7 @@ const Dropdown = ({ label, options, disabled }) => {
         <TextInput
           style={[styles.input, disabled && styles.disabledInput]}
           placeholder="Text"
-          value={selectedOption || ''}
+          value={selectedValue || ''}
           editable={false} // Deshabilitar la edición directa
         />
         <View style={styles.icon}>{isOpen ? <CloseIcon /> : <OpenIcon />}</View>
