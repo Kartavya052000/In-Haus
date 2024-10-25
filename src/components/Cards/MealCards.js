@@ -1,20 +1,20 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Typography from '../../components/typography/Typography'; // Import Typography component for text styling
-// import { MealIcon } from '../icons/icons'; // Import MealIcon for representing meal items
 
 const MealCard = ({ mealName, portions, onAddPress }) => {
   return (
     <TouchableOpacity
       style={[styles.card, mealName ? styles.filledCard : styles.emptyCard]}
-      onPress={mealName ? undefined : onAddPress}
+      onPress={mealName ? undefined : onAddPress} // Keep onAddPress when no meal is present
     >
       {mealName ? (
         <View style={styles.filledContent}>
-          {/* <MealIcon style={styles.icon} /> */}
           <View>
             <Typography variant="SH4" color="#333" style={styles.mealName}>{mealName}</Typography>
-            <Typography variant="Caption" color="#999" style={styles.portions}>For {portions}</Typography>
+            <Typography variant="Caption" color="#999" style={styles.portions}>
+              {`For ${portions} portion${portions > 1 ? 's' : ''}`} {/* Ensure pluralization */}
+            </Typography>
           </View>
         </View>
       ) : (

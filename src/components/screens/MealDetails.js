@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext  } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
 import Dropdown from '../../components/Dropdown/Dropdown'; // Import Dropdown
 import { useMutation } from '@apollo/client';
 import { CREATE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations'
-import { ShoppingListContext  } from '../../components/contexts/ShoppingListContext';
+import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
 
 const { height } = Dimensions.get('window');
 
@@ -17,9 +17,7 @@ const MealDetails = ({ route, navigation }) => {
   const [currentServings, setCurrentServings] = useState(1);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
   const [mealType, setMealType] = useState('Lunch'); // Default to Lunch
-  const [createMeal] = useMutation(CREATE_MEAL); // Mutation to create meal in the database
   const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
-
 
   const addToShoppingList = () => {
     const newMeal = {
@@ -33,17 +31,13 @@ const MealDetails = ({ route, navigation }) => {
       }))
     };
 
-   
-  
     setShoppingListItems([...shoppingListItems, newMeal]);
-  
+
     // Navigate to MealPlanner with the Shopping List tab active
     navigation.navigate('MealPlanner', {
       selectedTab: 'Shopping List', // This ensures the shopping list tab will be active
     });
   };
-  
-  
 
   // Fetch recipe details from Spoonacular API
   const fetchRecipeDetails = async () => {
@@ -76,65 +70,38 @@ const MealDetails = ({ route, navigation }) => {
   };
 
   const addToPlan = async () => {
+    // Verifica el valor de mealType seleccionado por el usuario
+    console.log("Selected meal type:", mealType);
 
-    const newMealPlan = {
-      mealId: recipeDetails.id,
-      mealTitle: recipeDetails.title,
-      servings: currentServings,
-      selectedDate: selectedDate,
-      mealType: mealType,
-      
+    const newMeal = {
+        mealId: recipeDetails.id,
+        mealTitle: title,
+        servings: currentServings,
+        date: selectedDate,
+        mealType: mealType,  // Utiliza el mealType seleccionado por el usuario
     };
 
-   
-  
-    setShoppingListItems([...shoppingListItems, newMeal]);
-  
-    // Navigate to MealPlanner with the Shopping List tab active
-    navigation.navigate('MealPlanner', {
-      selectedTab: 'Shopping List', // This ensures the shopping list tab will be active
+    console.log("New meal to add:", newMeal);  // Verifica que el objeto newMeal contiene la información correcta
+
+    setShoppingListItems((prevItems) => {
+        // Busca si ya hay una comida para el mismo tipo y fecha seleccionada
+        const existingItemIndex = prevItems.findIndex(item => item.date === selectedDate && item.mealType === mealType);
+        
+        if (existingItemIndex !== -1) {
+            // Si ya existe una comida del mismo tipo y fecha, la reemplazamos
+            const updatedItems = [...prevItems];
+            updatedItems[existingItemIndex] = newMeal;
+            return updatedItems;
+        } else {
+            // Si no existe, simplemente agregamos la nueva comida
+            return [...prevItems, newMeal];
+        }
     });
 
+    navigation.navigate('MealPlanner', { selectedTab: 'My Plan' });
+};
 
-   
-
-
-    // const ingredients = recipeDetails.extendedIngredients.map(ingredient => ({
-    //   name: ingredient.name,
-    //   amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
-    //   unit: ingredient.unit
-    // }));
-
-    // try {
-    //   // Store meal in the database
-    //   await createMeal({
-    //     variables: {
-    //       userId: 1, // Assuming the user ID is 1, replace this with actual user data
-    //       mealName: title,
-    //       mealType: mealType,
-    //       date: selectedDate,
-    //       portions: currentServings,
-    //       ingredients: ingredients,
-    //       mealImage: image,
-    //     },
-    //  });
-
-      // Navigate back to MealPlanner or show a success message
-    //   navigation.navigate('MealPlanner', {
-    //     meal: {
-    //       mealName: title,
-    //       portions: currentServings,
-    //       ingredients: ingredients,
-    //       date: selectedDate,
-    //       mealType: mealType,
-    //     },
-    //   });
-    // } catch (error) {
-    //   console.error('Error adding meal to plan:', error);
-    // }
-  };
-
-  if (loading) {  
+  if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000" />
@@ -145,7 +112,7 @@ const MealDetails = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      
+
       {/* Image as Background */}
       <ImageBackground source={{ uri: image }} style={styles.mealImage} resizeMode="cover">
         {/* Header Section */}
@@ -180,11 +147,16 @@ const MealDetails = ({ route, navigation }) => {
         <Text style={styles.dropdownLabel}>Select Meal Type</Text>
         <Dropdown
           label="Meal Type"
-          options={['Breakfast', 'Lunch', 'Dinner', 'Snacks']}
-          selectedOption={mealType} // Show the selected meal type
-          onOptionSelect={setMealType} // Set the selected meal type
+          options={['Breakfast', 'Lunch', 'Dinner', 'Snacks']}  // Opciones que puede seleccionar el usuario
+          selectedOption={mealType}  // El valor seleccionado se muestra aquí
+          onOptionSelect={(selectedOption) => {
+            console.log("Selected meal type:", selectedOption);  // Verifica el valor seleccionado
+            setMealType(selectedOption);  // Actualiza el estado con la opción seleccionada
+          }}
           disabled={false}
         />
+
+
 
         {/* Servings */}
         <View style={styles.servingsContainer}>
@@ -206,23 +178,23 @@ const MealDetails = ({ route, navigation }) => {
           <View key={index} style={styles.ingredientItem}>
             <Text style={styles.ingredientAmount}>
               {parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2))} {ingredient.unit}
-            </Text>  
+            </Text>
             <Text style={styles.ingredientName}>{ingredient.name}</Text>
           </View>
         ))}
 
-<TouchableOpacity style={styles.addButton} onPress={addToShoppingList}  activeOpacity={0.7} >
-  <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7} >
+          <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
+        </TouchableOpacity>
 
         {/* Instructions */}
         <Text style={styles.ingredientsTitle}>Instructions</Text>
         {recipeDetails.analyzedInstructions.length > 0
           ? recipeDetails.analyzedInstructions[0].steps.map((step, index) => (
-              <Text key={index} style={styles.instructionText}>
-                {index + 1}. {step.step}
-              </Text>
-            ))
+            <Text key={index} style={styles.instructionText}>
+              {index + 1}. {step.step}
+            </Text>
+          ))
           : <Text style={styles.noInstructionsText}>No instructions available.</Text>
         }
       </View>

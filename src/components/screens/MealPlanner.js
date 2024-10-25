@@ -65,6 +65,25 @@ const MealPlanner = ({ route,  userId }) => { // Accept userId as a prop
     }
   }, [mealDatesData]);
 
+  React.useEffect(() => {
+    console.log("Current selected date:", selectedDate); // Verifica la fecha seleccionada
+    console.log("Current shopping list items:", shoppingListItems); // Verifica el estado de shoppingListItems
+
+    const mealsForDate = shoppingListItems.filter(meal => meal.date === selectedDate);
+    console.log("Meals for selected date:", mealsForDate); // Verifica que las comidas para la fecha seleccionada se están filtrando correctamente
+
+    const mealsByType = mealsForDate.reduce((acc, meal) => {
+        acc[meal.mealType] = meal; // Asegúrate de que meal.mealType esté asignando correctamente la comida al tipo
+        return acc;
+    }, { Breakfast: null, Lunch: null, Dinner: null, Snacks: null });
+
+    console.log("Meals organized by type:", mealsByType); // Verifica que las comidas se están organizando por tipo
+    setMeals(mealsByType);
+}, [shoppingListItems, selectedDate]);
+
+
+  
+
   const handleTabChange = (optionName) => {
     setSelectedTab(optionName);
   };
@@ -198,34 +217,33 @@ const MealPlanner = ({ route,  userId }) => { // Accept userId as a prop
             {/* Calendar Section */}
             <View style={styles.calendarSection}>
             <CalendarComponent
-  markedDates={mealDates}
-  activities={[]} // Placeholder for activities
-  themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }}
-  selectedDate={selectedDate}
-  setSelectedDate={setSelectedDate} // Pass selectedDate and setSelectedDate props
-/>
+                markedDates={mealDates}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+            />
 
               
             </View>
 
             {/* Meal Cards Section */}
-            {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((meal, index) => (
-              <View key={index} style={styles.mealSection}>
-                <Typography variant="SH4" style={styles.mealTitle}>{meal}</Typography>
-                <MealCard
-                  mealName={meals[meal]?.mealName || null}
-                  portions={meals[meal]?.portions || null}
-                  onAddPress={() => handleMealClick(meal)}
-                  style={styles.mealCard}
-                  onSwipeRight={() => meals[meal] && handleDeleteMeal(meals[meal].id, meal)}
-                  rightSwipeActions={() => (
-                    <View style={styles.deleteAction}>
-                      <DeleteIcon style={styles.deleteIcon} />
-                    </View>
-                  )}
-                />
-              </View>
-            ))}
+            {['Breakfast', 'Lunch', 'Dinner', 'Snacks'].map((mealType, index) => (
+                <View key={index} style={styles.mealSection}>
+                  <Typography variant="SH4" style={styles.mealTitle}>{mealType}</Typography>
+                  <MealCard
+                    mealName={meals[mealType]?.mealTitle || null}
+                    portions={meals[mealType]?.servings || null}
+                    onAddPress={() => handleMealClick(mealType)}
+                    style={styles.mealCard}
+                    onSwipeRight={() => meals[mealType] && handleDeleteMeal(meals[mealType].id, mealType)}
+                    rightSwipeActions={() => (
+                      <View style={styles.deleteAction}>
+                        <DeleteIcon style={styles.deleteIcon} />
+                      </View>
+                    )}
+                  />
+                </View>
+              ))}
+
           </>
         )}
 
