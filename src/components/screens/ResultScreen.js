@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, ImageBackground, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions } from 'react-native';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
+
+const { height } = Dimensions.get('window');
 
 const ResultScreen = ({ navigation, route }) => {
     const { imageUri } = route.params;
     const [apiResponse, setApiResponse] = useState(null);
-    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [currentServings, setCurrentServings] = useState(4); // Default to 4 servings
+    const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
 
     const fetchMealRecognition = async () => {
         try {
@@ -17,7 +22,7 @@ const ResultScreen = ({ navigation, route }) => {
             });
             formData.append('export', 'json');
 
-            const response = await fetch('http://10.128.213.4:3000/api/recognize-meal', {
+            const response = await fetch('http://192.168.1.174:3000/api/recognize-meal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -26,14 +31,12 @@ const ResultScreen = ({ navigation, route }) => {
             });
 
             const data = await response.json();
-            console.log('API Response:', data);
             const parsedResponse = data.response || data;
 
             setApiResponse(parsedResponse);
             setLoading(false);
         } catch (err) {
-            console.log('Error:', err);
-            setError('Error fetching meal recognition');
+            console.log('Error fetching meal recognition:', err);
             setLoading(false);
         }
     };
@@ -42,54 +45,117 @@ const ResultScreen = ({ navigation, route }) => {
         fetchMealRecognition();
     }, []);
 
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
+    const adjustServings = (type) => {
+        if (type === 'increment') {
+            setCurrentServings(currentServings + 1);
+        } else if (type === 'decrement' && currentServings > 1) {
+            setCurrentServings(currentServings - 1);
+        }
+    };
+
+    const addToShoppingList = () => {
+        if (!apiResponse) return;
+
+        const newMeal = {
+            mealId: apiResponse.id,
+            mealTitle: apiResponse.title,
+            ingredients: apiResponse.extendedIngredients.map(ingredient => ({
+                name: ingredient.name,
+                amount: parseFloat((ingredient.amount * (currentServings / apiResponse.servings)).toFixed(2)),
+                unit: ingredient.unit || '',
+                checked: false,
+            }))
+        };
+
+        setShoppingListItems([...shoppingListItems, newMeal]);
+
+        // Navigate to MealPlanner with the Shopping List tab active
+        navigation.navigate('MealPlanner', {
+            selectedTab: 'Shopping List',
+        });
+    };
+
     if (loading) {
-        return <ActivityIndicator size="large" color="#0000ff" />;
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
     }
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.contentContainer}>
-                <Text style={styles.heading}>What is this?</Text>
-                {imageUri && (
-                    <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginBottom: 20 }} />
-                )}
+        <ScrollView style={styles.container}>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-                {apiResponse ? (
-                    apiResponse.isRecognized === 'true' && apiResponse.isMeal === 'true' ? (
-                        <View>
-                            <Text style={styles.title}>{apiResponse.mealName}</Text>
-                            <Text style={styles.description}>{apiResponse.fullDescription}</Text>
+            <ImageBackground source={{ uri: imageUri }} style={styles.mealImage} resizeMode="cover">
+                <View style={styles.headerContainer}>
+                    <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                        <FontAwesome6 name="arrow-left" size={24} color="#fff" />
+                    </TouchableOpacity>
+                </View>
+            </ImageBackground>
 
-                            <Text style={styles.subtitle}>Ingredients:</Text>
-                            {apiResponse.ingredients.map((item, index) => (
-                                <View key={index} style={styles.ingredientContainer}>
-                                    <Text style={styles.bulletPoint}>• {item.name}: {item.qty}</Text>
-                                    <Text style={styles.note}>{item.note}</Text>
-                                </View>
-                            ))}
+            <View style={styles.mealInfoContainer}>
+                {apiResponse && apiResponse.title ? (
+                    <>
+                        <Text style={styles.mealTitle}>{apiResponse.title}</Text>
+                        <Text style={styles.summaryText}>{apiResponse.summary}</Text>
 
-                            <Text style={styles.subtitle}>Recipe:</Text>
-                            <Text>{apiResponse.recipe}</Text>
+                        {/* Servings */}
+                        <View style={styles.servingsContainer}>
+                            <Text style={styles.servingsText}>Servings: {currentServings}</Text>
+                            <View style={styles.servingsAdjustContainer}>
+                                <TouchableOpacity onPress={() => adjustServings('decrement')} style={styles.servingsButton}>
+                                    <Text style={styles.servingsButtonText}>-</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.servingsNumber}>{currentServings}</Text>
+                                <TouchableOpacity onPress={() => adjustServings('increment')} style={styles.servingsButton}>
+                                    <Text style={styles.servingsButtonText}>+</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    ) : (
-                        <View>
-                            <Text style={styles.errors}>Sorry, we couldn't recognize the meal.</Text>
-                        </View>
-                    )
+
+                        {/* Ingredients */}
+                        <Text style={styles.sectionTitle}>Ingredients:</Text>
+                        {apiResponse.extendedIngredients?.map((item, index) => (
+                            <View key={index} style={styles.ingredientItem}>
+                                <Text style={styles.ingredientAmount}>
+                                    {parseFloat((item.amount * (currentServings / apiResponse.servings)).toFixed(2))} {item.unit}
+                                </Text>
+                                <Text style={styles.ingredientName}>{item.name}</Text>
+                            </View>
+                        ))}
+
+                        <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7}>
+                            <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
+                        </TouchableOpacity>
+
+                        {/* Instructions */}
+                        <Text style={styles.sectionTitle}>Instructions:</Text>
+                        {apiResponse.instructions?.length > 0
+                            ? apiResponse.instructions.map((instruction, index) => (
+                                  <Text key={index} style={styles.instructionText}>
+                                      {index + 1}. {instruction.step}
+                                  </Text>
+                              ))
+                            : <Text>No instructions available.</Text>}
+                    </>
                 ) : (
-                    <Text>{error}</Text>
+                    <Text style={styles.errorText}>Sorry, we couldn't recognize the meal.</Text>
                 )}
 
-                {/* Buttons for Retrying or Navigating back */}
+                {/* Buttons */}
                 <View style={styles.buttonContainer}>
-                    <Button title="Retake Picture" onPress={() => navigation.navigate('CameraScreen')} />
-                    <Button
-                        title="Go Back to Meal-AI"
-                        onPress={() => navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'MealAI' }],
-                        })}
-                    />
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('CameraScreen')}>
+                        <Text style={styles.buttonText}>Retake Picture</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('MealAI')}>
+                        <Text style={styles.buttonText}>Go Back to MealAI</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </ScrollView>
@@ -97,58 +163,123 @@ const ResultScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flexGrow: 1, // Ensure ScrollView takes up available space
-        justifyContent: 'space-between', // Ensure content and buttons are spaced correctly
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
     },
-    contentContainer: {
-        padding: 20,
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    errors: {
+    mealImage: {
+        width: '100%',
+        height: height * 0.4,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 40,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    backButton: {
+        padding: 8,
+    },
+    mealInfoContainer: {
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+    },
+    mealTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    summaryText: {
+        fontSize: 16,
+        marginBottom: 8,
+    },
+    servingsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    servingsAdjustContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    servingsButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderWidth: 1,
+        borderColor: '#333',
+        borderRadius: 4,
+        marginHorizontal: 4,
+    },
+    servingsButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    servingsNumber: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    ingredientItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    ingredientAmount: {
+        fontSize: 16,
+    },
+    ingredientName: {
+        fontSize: 16,
+    },
+    instructionText: {
+        fontSize: 16,
+        marginBottom: 4,
+    },
+    errorText: {
+        fontSize: 16,
         color: 'red',
-        fontSize: 20,
-        fontWeight: 'bold',
         textAlign: 'center',
     },
-    heading: {
-        paddingTop: 20,
-        fontSize: 30,
+    addButton: {
+        backgroundColor: '#2e86de',
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    addButtonText: {
+        color: '#fff',
         fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    description: {
-        marginBottom: 10,
-    },
-    subtitle: {
         fontSize: 16,
-        fontWeight: 'bold',
-        marginTop: 10,
-    },
-    ingredientContainer: {
-        marginBottom: 5,
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-    },
-    bulletPoint: {
-        fontSize: 16,
-        marginRight: 10,
-    },
-    note: {
-        fontStyle: 'italic',
-        marginLeft: 10, // For indentation under the bullet point
     },
     buttonContainer: {
         marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
-        paddingBottom: 50, // Add padding to prevent the buttons from being cut off
-        marginBottom: 20,
+    },
+    actionButton: {
+        backgroundColor: '#2e86de',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
 
