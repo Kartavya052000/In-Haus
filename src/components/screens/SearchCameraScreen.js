@@ -33,20 +33,33 @@ export default function SearchCameraScreen({ navigation }) {
 
             try {
                 const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
-                const response = apiResponse.response;
-                console.log('AI Response:', apiResponse);
+
+                const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
+
+              //  const response = apiResponse.response;
+
+                console.log('API Response:', apiResponse);
+
+                console.log('AI processes Response:',  processedResponse);
                 navigation.navigate('MealDetailsAI', {
-                    isRecognized: apiResponse.isRecognized, // Use apiResponse directly
-                    isMeal: apiResponse.isMeal,
-                    image: resizedImage.uri,
-                    title: apiResponse.title,
-                    fullDescription: apiResponse.fullDescription,
-                    recipe: apiResponse.recipe,
-                    servings: apiResponse.servings,
-                    ingredients: apiResponse.ingredients,
-                    readyInMinutes: apiResponse.readyInMinutes,
-                    healthScore: apiResponse.healthScore,
+                    response: processedResponse,
+                      image: resizedImage.uri, 
                 });
+
+                
+                // navigation.navigate('MealDetailsAI', {
+                //     response: {
+                //       isRecognized: response.isRecognized,
+                //       isMeal: response.isMeal,
+                //       fullDescription: response.fullDescription,
+                //       title: response.title,
+                //       recipe: response.recipe,
+                //       readyInMinutes: response.readyInMinutes,
+                //       healthScore: response.healthScore,
+                //       servings: response.servings,
+                //       ingredients: response.ingredients,
+                //     }
+                //   });
             } catch (error) {
                 console.error('Failed to recognize image', error);
             }
@@ -72,7 +85,7 @@ export default function SearchCameraScreen({ navigation }) {
             }
 
             console.log('attempting to ' + api_fetch);
-            const response = await fetch('http://inhaus.wmdd4950.com:4000/api/' + api_fetch, {
+            const response = await fetch('http://192.168.99.150:3000/api/' + api_fetch, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',

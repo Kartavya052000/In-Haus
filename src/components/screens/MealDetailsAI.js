@@ -9,7 +9,25 @@ const { height } = Dimensions.get('window');
 
 const MealDetailsAI = ({ route, navigation }) => {
  
-  const { isRecognized, isMeal, mealId, image, title, fullDescription, recipe, servings, ingredients, readyInMinutes, healthScore } = route.params;
+ // const { isRecognized, isMeal, mealId, image, title, fullDescription, recipe, servings, ingredients, readyInMinutes, healthScore } = route.params;
+ const {
+  response
+} = route.params || {};
+
+const fullDescription = response.fullDescription;
+const title = response.title;
+const recipe = response.recipe;
+const servings = response.servings;
+const ingredients = response.ingredients;
+const readyInMinutes = response.readyInMinutes;
+const healthScore = response.healthScore;
+
+const mealId = response.mealId;
+
+const image = route.params.image;
+console.log("fullDescription:", fullDescription);
+console.log("Image URI:", image); 
+  
   const [currentServings, setCurrentServings] = useState(servings || 1);
   const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -43,6 +61,9 @@ const [mealType, setMealType] = useState('Lunch');
     navigation.navigate('MealPlanner', { selectedTab: 'Shopping List' });
   };
   
+
+  console.log("Received data in MealDetailsAI:", route.params.response);
+
 
   return (
     <ScrollView style={styles.container}>
