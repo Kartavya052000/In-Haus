@@ -130,3 +130,27 @@ export const GET_USER_TASK = gql`
     }
   }
 `;
+
+
+export const TASK_COMPLETE = gql`
+  mutation completeTask(
+    $taskId: ID!,
+  ) {
+    completeTask(
+      taskId: $taskId,
+    ) {
+      id
+      taskName
+      startDate
+      endDate
+      repeat
+      points
+      type
+      assignedTo{
+      id
+      username
+      points}
+    
+    }
+  }
+`;

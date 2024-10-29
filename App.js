@@ -17,6 +17,9 @@ import HomePage from './src/pages/HomePage';
 import CalendarPage from './src/pages/CalenderPage';
 import CreateTaskEvent from './src/pages/CreateTaskEvent';
 import EditTaskEvent from './src/pages/EditTaskEvent'
+import ComponentCompiler from './src/components/ComponentCompiler';
+import CreateRewards from './src/Rewards/CreateRewards';
+import RewardsList from './src/Rewards/RewardsList';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -28,7 +31,7 @@ const Stack = createStackNavigator();
 // Apollo Client setup
 const client = new ApolloClient({
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+  uri: 'http://172.20.10.3:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -75,8 +78,8 @@ export default function App() {
   }
 
   const client = new ApolloClient({
-    uri: 'http://10.128.226.175:4000/graphql',
-    // uri: 'http://98.81.234.60/api/graphql',
+    // uri: 'http://172.20.10.3:4000/graphql',
+    uri: 'http://172.20.10.3:4000/graphql',
     cache: new InMemoryCache(),
     headers: {
       'Content-Type': 'application/json',
@@ -94,6 +97,9 @@ export default function App() {
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
           <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+          <Stack.Screen name="CreateReward" component={CreateRewards} />
+          <Stack.Screen name="RewardsList" component={RewardsList} />
+          <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>
