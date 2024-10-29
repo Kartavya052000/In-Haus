@@ -8,6 +8,7 @@ import { GET_GROUP, GET_USER_TASK } from '../graphql/mutations/taskMutations';
 import * as SecureStore from 'expo-secure-store';  
 import Typography from "../components/typography/Typography";
 import { AddIcon } from "../components/icons/icons";
+import TaskCalendar from "../components/calendar/TaskCalendar";
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -24,6 +25,7 @@ const CalendarPage = () => {
         name: member.username,
         id: member.id
       }));
+      console.log(data.getGroup)
       setTasks(data.getGroup.filteredTasks);
       setMembers(transformedMembers); 
       setGroupId(data.getGroup.id);  
@@ -124,8 +126,18 @@ const CalendarPage = () => {
             <AddIcon style={styles.addIcon} />
           </View>
         </TouchableOpacity>
+     
       </View>
-
+      <View style={styles.taskCalendar}>
+      <TaskCalendar
+              markedDates={{}} // Placeholder for marked dates
+              activities={[]} // Placeholder for activities
+              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
+              selectedDate={new Date()} // Pass selectedDate to CalendarComponent
+            />
+              
+          </View>
+   
       <TabsNavigation
         users={members}
         activeColor="black"
@@ -158,6 +170,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
     marginTop: 16,
+  },
+  taskCalendar:{
+    height:400,
+    marginBottom: 24,
+    paddingHorizontal: 0,
   },
   headerTitle: {
     fontWeight: 'bold',

@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-
 import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
-import Typography from '../typography/Typography'; // Asegúrate de que el path a Typography sea el correcto
-import { OpenIcon, CloseIcon } from '../icons/icons'; // Importamos los íconos desde el archivo icons.js
+import Typography from '../typography/Typography'; // Ensure this path is correct
+import { OpenIcon, CloseIcon } from '../icons/icons'; // Import the icons
 
-const Dropdown = ({ label, options, disabled,selectedValue }) => {
+const CatDropdown = ({ label, options, disabled, onValueChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
 
   const toggleDropdown = () => {
     if (!disabled) {
@@ -15,10 +13,12 @@ const Dropdown = ({ label, options, disabled,selectedValue }) => {
     }
   };
 
-
   const handleOptionPress = (option) => {
     setSelectedOption(option);
     setIsOpen(false);
+    if (onValueChange) {
+      onValueChange(option); // Pass the selected option to the parent
+    }
   };
 
   return (
@@ -31,20 +31,21 @@ const Dropdown = ({ label, options, disabled,selectedValue }) => {
         style={[styles.dropdown, disabled && styles.disabledDropdown]}
         onPress={toggleDropdown}
         disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={`${label} dropdown`}
+        accessibilityState={{ expanded: isOpen }}
       >
-
         <TextInput
           style={[styles.input, disabled && styles.disabledInput]}
-          placeholder="Text"
-          value={selectedValue || ''}
-          editable={false} // Deshabilitar la edición directa
+          placeholder="Select an option"
+          value={selectedOption || ''}
+          editable={false} // Prevent direct editing
         />
         <View style={styles.icon}>{isOpen ? <CloseIcon /> : <OpenIcon />}</View>
       </TouchableOpacity>
 
       {isOpen && !disabled && (
         <View style={styles.dropdownOptions}>
-
           {options.map((option, index) => (
             <TouchableOpacity
               key={index}
@@ -77,7 +78,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 6,
   },
-
   input: {
     flex: 1,
     fontSize: 16,
@@ -109,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Dropdown;
+export default CatDropdown;

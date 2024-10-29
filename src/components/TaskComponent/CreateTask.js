@@ -176,13 +176,18 @@ navigation.navigate('CalenderPage');
 {activetab.activeTab === "Task" && (
   <View style={styles.fieldContainer}>
     <Text style={styles.label}>Amount of Points</Text>
-    <Dropdown
-      options={[100, 200, 300]}
-      selectedValue={points}
-      onValueChange={(value) => {
-        setPoints(value);
-      }}
+    <InputField
+      placeholder="Points"
+      value={points.toString()} // Convert points to string for display
+      onChangeText={(value) => setPoints(Number(value) || 0)} // Convert input to a number
+      style={styles.inputField}
     />
+
+    {/* <Dropdown
+      options={[100, 200, 300]} // Ensure these are numbers if points expects a number
+      selectedValue={points} // points should be a number here
+      onValueChange={setPoints} // Set points as a numeric value
+    /> */}
   </View>
 )}
 {activetab.activeTab === "Event" && (
