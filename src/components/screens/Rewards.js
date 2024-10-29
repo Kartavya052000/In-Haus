@@ -123,7 +123,7 @@ const navigation =useNavigation();
 
       <MyRewards text={activeTab =="My Rewards"?"My":"Assigned"}setIsVisible={setIsVisible} list ={'myRewards'} setDetails={setDetails} />
    
-      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} />
+      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} rewardPoints={rewardPoints} />
       </View>
   )
 }
