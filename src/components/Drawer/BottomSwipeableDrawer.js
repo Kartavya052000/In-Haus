@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from 'react-na
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Typography from '../typography/Typography';
 
-const BottomSwipeableDrawer = ({ isVisible, setIsVisible, rewardDetails }) => {
+const BottomSwipeableDrawer = ({ isVisible, setIsVisible, rewardDetails,rewardPoints }) => {
   const toggleDrawer = () => {
     setIsVisible(false);
   };
@@ -39,12 +39,12 @@ const BottomSwipeableDrawer = ({ isVisible, setIsVisible, rewardDetails }) => {
             </Typography>
             <Typography variant="BodyS" style={styles.paraText}>Your new points balance after spending</Typography>
             <Typography variant="BodyS" style={styles.paraText2}>
-              {rewardDetails.pointsSpent} points is
+              {rewardDetails.pointsAssigned} points is {rewardPoints - rewardDetails.pointsAssigned}
             </Typography>
 
             <View style={styles.rewardsContainer}>
               <Typography variant="SH4">Rewards Points</Typography>
-              <Typography variant="SH4">{rewardDetails.pointsBalance} pts</Typography>
+              <Typography variant="SH4">{rewardDetails.pointsAssigned} pts</Typography>
             </View>
 
             {/* Add flex-grow to push the button to the bottom */}
