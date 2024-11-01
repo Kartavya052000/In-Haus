@@ -1,25 +1,69 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Typography from '../../components/typography/Typography'; // Import Typography component for text styling
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import Typography from '../../components/typography/Typography';
+import Colors from '../../components/Colors/Colors';
+import { FontAwesome } from '@expo/vector-icons';
 
-const MealCard = ({ mealName, portions, onAddPress }) => {
-  return (
-    <TouchableOpacity
-      style={[styles.card, mealName ? styles.filledCard : styles.emptyCard]}
-      onPress={mealName ? undefined : onAddPress} // Keep onAddPress when no meal is present
-    >
-      {mealName ? (
-        <View style={styles.filledContent}>
+const MealCard = ({ 
+  mealName, 
+  portions, 
+  onAddPress, 
+  onDelete, 
+  onPress, // Nueva prop para manejar el clic en estado lleno
+  mealNameColor, 
+  portionsColor, 
+  backgroundColor, 
+  borderColor, 
+}) => {
+
+  const renderLeftActions = (progress, dragX) => {
+    const scale = dragX.interpolate({
+      inputRange: [0, 100],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <View style={[styles.deleteButtonContainer, { height: styles.filledCard.height }]}>
+        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+          <Animated.View style={{ transform: [{ scale }] }}>
+            <FontAwesome name="trash" size={24} color="#FFF" />
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  return mealName ? (
+    <Swipeable renderLeftActions={renderLeftActions} containerStyle={{ height: styles.filledCard.height }}>
+      <TouchableOpacity
+        style={[
+          styles.card, 
+          styles.filledCard, 
+          { backgroundColor: Colors.Secondary.Orange[100] } // Set to Secondary/Orange/400 when filled
+        ]}
+        onPress={onPress} // Ejecuta la acción solo en el estado lleno
+      >
+        <View style={[styles.filledContent, { borderTopColor: borderColor }]}>
+          <View style={styles.icon} />
           <View>
-            <Typography variant="SH4" color="#333" style={styles.mealName}>{mealName}</Typography>
-            <Typography variant="Caption" color="#999" style={styles.portions}>
-              {`For ${portions} portion${portions > 1 ? 's' : ''}`} {/* Ensure pluralization */}
-            </Typography>
+            <Typography variant="SH3" color={mealNameColor} style={styles.mealName}>{mealName}</Typography>
+            <Typography variant="Caption" color={portionsColor} style={styles.portions}>For {portions}</Typography>
           </View>
         </View>
-      ) : (
-        <Typography variant="SH4" color="#333" style={styles.addText}>add+</Typography>
-      )}
+      </TouchableOpacity>
+    </Swipeable>
+  ) : (
+    <TouchableOpacity
+      style={[
+        styles.card, 
+        styles.emptyCard, 
+        { backgroundColor } // Retain background color prop for the empty state
+      ]}
+      onPress={onAddPress}
+    >
+      <Typography variant="SH4" color={mealNameColor} style={styles.addText}>Add+</Typography>
     </TouchableOpacity>
   );
 };
@@ -28,35 +72,37 @@ const MealCard = ({ mealName, portions, onAddPress }) => {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
-    marginBottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
   emptyCard: {
-    backgroundColor: '#fafafa',
-    width: '100%',
     height: 96,
   },
   filledCard: {
-    backgroundColor: '#f2f2f2',
-    width: '100%',
     height: 72,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
   },
   filledContent: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 16,
     borderTopWidth: 2,
-    borderTopColor: '#999',
     width: '95%',
     padding: 12,
   },
-  icon: {
-    width: 24,
-    height: 24,
-    marginRight: 16,
+  deleteButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    backgroundColor: '#ff0000',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  deleteButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '100%',
   },
   mealName: {
     fontFamily: 'BostonRegular',

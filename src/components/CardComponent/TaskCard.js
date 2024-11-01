@@ -15,7 +15,7 @@ const TaskContainer = ({
     console.log(id,"IDDD")
     navigation.navigate("EditTaskEvent", {id});
   };
-
+  
   return (
     <TouchableOpacity onPress={handleTaskPress}>
       <View style={styles.taskContainer}>

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Typography from '../../typography/Typography'; // Importar Typography para estilos de texto
+import Typography from '../../typography/Typography';
+import { Dimensions } from 'react-native';
 
-const OptionTabs = ({ options, activeColor, inactiveColor, textColor, onTabChange }) => {
+const OptionTabs = ({ options, containerColor, activeColor, textColor, onTabChange }) => {
   const [activeTab, setActiveTab] = useState(options[0].name);
 
   const handlePress = (optionName) => {
@@ -11,7 +12,7 @@ const OptionTabs = ({ options, activeColor, inactiveColor, textColor, onTabChang
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: containerColor }]}>
       {options.map((option) => (
         <TouchableOpacity
           key={option.name}
@@ -19,7 +20,7 @@ const OptionTabs = ({ options, activeColor, inactiveColor, textColor, onTabChang
             styles.tab,
             activeTab === option.name
               ? { backgroundColor: activeColor }
-              : inactiveColor ? { backgroundColor: inactiveColor } : {},
+              : { backgroundColor: containerColor },
           ]}
           onPress={() => handlePress(option.name)}
         >
@@ -32,22 +33,29 @@ const OptionTabs = ({ options, activeColor, inactiveColor, textColor, onTabChang
   );
 };
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    paddingTop: 4,
+    paddingBottom: 4,
+    borderRadius: 16,
+    width: '100%',
+    height: windowWidth * 0.12, // 15% of the width
   },
   tab: {
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 12,
     marginHorizontal: 4,
   },
   text: {
     fontWeight: '600',
+    marginTop: 2,
   },
 });
 

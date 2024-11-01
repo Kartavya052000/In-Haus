@@ -14,4 +14,3 @@ export const ShoppingListProvider = ({ children }) => {
     </ShoppingListContext.Provider>
   );
 };
- 

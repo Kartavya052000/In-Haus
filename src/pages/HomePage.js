@@ -1,13 +1,18 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Dimensions } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 // Import your screens
-import { Haus, Calendar, MealAI, Profile, Rewards, SearchCameraScreen, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI } from '../components/screens';
+import { Haus, Calendar, MealAI, Profile, Rewards, SearchCameraScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI } from '../components/screens';
 import CalendarPage from './CalenderPage';
+
+// Import your SVG icons
+import { HausIcon, CalendarIcon, MealAIIcon, RewardsIcon, ProfileIcon } from '../components/icons/icons';
+
+// Get screen dimensions
+const { width, height } = Dimensions.get('window');
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -18,12 +23,7 @@ const MealStack = createStackNavigator();
 function MealAIStack() {
   return (
     <MealStack.Navigator initialRouteName="MealPlanner">
-      {/* <MealStack.Screen name="MealMenu" component={MealAI} options={{ headerShown: false }} /> */}
-      {/* <MealStack.Screen name="CameraScreen" component={CameraScreen} options={{ headerShown: false }} /> */}
-      <MealStack.Screen name="SearchCameraScreen" component={SearchCameraScreen} options={{ headerShown: false,  presentation: 'modal', }} />
-      {/* <MealStack.Screen name="ResultScreen" component={ResultScreen} options={{ headerShown: false }}/> */}
-      {/* <MealStack.Screen name="FixMealCameraScreen" component={FixMealCameraScreen} options={{ headerShown: false }} />
-      <MealStack.Screen name="FixMealResultScreen" component={FixMealResultScreen} options={{ headerShown: false }} /> */}
+      <MealStack.Screen name="SearchCameraScreen" component={SearchCameraScreen} options={{ headerShown: false, presentation: 'modal' }} />
       <MealStack.Screen name="MealPlanner" component={MealPlanner} options={{ headerShown: false }} />
       <MealStack.Screen name="SearchMeal" component={SearchMeal} options={{ headerShown: false }} />
       <MealStack.Screen name="SearchResults" component={SearchResults} options={{ headerShown: false }} />
@@ -37,13 +37,15 @@ const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
   tabBarStyle: {
-    position: 'absolute',
+    position: 'relative',
     bottom: 0,
     left: 0,
     right: 0,
-    elevation: 0,
-    height: 60,
+    height: width * 0.22, // Responsive height
     backgroundColor: '#ffffff',
+    paddingHorizontal: width * 0.02, // Responsive horizontal padding
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };
 
@@ -56,9 +58,9 @@ const TabNavigator = () => {
         component={Haus} 
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <FontAwesome6 name="house" size={24} color="black" />
-              <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Haus</Text>
+            <View style={styles.tabItem}>
+              <HausIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Haus</Text>
             </View>
           ),
         }} 
@@ -68,22 +70,21 @@ const TabNavigator = () => {
         component={CalendarPage} 
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <FontAwesome6 name="calendar-day" size={24} color="black" />
-              <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Calendar</Text>
+            <View style={styles.tabItem}>
+              <CalendarIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Calendar</Text>
             </View>
           ),
         }} 
       />
-      {/* MealAI now uses MealAIStack */}
       <Tab.Screen 
         name="MealAI" 
         component={MealAIStack} 
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <FontAwesome6 name="bowl-food" size={24} color="black" />
-              <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>MealAI</Text>
+            <View style={styles.tabItem}>
+              <MealAIIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>MealAI</Text>
             </View>
           ),
         }} 
@@ -93,9 +94,9 @@ const TabNavigator = () => {
         component={Rewards} 
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <FontAwesome6 name="ranking-star" size={24} color="black" />
-              <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Rewards</Text>
+            <View style={styles.tabItem}>
+              <RewardsIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Rewards</Text>
             </View>
           ),
         }} 
@@ -105,9 +106,9 @@ const TabNavigator = () => {
         component={Profile} 
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              <FontAwesome6 name="user-large" size={24} color="black" />
-              <Text style={{ fontSize: 12, color: focused ? '#000000' : '#666666' }}>Profile</Text>
+            <View style={styles.tabItem}>
+              <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Profile</Text>
             </View>
           ),
         }} 
@@ -134,16 +135,9 @@ export default function HomePage({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>HomePage</Text> */}
-
-      {/* Render the TabNavigator here */}
       <View style={{ flex: 1, width: '100%' }}>
         <TabNavigator />
       </View>
-
-      {/* <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity> */}
     </View>
   );
 }
@@ -155,20 +149,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 0,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoutButton: {
-    backgroundColor: 'black',
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    marginBottom: 20,
+  tabText: {
+    fontSize: width * 0.035, // Responsive font size
+    marginTop: height * 0.005, // Responsive margin top for spacing
   },
+  // logoutButton: {
+  //   backgroundColor: 'black',
+  //   borderRadius: 25,
+  //   paddingVertical: height * 0.02, // Responsive padding
+  //   paddingHorizontal: width * 0.1, // Responsive padding
+  //   marginBottom: height * 0.02,
+  // },
   logoutText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: width * 0.04, // Responsive font size
     textAlign: 'center',
   },
 });

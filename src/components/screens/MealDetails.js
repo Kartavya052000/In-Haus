@@ -1,45 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
-import Dropdown from '../../components/Dropdown/Dropdown'; // Import Dropdown
-import { useMutation } from '@apollo/client';
-import { CREATE_MEAL } from '../../graphql/mutations/mealMutations/mealMutations'
+import CalendarComponent from '../../components/calendar/CalendarComponent';
 import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
 
 const { height } = Dimensions.get('window');
 
 const MealDetails = ({ route, navigation }) => {
-  const { id, image, title } = route.params;
-
+  const { id, image, title, selectedDate, setSelectedDate } = route.params;
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentServings, setCurrentServings] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today's date
-  const [mealType, setMealType] = useState('Lunch'); // Default to Lunch
-  const { shoppingListItems, setShoppingListItems } = useContext(ShoppingListContext);
+  const selectedMealType = route.params?.selectedMealType ?? null;
+  const [mealType, setMealType] = useState(selectedMealType);
 
-  const addToShoppingList = () => {
-    const newMeal = {
-      mealId: recipeDetails.id,
-      mealTitle: recipeDetails.title,
-      ingredients: recipeDetails.extendedIngredients.map(ingredient => ({
-        name: ingredient.name,
-        amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
-        unit: ingredient.unit || '',
-        checked: false, // Initially unchecked
-      }))
-    };
+  const { shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems } = useContext(ShoppingListContext);
 
-    setShoppingListItems([...shoppingListItems, newMeal]);
+  useEffect(() => {
+    fetchRecipeDetails();
+  }, []);
 
-    // Navigate to MealPlanner with the Shopping List tab active
-    navigation.navigate('MealPlanner', {
-      selectedTab: 'Shopping List', // This ensures the shopping list tab will be active
-    });
-  };
-
-  // Fetch recipe details from Spoonacular API
   const fetchRecipeDetails = async () => {
     try {
       const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=bead92b5abb949b7b5a0c0a4d585a623`);
@@ -53,10 +34,6 @@ const MealDetails = ({ route, navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchRecipeDetails();
-  }, []);
-
   const handleBack = () => {
     navigation.goBack();
   };
@@ -69,37 +46,45 @@ const MealDetails = ({ route, navigation }) => {
     }
   };
 
-  const addToPlan = async () => {
-    // Verifica el valor de mealType seleccionado por el usuario
-    console.log("Selected meal type:", mealType);
-
+  const addToShoppingList = () => {
     const newMeal = {
-        mealId: recipeDetails.id,
-        mealTitle: title,
-        servings: currentServings,
-        date: selectedDate,
-        mealType: mealType,  // Utiliza el mealType seleccionado por el usuario
+      mealId: recipeDetails.id,
+      mealTitle: recipeDetails.title,
+      ingredients: recipeDetails.extendedIngredients.map(ingredient => ({
+        name: ingredient.name,
+        amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
+        unit: ingredient.unit || '',
+        checked: false,
+      }))
     };
 
-    console.log("New meal to add:", newMeal);  // Verifica que el objeto newMeal contiene la información correcta
+    setShoppingListItems([...shoppingListItems, newMeal]);
+    navigation.navigate('MealPlanner', { selectedTab: 'Shopping List' });
+  };
 
-    setShoppingListItems((prevItems) => {
-        // Busca si ya hay una comida para el mismo tipo y fecha seleccionada
-        const existingItemIndex = prevItems.findIndex(item => item.date === selectedDate && item.mealType === mealType);
-        
-        if (existingItemIndex !== -1) {
-            // Si ya existe una comida del mismo tipo y fecha, la reemplazamos
-            const updatedItems = [...prevItems];
-            updatedItems[existingItemIndex] = newMeal;
-            return updatedItems;
-        } else {
-            // Si no existe, simplemente agregamos la nueva comida
-            return [...prevItems, newMeal];
-        }
+  const addToPlan = async () => {
+    const newMeal = {
+      mealId: recipeDetails.id,
+      mealTitle: title,
+      servings: currentServings,
+      date: selectedDate,
+      mealType: mealType,
+    };
+
+    setMealPlanItems((prevItems) => {
+      const existingItemIndex = prevItems.findIndex(item => item.date === selectedDate && item.mealType === mealType);
+      if (existingItemIndex !== -1) {
+        const updatedItems = [...prevItems];
+        updatedItems[existingItemIndex] = newMeal;
+        return updatedItems;
+      } else {
+        return [...prevItems, newMeal];
+      }
     });
 
+    addToShoppingList();
     navigation.navigate('MealPlanner', { selectedTab: 'My Plan' });
-};
+  };
 
   if (loading) {
     return (
@@ -112,10 +97,7 @@ const MealDetails = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-
-      {/* Image as Background */}
       <ImageBackground source={{ uri: image }} style={styles.mealImage} resizeMode="cover">
-        {/* Header Section */}
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <FontAwesome6 name="arrow-left" size={24} color="#fff" />
@@ -127,7 +109,6 @@ const MealDetails = ({ route, navigation }) => {
         </View>
       </ImageBackground>
 
-      {/* Meal Information */}
       <View style={styles.mealInfoContainer}>
         <Text style={styles.mealTitle}>{title}</Text>
         <View style={styles.mealDetails}>
@@ -135,30 +116,25 @@ const MealDetails = ({ route, navigation }) => {
           <Text style={styles.mealDetailText}>Health Score: {recipeDetails.healthScore}</Text>
         </View>
 
-        {/* Dropdown for Date Selection */}
         <Text style={styles.dropdownLabel}>Select Date</Text>
         <CalendarComponent
-          markedDates={{}} // Placeholder for marked dates
+          markedDates={{}}
           selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
           onDateChange={(date) => setSelectedDate(date)}
         />
 
-        {/* Dropdown for Meal Type */}
         <Text style={styles.dropdownLabel}>Select Meal Type</Text>
-        <Dropdown
-          label="Meal Type"
-          options={['Breakfast', 'Lunch', 'Dinner', 'Snacks']}  // Opciones que puede seleccionar el usuario
-          selectedOption={mealType}  // El valor seleccionado se muestra aquí
-          onOptionSelect={(selectedOption) => {
-            console.log("Selected meal type:", selectedOption);  // Verifica el valor seleccionado
-            setMealType(selectedOption);  // Actualiza el estado con la opción seleccionada
-          }}
-          disabled={false}
-        />
+        <Picker
+          selectedValue={mealType}
+          onValueChange={(itemValue) => setMealType(itemValue)}
+        >
+          <Picker.Item label="Breakfast" value="Breakfast" />
+          <Picker.Item label="Lunch" value="Lunch" />
+          <Picker.Item label="Dinner" value="Dinner" />
+          <Picker.Item label="Snacks" value="Snacks" />
+        </Picker>
 
-
-
-        {/* Servings */}
         <View style={styles.servingsContainer}>
           <Text style={styles.servingsText}>{currentServings} Servings</Text>
           <View style={styles.servingsAdjustContainer}>
@@ -172,7 +148,6 @@ const MealDetails = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Ingredients */}
         <Text style={styles.ingredientsTitle}>Ingredients</Text>
         {recipeDetails.extendedIngredients.map((ingredient, index) => (
           <View key={index} style={styles.ingredientItem}>
@@ -183,11 +158,10 @@ const MealDetails = ({ route, navigation }) => {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7} >
+        <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7}>
           <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
         </TouchableOpacity>
 
-        {/* Instructions */}
         <Text style={styles.ingredientsTitle}>Instructions</Text>
         {recipeDetails.analyzedInstructions.length > 0
           ? recipeDetails.analyzedInstructions[0].steps.map((step, index) => (
@@ -214,7 +188,7 @@ const styles = StyleSheet.create({
   },
   mealImage: {
     width: '100%',
-    height: height * 0.4,  // Occupy the top 40% of the screen height
+    height: height * 0.4,
     justifyContent: 'space-between',
   },
   headerContainer: {
@@ -224,7 +198,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 40,
     paddingBottom: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   backButton: {
     padding: 8,
@@ -318,23 +292,22 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   addButton: {
-    backgroundColor: '#2e86de', // Blue background color
-    paddingVertical: 16,        // Vertical padding for a larger button
-    paddingHorizontal: 24,      // Horizontal padding
-    borderRadius: 10,           // Rounded corners
-    alignItems: 'center',       // Center the text
-    marginVertical: 16,         // Margin between button and other elements
-    shadowColor: '#000',        // Button shadow
-    shadowOffset: { width: 0, height: 4 }, // Shadow direction
-    shadowOpacity: 0.3,         // Shadow opacity
-    shadowRadius: 5,            // Shadow blur radius
-    elevation: 5,               // Elevation for Android shadow
+    backgroundColor: '#2e86de',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
-
   addButtonText: {
-    color: '#fff',              // White text
-    fontWeight: 'bold',         // Bold text
-    fontSize: 16,               // Larger text size
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   }
 });
 
