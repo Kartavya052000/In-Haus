@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { useRoute } from '@react-navigation/native'; // Import useRoute
+import { useNavigation, useRoute } from '@react-navigation/native'; // Import useRoute
 import { GET_TASK, EDIT_TASK } from '../../graphql/mutations/taskMutations';
 import InputField from '../Inputs/InputField';
 import Dropdown from '../Dropdown/Dropdown';
@@ -11,7 +11,7 @@ import * as SecureStore from 'expo-secure-store';
 const EditTask = () => {
   const route = useRoute(); // Get the route object
   const { id } = route.params; // Destructure taskId from route.params
-  
+  const navigation = useNavigation();
 
   // Fetch task details
   const [getTask, { loading, error, data }] = useLazyQuery(GET_TASK, {
@@ -65,15 +65,17 @@ const EditTask = () => {
   }, []);
 
   useEffect(() => {
+    console.log(data,"DATTAA")
     if (data && data.getTask) {
       const task = data.getTask;
       setTitle(task.taskName);
       setStartDateTime(new Date(task.startDate));
       setEndDateTime(new Date(task.endDate));
-      setRepeat(task.repeat);
-      setCategory(task.type);
+      // setRepeat(task.repeat);
+      setRepeat("Never");
+      setCategory("Shopping");  /// change it later
       setAssignedTo(task.assignedTo.id);
-      setPoints(task.points);
+      setPoints(100);
 console.log(repeat)
       // console.log('Fetched Task:', task);
     }
@@ -103,7 +105,7 @@ console.log(repeat)
         },
       });
 Alert.alert("Updated Successfully")
-navigation.navigate('CalenderPage');
+navigation.replace('CalenderPage');
 
       console.log('Task updated:', response.data);
     } catch (error) {

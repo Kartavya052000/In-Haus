@@ -7,7 +7,13 @@ import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
 import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
+
+import 'react-native-reanimated';
+
+
+
 // Import your screens
 import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
 import SignUp from './src/pages/SignUp';
@@ -16,6 +22,13 @@ import HomePage from './src/pages/HomePage';
 import CalendarPage from './src/pages/CalenderPage';
 import CreateTaskEvent from './src/pages/CreateTaskEvent';
 import EditTaskEvent from './src/pages/EditTaskEvent'
+import OnboardingScreen from './src/pages/OnboardingScreen';
+import AddMember from './src/pages/AddMember';
+import ComponentCompiler from './src/components/ComponentCompiler';
+import CreateRewards from './src/Rewards/CreateRewards';
+import RewardsList from './src/Rewards/RewardsList';
+import WelcomePage from './src/pages/WelcomePage';
+
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -28,6 +41,9 @@ const Stack = createStackNavigator();
 const client = new ApolloClient({
   uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
   // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+
+  // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  uri: 'http://172.20.10.3:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -87,14 +103,20 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <ShoppingListProvider>
-        <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="WelcomePage">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }}/>
+         <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
           <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+          <Stack.Screen name="CreateReward" component={CreateRewards} />
+          <Stack.Screen name="RewardsList" component={RewardsList} />
+          <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
+          <Stack.Screen name="WelcomePage" component={WelcomePage} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
       </ShoppingListProvider>
