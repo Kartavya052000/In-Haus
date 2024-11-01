@@ -32,7 +32,7 @@ const Stack = createStackNavigator();
 // Apollo Client setup
 const client = new ApolloClient({
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+  uri: 'http://172.20.10.3:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Onboarding">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }}/>
