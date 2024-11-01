@@ -68,12 +68,13 @@ export const mehIcon = ({ color = "#333232" }) => (
 export const frownIcon = ({ color = "#333232" }) => (
   <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/Svg">
     <Path fillRule="evenodd" clipRule="evenodd" d="M10 20c5.523 0 10-4.477 10-10S15.523 0 10 0 0 4.477 0 10s4.477 10 10 10Zm4-10a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM8 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm5.22 7.547a1 1 0 1 0 1.56-1.25c-2.45-3.063-7.11-3.063-9.56 0a1 1 0 1 0 1.56 1.25 4.123 4.123 0 0 1 6.44 0Z" fill={color}/>
-
-export const AddIcon = ({ fill = '#333232'}) => (
-  <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <Path fillRule="evenodd" clipRule="evenodd" d="M0 8C0 3.58172 3.58172 0 8 0H12C16.4183 0 20 3.58172 20 8V12C20 16.4183 16.4183 20 12 20H8C3.58172 20 0 16.4183 0 12V8ZM10 5C10.5523 5 11 5.44772 11 6V9H14C14.5523 9 15 9.44771 15 10C15 10.5523 14.5523 11 14 11H11V14C11 14.5523 10.5523 15 10 15C9.44771 15 9 14.5523 9 14V11H6C5.44771 11 5 10.5523 5 10C5 9.44771 5.44771 9 6 9H9V6C9 5.44772 9.44771 5 10 5Z" fill={fill} />
-  </Svg>
+</Svg>
 );
+// export const AddIcon = ({ fill = '#333232'}) => (
+//   <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+//     <Path fillRule="evenodd" clipRule="evenodd" d="M0 8C0 3.58172 3.58172 0 8 0H12C16.4183 0 20 3.58172 20 8V12C20 16.4183 16.4183 20 12 20H8C3.58172 20 0 16.4183 0 12V8ZM10 5C10.5523 5 11 5.44772 11 6V9H14C14.5523 9 15 9.44771 15 10C15 10.5523 14.5523 11 14 11H11V14C11 14.5523 10.5523 15 10 15C9.44771 15 9 14.5523 9 14V11H6C5.44771 11 5 10.5523 5 10C5 9.44771 5.44771 9 6 9H9V6C9 5.44772 9.44771 5 10 5Z" fill={fill} />
+//   </Svg>
+// );
 
 export const OpenIcon = ({ color = "#333232" }) => (
   <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/Svg">
