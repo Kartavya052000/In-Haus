@@ -69,7 +69,7 @@ const TaskContainer = ({
       Alert.alert("Error", "No authentication token found.");
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handleTaskPress}>

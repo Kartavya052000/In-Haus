@@ -8,7 +8,12 @@ import mealsData from '../../graphql/data/meals.json';  // Import meals.json
 const SearchResults = ({ navigation }) => {
   const route = useRoute();
   const { selectedMealStyles = [], selectedCuisines = [], searchInput = "" } = route.params || {};
+  const selectedMealType = route.params?.selectedMealType ?? null;
+const selectedDate = route.params?.selectedDate ?? new Date();
+const setSelectedDate = route.params?.setSelectedDate ?? (() => {});
 
+console.log('selectedMealTyp search results:', selectedMealType);
+console.log('selectedDate search results:', selectedDate);
   // Define the default meal styles and cuisines at the top level
   const defaultMealStyles = ['main course', 'dessert', 'breakfast', 'side dish', 'salad', 'soup'];
   const defaultCuisines = ['chinese', 'indian', 'japanese', 'latin america', 'italian', 'vietnamese'];
@@ -123,7 +128,13 @@ const SearchResults = ({ navigation }) => {
                 time: item.readyInMinutes,
                 healthScore: item.healthScore,
                 servings: item.servings,
-                ingredients: item.missedIngredients, // assuming ingredients come under 'missedIngredients'
+                ingredients: item.missedIngredients,
+                selectedDate: selectedDate,
+                setSelectedDate: setSelectedDate,
+                selectedMealType: selectedMealType  
+                
+                // assuming ingredients come under 'missedIngredients'
+
               })
             }
           >

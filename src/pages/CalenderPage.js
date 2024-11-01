@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform } from "react-native";
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform, StatusBar } from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/CardComponent/TaskCard";
 import { useNavigation } from '@react-navigation/native';

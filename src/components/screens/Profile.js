@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Typography from '../../components/typography/Typography'; // Import Typography
 import axios from 'axios'; // Para hacer la solicitud a la API
-
-// Importar el componente Typography para usar los estilos
-import Typography from '../typography/Typography';
 
 export default function Profile() {
   const [joke, setJoke] = useState('');
@@ -52,7 +50,6 @@ export default function Profile() {
   // Mostrar la pantalla de perfil con el chiste y el indicador de carga
   return (
     <View style={styles.container}>
-      <Text style={styles.profileText}>Profile</Text>
       {joke && (
         <Typography style={styles.joke}>
           {joke}
@@ -79,10 +76,9 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   joke: {
-    fontFamily: 'Boston',
     fontSize: 24,
     fontWeight: '800',
-    lineHeight: 20,
+    lineHeight: 30,
     textAlign: 'center',
     color: '#333',
     marginTop: 20,
