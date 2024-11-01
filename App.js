@@ -8,6 +8,8 @@ import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import 'react-native-reanimated';
+
 
 // Import your screens
 import { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
@@ -17,10 +19,13 @@ import HomePage from './src/pages/HomePage';
 import CalendarPage from './src/pages/CalenderPage';
 import CreateTaskEvent from './src/pages/CreateTaskEvent';
 import EditTaskEvent from './src/pages/EditTaskEvent'
+import OnboardingScreen from './src/pages/OnboardingScreen';
+import AddMember from './src/pages/AddMember';
 import ComponentCompiler from './src/components/ComponentCompiler';
 import CreateRewards from './src/Rewards/CreateRewards';
 import RewardsList from './src/Rewards/RewardsList';
 import WelcomePage from './src/pages/WelcomePage';
+
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -94,6 +99,8 @@ export default function App() {
         <Stack.Navigator initialRouteName="WelcomePage">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }}/>
          <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />

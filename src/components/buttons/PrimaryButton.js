@@ -6,7 +6,7 @@ import { AddIcon } from '../icons/icons';  // Importamos el ícono desde icons.j
 
 const { width } = Dimensions.get('window'); // Obtener el ancho de la pantalla
 
-const PrimaryButton = ({
+const PrimaryButton2 = ({
     color = 'black',
     backgroundColor = '#EDEDED',
     size = 'medium',
@@ -81,4 +81,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PrimaryButton;
+export default PrimaryButton2;
