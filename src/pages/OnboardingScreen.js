@@ -79,7 +79,7 @@ const OnboardingScreen = () => {
   const renderNewMemberButton = () => (
     <TouchableOpacity
       style={styles.createButton}
-      onPress={() => console.log("New Member button pressed")}
+      onPress={() => navigation.navigate("AddMember")}
     >
       <AddIcon
         style={styles.icon}
