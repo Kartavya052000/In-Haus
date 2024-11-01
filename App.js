@@ -20,6 +20,7 @@ import CalendarPage from './src/pages/CalenderPage';
 import CreateTaskEvent from './src/pages/CreateTaskEvent';
 import EditTaskEvent from './src/pages/EditTaskEvent'
 import OnboardingScreen from './src/pages/OnboardingScreen';
+import AddMember from './src/pages/AddMember';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -94,6 +95,7 @@ export default function App() {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }}/>
          <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
