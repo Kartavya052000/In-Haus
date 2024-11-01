@@ -9,9 +9,10 @@ import { useNavigation } from '@react-navigation/native';
 import GoogleLogIN from '../components/google/GoogleLogIN';
 
 // Storing the token securely
-const storeToken = async (token) => {
+const storeToken = async (token,points) => {
   try {
     await SecureStore.setItemAsync('authToken', token);
+    await SecureStore.setItemAsync('points', points.toString()); // Ensure points are stored as a string
     console.log('Token stored successfully');
   } catch (error) {
     console.error('Error storing token:', error);
@@ -19,24 +20,26 @@ const storeToken = async (token) => {
   }
 };
 const Login = () => {
-  const [email, setEmail] = useState('Kartavya@gmail.com');
+  const [email, setEmail] = useState('Mateo@gmail.com');
   const [password, setPassword] = useState('password123');
   const navigation = useNavigation();
   const [logIn] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
-      console.log('Login successful:', data.login.token);
-      storeToken(data.login.token); // Store the token securely
+      console.log('Login successful:', data.login.token,data.login.points);
+      storeToken(data.login.token,data.login.points); // Store the token securely
       navigation.replace('HomePage'); // Navigate to HomePage upon success
       // Alert.alert('Login Successful', 'You have successfully logged in!');
     },
     onError: (error) => {
-      console.error('Login error:', error);
+      console.error('Login errorrr:', error);
       Alert.alert('Login Error', error.message || 'An error occurred during login.');
     },
   });
   const handleLogin = () => {
     // Check if fields are filled before logging in
     if (email && password) {
+    console.log("Hit")
+     
       logIn({
         variables: {
           email,

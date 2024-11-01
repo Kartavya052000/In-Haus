@@ -21,7 +21,8 @@ import CalendarGraph from './calendar/calendarGraph';
 import TaskCard from './calendar/TaskCard'; // Import the TaskCard component
 import RewardsCard2 from './Cards/RewardsCard2'; // Import the RewardsCard2 component
 import TextInputBoxExample from './Inputs/TexInputExample';
-import MealPlannerDashboard from '../pages/MealAI/MealPlannerDashboard';
+import SliderGroup from './sliders/Slider';
+// import MealPlannerDashboard from '../pages/MealAI/MealPlannerDashboard';
 
 const taskData = [
   { day: 'Sun', tasksAssigned: 10, tasksCompleted: 7 },
@@ -119,7 +120,7 @@ const ComponentCompiler = () => {
           <TextInputBoxExample />
 
           {/* Adding screen MealAI */}
-          <MealPlannerDashboard />
+          {/* <MealPlannerDashboard /> */}
 
       </ScrollView>
     </SafeAreaView>

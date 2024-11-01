@@ -25,7 +25,7 @@ const SignUp = () => {
     onCompleted: (data) => {
       console.log('Signup successful:', data.signup.token);
     storeToken(data.signup.token);
-    navigation.replace('HomePage'); // Use replace here
+    navigation.replace('Onboarding'); // Use replace here
     Alert.alert('Signup Successful', 'You have successfully signed up!');
       // Optionally navigate to another screen or reset form here
     },
@@ -84,7 +84,7 @@ const SignUp = () => {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Register</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity onPress={() => navigation.replace('Login')}>
           <Text style={styles.createAccountText}>Already Have an Account</Text>
         </TouchableOpacity>
       </View>
