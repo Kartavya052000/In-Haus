@@ -21,6 +21,11 @@ import CreateTaskEvent from './src/pages/CreateTaskEvent';
 import EditTaskEvent from './src/pages/EditTaskEvent'
 import OnboardingScreen from './src/pages/OnboardingScreen';
 import AddMember from './src/pages/AddMember';
+import ComponentCompiler from './src/components/ComponentCompiler';
+import CreateRewards from './src/Rewards/CreateRewards';
+import RewardsList from './src/Rewards/RewardsList';
+import WelcomePage from './src/pages/WelcomePage';
+
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -79,8 +84,8 @@ export default function App() {
   }
 
   const client = new ApolloClient({
-    uri: 'http://10.128.226.175:4000/graphql',
-    // uri: 'http://98.81.234.60/api/graphql',
+    // uri: 'http://172.20.10.3:4000/graphql',
+    uri: 'http://172.20.10.3:4000/graphql',
     cache: new InMemoryCache(),
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +96,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="WelcomePage">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }}/>
@@ -100,6 +105,10 @@ export default function App() {
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
           <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
           <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+          <Stack.Screen name="CreateReward" component={CreateRewards} />
+          <Stack.Screen name="RewardsList" component={RewardsList} />
+          <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
+          <Stack.Screen name="WelcomePage" component={WelcomePage} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>

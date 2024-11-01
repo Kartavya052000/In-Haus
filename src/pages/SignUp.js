@@ -84,7 +84,7 @@ const SignUp = () => {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Register</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity onPress={() => navigation.replace('Login')}>
           <Text style={styles.createAccountText}>Already Have an Account</Text>
         </TouchableOpacity>
       </View>
