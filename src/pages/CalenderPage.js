@@ -37,6 +37,8 @@ const CalendarPage = () => {
 
   const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] = useLazyQuery(GET_USER_TASK, {
     onCompleted: (data) => {
+    console.log("Hit2",data.getUserTasksInGroup)
+
       setTasks(data.getUserTasksInGroup.filteredTasks);
     },
     onError: (error) => {
@@ -75,6 +77,7 @@ const CalendarPage = () => {
   };
 
   const fetchUserData = async (token, userId) => {
+    console.log("Hit1")
     if (token && groupId) {
       fetchUserTask({
         context: {
