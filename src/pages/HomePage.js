@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Alert, Dimensions } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-
+import * as SecureStore from 'expo-secure-store';  
 // Import your screens
 import { Haus, Calendar, MealAI, Profile, Rewards, SearchCameraScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI } from '../components/screens';
 import CalendarPage from './CalenderPage';
@@ -118,6 +118,30 @@ const TabNavigator = () => {
 };
 
 export default function HomePage({ navigation }) {
+  const [token, setToken] = useState(null);
+
+
+
+  const getToken = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('authToken');
+      if (token) {
+        setToken(token);
+     //   fetchGroupData(token);
+      } else {
+        console.log('No token found');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+    }
+  };
+
+
+  useEffect(() => {
+    getToken(); 
+  }, []);
+
   const handleLogout = async () => {
     try {
       if (Keychain) {
@@ -132,7 +156,7 @@ export default function HomePage({ navigation }) {
       Alert.alert('Logout Error', 'Failed to log out. Please try again.');
     }
   };
-
+console.log('token', token);
   return (
     <View style={styles.container}>
       <View style={{ flex: 1, width: '100%' }}>

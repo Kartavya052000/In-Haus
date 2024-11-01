@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "In-Haus",
+    "slug": "In-Haus",
+    "version": "1.0.0",
+    "scheme": "inhaus",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "scheme": "inhaus", 
+    "ios": {
+      "bundleIdentifier": "com.inhaus.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.1005216917077-n1eja2rrp1s2qb6k4t6gnl717v80s6ua"
+            ]
+          }
+        ]
+      }
+    },
+    "android": {
+      "package": "com.inhaus.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "538e340f-8554-4c2e-99b4-cdc6638d1aad"
+      }
+    }
+  }
+}

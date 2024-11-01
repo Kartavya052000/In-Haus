@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList,Platform, StatusBar } from 'react-native';
 import Typography from '../../components/typography/Typography';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRoute } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';  
 import mealsData from '../../graphql/data/meals.json';  // Import meals.json
 
 const SearchResults = ({ navigation }) => {
@@ -11,6 +12,32 @@ const SearchResults = ({ navigation }) => {
   const selectedMealType = route.params?.selectedMealType ?? null;
 const selectedDate = route.params?.selectedDate ?? new Date();
 const setSelectedDate = route.params?.setSelectedDate ?? (() => {});
+
+const [token, setToken] = useState(null);
+
+
+
+  const getToken = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('authToken');
+      if (token) {
+        setToken(token);
+     //   fetchGroupData(token);
+      } else {
+        console.log('No token found');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+    }
+  };
+
+
+  useEffect(() => {
+    getToken(); 
+  }, []);
+  
+  console.log('token search results:', token);
 
 console.log('selectedMealTyp search results:', selectedMealType);
 console.log('selectedDate search results:', selectedDate);

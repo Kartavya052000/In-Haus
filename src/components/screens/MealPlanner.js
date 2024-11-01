@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useState, useEffect, useContext  } from "react";
 import {
   View,
   StyleSheet,
@@ -32,6 +32,11 @@ import { ShoppingListContext } from "../../components/contexts/ShoppingListConte
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "../../components/Colors/Colors";
+
+import * as SecureStore from 'expo-secure-store';  
+
+
+
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 
@@ -56,6 +61,29 @@ const MealPlanner = ({ route, userId }) => {
   const [selectedDate, setSelectedDate] = React.useState(
     new Date().toISOString().split("T")[0]
   );
+  const [token, setToken] = useState(null);
+
+
+
+  const getToken = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('authToken');
+      if (token) {
+        setToken(token);
+     //   fetchGroupData(token);
+      } else {
+        console.log('No token found');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+    }
+  };
+
+
+  useEffect(() => {
+    getToken(); 
+  }, []);
   const [selectedFilter, setSelectedFilter] = React.useState("All"); // Initial filter is "All"
   const [isFilterOpen, setIsFilterOpen] = React.useState(false); // For opening/closing the filter dropdown
   const [meals, setMeals] = React.useState({
@@ -250,6 +278,7 @@ const MealPlanner = ({ route, userId }) => {
       setShoppingListItems(updatedMeals); // Update state
     }
   };
+  console.log("token MealAI:", token);
 
   return (
     <View style={styles.container}>

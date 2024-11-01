@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import * as SecureStore from 'expo-secure-store';  
 
 export default function MealAI({ navigation }) {
+  const [token, setToken] = useState(null);
+
+
+
+  const getToken = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('authToken');
+      if (token) {
+        setToken(token);
+     //   fetchGroupData(token);
+      } else {
+        console.log('No token found');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+    }
+  };
+
+
+  useEffect(() => {
+    getToken(); 
+  }, []);
+  
   return (
     <View style={styles.container}>
       <View style={styles.row}>
