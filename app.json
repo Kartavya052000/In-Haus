@@ -3,6 +3,7 @@
     "name": "In-Haus",
     "slug": "In-Haus",
     "version": "1.0.0",
+    "scheme": "inhaus",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

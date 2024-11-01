@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -8,7 +7,11 @@ import * as Font from 'expo-font';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
+import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
+
 import 'react-native-reanimated';
+
 
 
 // Import your screens
@@ -36,6 +39,9 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
+  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
   uri: 'http://172.20.10.3:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
@@ -95,6 +101,7 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
+      <ShoppingListProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="WelcomePage">
           <Stack.Screen name="Login" component={Login} />
@@ -111,6 +118,7 @@ export default function App() {
           <Stack.Screen name="WelcomePage" component={WelcomePage} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
+      </ShoppingListProvider>
     </ApolloProvider>
   );
 }
