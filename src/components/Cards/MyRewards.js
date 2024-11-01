@@ -21,6 +21,7 @@ export default function MyRewards({ text, setIsVisible, list,setDetails }) {
     if (text === "My") {
       setIsVisible(true); // Open modal or set visibility
       setDetails(item)
+      // fetchUserRewards(authToken)
     } else {
       navigation.navigate("CreateReward", { text });
     }
@@ -175,6 +176,7 @@ const fetchUserRedeemRewards = async (token) => {
           style={styles.members}
         />
       )}
+      <View style={styles.parentRewardContainer}>
       <View style={styles.header}>
         <Typography variant="SH3" color="#000">{text} Rewards</Typography>
         <TouchableOpacity onPress={handleDetailsList}>
@@ -196,6 +198,9 @@ const fetchUserRedeemRewards = async (token) => {
         }
         
       />
+      </View>
+      <View style={styles.parentRewardContainer}>
+
       <View style={styles.header}>
         <Typography variant="SH3" color="#000">Redeemed Rewards</Typography>
         <TouchableOpacity onPress={handleDetailsList}>
@@ -216,6 +221,7 @@ const fetchUserRedeemRewards = async (token) => {
         }
         
       />
+      </View>
     </>
   );
 }
@@ -228,6 +234,10 @@ const styles = StyleSheet.create({
   },
   members: {
     marginBottom: 20,
+  },
+  parentRewardContainer:{
+minHeight:202,
+maxHeight:402
   },
   rewardContainer: {
     flexDirection: 'row',
@@ -261,5 +271,7 @@ const styles = StyleSheet.create({
   emptyContainer: {
     paddingVertical: 20,
     alignItems: 'center',
+    height:140,
+    backgroundColor:"#FCFAFA"
   },
 });
