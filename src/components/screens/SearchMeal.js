@@ -347,29 +347,36 @@ const styles = StyleSheet.create({
   checkboxGroup: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginVertical: 16,
-    textTransform: "capitalize",
+    justifyContent: "space-between",
+    // marginVertical: 16,
   },
   checkboxButton: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    padding: 8,
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    minWidth: width * 0.25, // 25% del ancho de la pantalla
+    flex: 1, // Ancho completo (fill) si es posible
     margin: 4,
     borderWidth: 2,
     borderColor: "transparent",
+    minHeight: height * 0.08,
   },
   checkboxButtonSelected: {
-    backgroundColor: "#cce7ff",
-    borderColor: "#2e66e6",
+    backgroundColor: "#FBEDEE",
+    borderColor: "#FF5A5F",
   },
   checkboxIcon: {
-    marginRight: 8,
+    // marginRight: 8,
+    marginBottom:5,
   },
   checkboxLabel: {
     fontSize: 16,
     textTransform: "capitalize",
+    textAlign: "center",
   },
   servingsSection: {
     marginVertical: 0,
