@@ -20,6 +20,7 @@ import EditTaskEvent from './src/pages/EditTaskEvent'
 import ComponentCompiler from './src/components/ComponentCompiler';
 import CreateRewards from './src/Rewards/CreateRewards';
 import RewardsList from './src/Rewards/RewardsList';
+import WelcomePage from './src/pages/WelcomePage';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -90,7 +91,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="WelcomePage">
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="SignUp" component={SignUp} />
          <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
@@ -100,6 +101,7 @@ export default function App() {
           <Stack.Screen name="CreateReward" component={CreateRewards} />
           <Stack.Screen name="RewardsList" component={RewardsList} />
           <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
+          <Stack.Screen name="WelcomePage" component={WelcomePage} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>

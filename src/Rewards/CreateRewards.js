@@ -113,7 +113,7 @@ console.log("Task saved:", response.data);
       <InputField
         label="Reward Points"
         placeholder="Enter reward points"
-        value={rewardPoints.toString()} // Convert number to string for InputField
+        value={rewardPoints} // Convert number to string for InputField
         keyboardType="numeric"
         onChangeText={(value) => setRewardPoints(parseInt(value, 10))}
       />
