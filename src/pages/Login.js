@@ -38,6 +38,7 @@ const Login = () => {
   const handleLogin = () => {
     // Check if fields are filled before logging in
     if (email && password) {
+    console.log("Hit")
      
       logIn({
         variables: {
