@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform, StatusBar } from "react-native";
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform, StatusBar, Dimensions } from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/CardComponent/TaskCard";
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,10 @@ import { GET_GROUP, GET_USER_TASK } from '../graphql/mutations/taskMutations';
 import * as SecureStore from 'expo-secure-store';  
 import Typography from "../components/typography/Typography";
 import { AddIcon } from "../components/icons/icons";
-import TaskCalendar from "../components/calendar/TaskCalendar";
+import TaskCalendar from "../components/calendar/TaskCalendar"
+// import Colors from ". components/Colors/Colors";
+import { LinearGradient } from "expo-linear-gradient";
+const { height } = Dimensions.get("window");
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -121,15 +124,30 @@ const CalendarPage = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Typography variant="H4" style={styles.headerTitle}>Calendar</Typography>
-        <TouchableOpacity style={styles.addMealButton} onPress={handleClick}>
-          <View style={styles.addMealContent}>
-            <Typography variant="Body" style={styles.addMealText}>Create</Typography>
-            <AddIcon style={styles.addIcon} />
+      <LinearGradient
+        colors={["rgba(243, 200, 202, 1)", "rgba(226, 127, 130, 1)"]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.headerBackground}
+      />
+      <View style={styles.contentContainer}>
+        <Typography
+          variant="H4"
+          style={[
+            styles.headerTitle,
+            { textAlign: "center", color: "#B4525E" },
+          ]}
+        >
+          Calendar
+        </Typography>
+        <TouchableOpacity
+          style={styles.addMealButton}
+          onPress={() => handleClick()}
+        >
+          <View style={styles.addMealContainer}>
+            <AddIcon color="#FFFFFF" style={styles.addIcon} />
           </View>
         </TouchableOpacity>
-     
       </View>
       <View style={styles.taskCalendar}>
       <TaskCalendar
@@ -167,25 +185,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-    marginTop: 16,
-  },
   taskCalendar:{
     height:400,
     marginBottom: 24,
     paddingHorizontal: 0,
   },
-  headerTitle: {
-    fontWeight: 'bold',
+  addIcon: {
+    marginBottom: -2,
   },
   addMealButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
-    padding: 8,
+    top: -10,
+  },
+  addMealContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: Colors.Primary.Brand[100],
   },
   addMealContent: {
     flexDirection: 'row',
@@ -201,6 +220,25 @@ const styles = StyleSheet.create({
   scrollView: {
     padding: 16,
   },
+  headerBackground: {
+    height: height * 0.19,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "120%",
+  },
+  headerContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    lineHeight: 28,
+  },
+  
 });
 
 export default CalendarPage;

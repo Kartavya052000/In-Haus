@@ -43,7 +43,7 @@ const client = new ApolloClient({
   // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
 
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  uri: 'http://172.20.10.3:4000/graphql', // Your GraphQL endpoint
+  uri: 'http://10.128.214.79:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -89,15 +89,15 @@ export default function App() {
     return <CustomLoadingScreen />;
   }
 
-  const client = new ApolloClient({
-    // uri: 'http://172.20.10.3:4000/graphql',
-    uri: 'http://172.20.10.3:4000/graphql',
-    cache: new InMemoryCache(),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    // connectToDevTools: true,
-  });
+  // const client = new ApolloClient({
+  //   // uri: 'http://172.20.10.3:4000/graphql',
+  //   uri: 'http://172.20.10.3:4000/graphql',
+  //   cache: new InMemoryCache(),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   // connectToDevTools: true,
+  // });
 
   return (
     <ApolloProvider client={client}>
