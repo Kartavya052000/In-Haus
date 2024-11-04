@@ -1,91 +1,161 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Typography from '../../components/typography/Typography'; // Import Typography
-import axios from 'axios'; // Para hacer la solicitud a la API
+// import React from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import Typography from '../typography/Typography';
+import Colors from '../Colors/Colors';
 
-export default function Profile() {
-  const [joke, setJoke] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [currentEmoji, setCurrentEmoji] = useState('😆');
+const { height } = Dimensions.get('window');
+const profileData = {
+  name: "Arthur Weasley",
+  role: "Admin",
+  email: "arthurw00@hogwarts.com",
+};
 
-  // Set de emojis chistosos
-  const emojis = ['😆', '😂', '🤣', '😜', '😛', '🤪', '🙃', '😹', '🥳'];
 
-  // Función para obtener un chiste de la API
-  const fetchJoke = async () => {
-    try {
-      const response = await axios.get('https://icanhazdadjoke.com/', {
-        headers: { Accept: 'application/json' },
-      });
-      setJoke(response.data.joke); // Guardar el chiste en el estado
-    } catch (error) {
-      setJoke('Failed to load a joke. Please try again.'); // Si falla la API
-    } finally {
-      if (loading) setLoading(false); // Solo cambiar el estado de carga al inicio
+export default function Profile({ name = profileData.name, role = profileData.role, email = profileData.email }) {
+
+  const navigation = useNavigation();
+
+  const handleOptionPress = (option) => {
+    if (option === 'Settings') {
+      navigation.navigate('Settings'); // Navega a la pantalla Settings
     }
+    else if (option === 'Notifications') {
+      navigation.navigate('Notifications'); // Navega a la pantalla Notifications
+    }
+    // Aquí puedes agregar más opciones de navegación para las otras opciones si es necesario
   };
 
-  useEffect(() => {
-    // Obtener el chiste inicialmente
-    fetchJoke();
-
-    // Crear un intervalo para actualizar el chiste cada 15 segundos
-    const jokeIntervalId = setInterval(() => {
-      fetchJoke();
-    }, 15000);
-
-    // Crear un intervalo para rotar los emojis cada 2 segundos
-    const emojiIntervalId = setInterval(() => {
-      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-      setCurrentEmoji(randomEmoji);
-    }, 2000);
-
-    // Limpiar los intervalos al desmontar el componente
-    return () => {
-      clearInterval(jokeIntervalId);
-      clearInterval(emojiIntervalId);
-    };
-  }, []);
-
-  // Mostrar la pantalla de perfil con el chiste y el indicador de carga
   return (
     <View style={styles.container}>
-      {joke && (
-        <Typography style={styles.joke}>
-          {joke}
+      <LinearGradient
+        colors={['rgba(235, 251, 255, 1)', 'rgba(143, 214, 233, 1)']}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.headerBackground}
+      />
+      <View style={styles.contentContainer}>
+        <Typography 
+          variant="H5" 
+          color={Colors.Secondary.Blue[500]}
+          align="center"
+          style={styles.headerText}
+        >
+          Edit Profile
         </Typography>
-      )}
-      {/* Mostrar un emoji chistoso que se rota aleatoriamente */}
-      <Text style={styles.emoji}>{currentEmoji}</Text>
+        
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.profileImagePlaceholder} />
+          <Typography variant="SH3" style={styles.userName} >
+          {name}
+          </Typography>
+          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]} >
+          {role}
+          </Typography>
+          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]}  >
+          {email}
+          </Typography>
+          <View style={styles.optionsList}>
+          {['Settings', 'Notifications', 'Add/Remove Member', 'Terms & Conditions'].map((option, index) => (
+            <TouchableOpacity key={index} style={styles.optionItem} onPress={() => handleOptionPress(option)}>
+              <Typography variant="SH3" style={styles.userInfo} >
+                {option}
+              </Typography>
+              <Text style={styles.optionIcon}>›</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={styles.logoutItem}>
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+        </View>
+
+        {/* Options List */}
+      </View>
     </View>
   );
 }
 
-// Estilos para la pantalla de perfil y el texto del chiste
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: '#F2F2F2',
+  },
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: height * 0.19,
+  },
+  contentContainer: {
+    marginTop: height * 0.12,
     alignItems: 'center',
-    padding: 20,
+    // paddingHorizontal: 16,
   },
-  profileText: {
+  headerText: {
+    marginBottom: 20,
+    fontWeight: '700',
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+    lineHeight: 28,
   },
-  joke: {
-    fontSize: 24,
-    fontWeight: '800',
-    lineHeight: 30,
-    textAlign: 'center',
+  profileCard: {
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: '90%',
+    marginBottom: 16,
+  },
+  profileImagePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ccc',
+    marginBottom: 12,
+  },
+  userName: {
+    fontSize: 20,
+    // fontWeight: 'bold',
     color: '#333',
-    marginTop: 20,
+    lineHeight: 24,
   },
-  emoji: {
-    marginTop: 20,
-    fontSize: 40,
+  userRole: {
+    fontSize: 14,
+    color: '#666',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 16,
+  },
+  optionsList: {
+    width: '100%',
+  },
+  optionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+    fontWeight: '700',
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  optionIcon: {
+    fontSize: 18,
+    color: '#999',
+  },
+  logoutItem: {
+    paddingVertical: 12,
+  },
+  logoutText: {
+    fontSize: 16,
+    color: 'red',
     textAlign: 'center',
   },
 });

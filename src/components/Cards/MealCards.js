@@ -61,7 +61,7 @@ const MealCard = ({
         styles.emptyCard, 
         { backgroundColor } // Retain background color prop for the empty state
       ]}
-      // onPress={onAddPress}
+      onPress={onAddPress}
     >
       <Typography variant="SH4" color={mealNameColor} style={styles.addText}>No Meal</Typography>
     </TouchableOpacity>

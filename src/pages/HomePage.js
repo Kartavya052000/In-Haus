@@ -41,7 +41,7 @@ const screenOptions = {
     bottom: 0,
     left: 0,
     right: 0,
-    height: width * 0.22, // Responsive height
+    height: height * 0.1, // Responsive height
     backgroundColor: '#ffffff',
     paddingHorizontal: width * 0.02, // Responsive horizontal padding
     alignItems: 'center',
