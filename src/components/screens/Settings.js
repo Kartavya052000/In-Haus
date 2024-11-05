@@ -65,7 +65,7 @@ export default function Settings() {
 
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <View style={styles.viewBackButton}>
-          <BackIcon />
+          <BackIcon color={Colors?.Secondary?.Blue?.[400]} />
         </View>
         </TouchableOpacity>
 

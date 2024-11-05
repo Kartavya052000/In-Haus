@@ -62,10 +62,10 @@ export default function Notifications() {
         style={styles.headerBackground}
       />
       <View style={styles.contentContainer}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <View style={styles.viewBackButton}>
-          <BackIcon />
-        </View>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <View style={styles.viewBackButton}>
+            <BackIcon color={Colors?.Secondary?.Blue?.[400]} />
+          </View>
         </TouchableOpacity>
         <Typography variant="H5" color={Colors?.Secondary?.Blue?.[500]} align="center" style={styles.headerText}>
           Notifications

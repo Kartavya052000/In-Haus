@@ -6,7 +6,9 @@ import CustomLoadingScreen from "../../components/Loading/CustomLoadingScreen";
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import Slider from "@react-native-community/slider";
-import { MealIcon,DessertIcon ,BreakfastIcon ,SnacksIcon ,SaladIcon ,SoupIcon  } from "../../components/icons/icons";
+import { MealIcon,DessertIcon ,BreakfastIcon ,SnacksIcon ,SaladIcon ,SoupIcon, BackIcon  } from "../../components/icons/icons";
+import Colors from "../../components/Colors/Colors";
+
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 const SearchMeal = ({ navigation }) => {
@@ -102,9 +104,11 @@ const SearchMeal = ({ navigation }) => {
         style={styles.headerBackground}
       >
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <FontAwesome6 name="arrow-left" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <View style={styles.viewBackButton}>
+            <BackIcon color={Colors?.Primary?.Brand?.[100]} />
+          </View>
+        </TouchableOpacity>
           <Typography
             variant="H4"
             style={[
@@ -413,6 +417,14 @@ const styles = StyleSheet.create({
     marginTop: -20, // Para superponer ligeramente el fondo
     // paddingBottom: 16,
     marginHorizontal: 16,
+  },
+  viewBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
   },
 });
 
