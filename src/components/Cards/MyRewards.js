@@ -7,6 +7,7 @@ import { GET_GROUP } from "../../graphql/mutations/taskMutations";
 import * as SecureStore from 'expo-secure-store'; 
 import { useLazyQuery } from '@apollo/client';
 import { GET_USER__REDEEMED_REWARD_LIST, GET_USER_REWARD_LIST } from '../../graphql/mutations/rewardsMutations';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function MyRewards({ text, setIsVisible, list,setDetails }) {
   const navigation = useNavigation();
@@ -176,6 +177,11 @@ const fetchUserRedeemRewards = async (token) => {
           style={styles.members}
         />
       )}
+        <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={styles.rewardCardContainer}
+              showsVerticalScrollIndicator={false}
+            >
       <View style={styles.parentRewardContainer}>
       <View style={styles.header}>
         <Typography variant="SH3" color="#000">{text} Rewards</Typography>
@@ -222,6 +228,7 @@ const fetchUserRedeemRewards = async (token) => {
         
       />
       </View>
+      </ScrollView>
     </>
   );
 }
@@ -236,8 +243,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   parentRewardContainer:{
-minHeight:202,
-maxHeight:402
+// minHeight:202,
+// maxHeight:402,
+backgroundColor:"#fff",
+marginTop:16,
+padding:10
+
   },
   rewardContainer: {
     flexDirection: 'row',
@@ -246,6 +257,7 @@ maxHeight:402
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingVertical: 10,
+    backgroundColor:"#fff"
   },
   rewardImage: {
     width: 80,

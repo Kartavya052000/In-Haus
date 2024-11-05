@@ -1,4 +1,4 @@
-import { View, Text ,StyleSheet, Platform, Alert} from 'react-native'
+import { View, Text ,StyleSheet, Platform, Alert, Dimensions} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Typography from '../typography/Typography';
 import { TouchableOpacity } from 'react-native';
@@ -15,6 +15,11 @@ import { GET_GROUP } from '../../graphql/mutations/taskMutations';
 import * as SecureStore from 'expo-secure-store'; 
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { REDEEM_REWARD } from '../../graphql/mutations/rewardsMutations';
+import { LinearGradient } from "expo-linear-gradient";
+const { height } = Dimensions.get("window");
+import Colors from "../../components/Colors/Colors";
+import RewardsCards1 from '../Cards/RewardsCards1';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Rewards() {
   const [drawerVisible, setDrawerVisible] = useState(true);
@@ -97,43 +102,87 @@ const navigation =useNavigation();
 
   return (
     <View style={styles.container}>
-    <View style={styles.headerContainer}>
-        <Typography variant="H4" style={[styles.headerTitle]}>Rewards</Typography>
-        <TouchableOpacity style={styles.addMealButton} onPress={() => handleCreate()}>
-          <View style={styles.addMealContent}>
-            <View style={{ width: 4 }} />
-            <AddIcon style={styles.addIcon} />
+       <LinearGradient
+        colors={[ "rgba(255, 223, 247, 1)","rgba(253, 183, 235, 1)"]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.headerBackground}
+      />
+      <View style={styles.contentContainer}>
+        <Typography
+          variant="H4"
+          style={[
+            styles.headerTitle,
+            { textAlign: "center", color: "#891E6E" },
+          ]} // Ajusta el color para igualar el diseño
+        >
+          Rewards
+        </Typography>
+        <TouchableOpacity
+          style={styles.addMealButton}
+          onPress={() => handleCreate()}
+        >
+          <View style={styles.addMealContainer}>
+            <AddIcon color="#FFFFFF" style={styles.addIcon} />
           </View>
         </TouchableOpacity>
       </View>
-      <OptionTabs
-        options={optionsFromDatabase}
-        activeColor="#ccc" // Color for the selected option
-        inactiveColor="#f9f9f9" // Color for inactive options
-        textColor="#333" // Text color
-        onTabChange={handleTabChange} // Handle tab change
-      />
+
+         <View style={styles.optionTabsContainer}>
+          <OptionTabs
+            options={optionsFromDatabase}
+            containerColor={Colors.Secondary.Gray[100]} // Cambia el color del contenedor
+            activeColor={"#FFDFF7"} // Color activo igual que en `Haus`
+            inactiveColor={"#FFF"} // Color inactivo si es necesario (opcional)
+            textColor={"#B74044"} // Color de texto igual que en `Haus`
+            onTabChange={handleTabChange} // Manejador de cambio de pestaña
+          />
+        </View>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
 {activeTab =="My Rewards"&&(
+//  <View  style={styles.rewards_points}>
+//  <Text style={styles.text}>Rewards</Text>
+//  <Text style={styles.text}>{rewardPoints}/5000</Text>
+// </View>
+<RewardsCards1 currentPoints={rewardPoints}/>
+)}
+     </ScrollView>
+{/* {activeTab =="My Rewards"&&(
  <View  style={styles.rewards_points}>
  <Text style={styles.text}>Rewards</Text>
  <Text style={styles.text}>{rewardPoints}/5000</Text>
 </View>
-)}
-     
+)} */}
 
+     
+   
       <MyRewards text={activeTab =="My Rewards"?"My":"Assigned"}setIsVisible={setIsVisible} list ={'myRewards'} setDetails={setDetails} />
+
    
       <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} rewardPoints={rewardPoints} />
       </View>
   )
 }
 const styles = StyleSheet.create({
+  // container: {
+  //   flex: 1,
+  //   paddingHorizontal: 16,
+  //   paddingVertical: 24,
+  //   backgroundColor: '#fff',
+  //   paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60, // Add padding to avoid the notch or island
+  // },
   container: {
+    backgroundColor: "#F2F2F2",
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 24,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60, // Add padding to avoid the notch or island
+  },
+  contentContainer: {
+    alignItems: "center",
+    marginTop: height * 0.12,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -142,13 +191,29 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 16,
   },
+  headerBackground: {
+    height: height * 0.19,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "120%",
+  },
   headerTitle: {
     fontWeight: 'bold',
   },
   addMealButton: {
     position: 'absolute',
     right: 0,
-    padding: 8,
+    top: -10,
+    // padding: 8,
+  },
+  addMealContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.Secondary.Pink[500],
   },
   addMealContent: {
     flexDirection: 'row',
@@ -160,6 +225,14 @@ const styles = StyleSheet.create({
   },
   addIcon: {
     marginBottom: -2, // Adjust icon alignment to match the text height
+  },
+  optionTabsContainer: {
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 16,
+  },
+  rewardCardContainer:{
+    borderRadius:16
   },
   rewards_points:{
     backgroundColor:"lightblue"
