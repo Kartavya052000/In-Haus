@@ -19,12 +19,21 @@ export default function Profile({ name = profileData.name, role = profileData.ro
 
   const handleOptionPress = (option) => {
     if (option === 'Settings') {
-      navigation.navigate('Settings'); // Navega a la pantalla Settings
+      navigation.navigate('Settings');
+    } else if (option === 'Notifications') {
+      navigation.navigate('Notifications');
+    } else if (option === 'Add/Remove Member') {
+      navigation.navigate('AddMember');
+    } else if (option === 'Terms & Conditions') {
+      navigation.navigate('TermsConditions');
+    } else if (option === 'Log Out') {
+      navigation.navigate('Login');
     }
-    else if (option === 'Notifications') {
-      navigation.navigate('Notifications'); // Navega a la pantalla Notifications
-    }
-    // Aquí puedes agregar más opciones de navegación para las otras opciones si es necesario
+  };
+
+  // Nueva función para navegar a userProfile cuando se presiona la imagen de perfil
+  const handleProfileImagePress = () => {
+    navigation.navigate('UserProfile');
   };
 
   return (
@@ -47,7 +56,9 @@ export default function Profile({ name = profileData.name, role = profileData.ro
         
         {/* Profile Card */}
         <View style={styles.profileCard}>
-          <View style={styles.profileImagePlaceholder} />
+          <TouchableOpacity onPress={handleProfileImagePress}>
+            <View style={styles.profileImagePlaceholder} />
+          </TouchableOpacity>
           <Typography variant="SH3" style={styles.userName} >
           {name}
           </Typography>
@@ -62,7 +73,7 @@ export default function Profile({ name = profileData.name, role = profileData.ro
             <TouchableOpacity key={index} style={styles.optionItem} onPress={() => handleOptionPress(option)}>
               <Typography variant="SH3" style={styles.userInfo} >
                 {option}
-              </Typography>
+              </Typography> 
               <Text style={styles.optionIcon}>›</Text>
             </TouchableOpacity>
           ))}

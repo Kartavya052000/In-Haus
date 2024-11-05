@@ -8,17 +8,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen';
 import 'react-native-reanimated';
-import {
-  Haus,
-  Calendar,
-  MealAI,
-  Profile,
-  Rewards,
-  CameraScreen,
-  ResultScreen,
-  FixMealCameraScreen,
-  FixMealResultScreen
-} from './src/components/screens';
+import {Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
 import SignUp from './src/pages/SignUp';
 import Login from './src/pages/Login';
 import HomePage from './src/pages/HomePage';
@@ -33,6 +23,7 @@ import RewardsList from './src/Rewards/RewardsList';
 import WelcomePage from './src/pages/WelcomePage';
 import Settings from './src/components/screens/Settings';
 import Notifications from './src/components/screens/Notifications';
+import UserProfile from './src/components/screens/UserProfile';
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -108,7 +99,7 @@ export default function App() {
             <Stack.Screen name="WelcomePage" component={WelcomePage} options={{ headerShown: false }} />
             <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
             <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
-            
+            <Stack.Screen name="UserProfile" component={UserProfile} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </ShoppingListProvider>
