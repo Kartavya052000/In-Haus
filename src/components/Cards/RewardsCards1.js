@@ -4,9 +4,9 @@ import { RewardsIcon } from '../icons/icons';
 import Colors from '../Colors/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const RewardsCards1 = () => {
-  const currentPoints = 3000; // Valor actual simulado
-  const totalPoints = 5000;
+const RewardsCards1 = ({currentPoints=3000,totalPoints=5000}) => {
+  // const currentPoints = 3000; // Valor actual simulado
+  // const totalPoints = 5000;
   const progress = (currentPoints / totalPoints) * 100;
 
   return (
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: "100%",
     height: 'auto',
-    margin: 16,
+    marginTop: 16,
     padding: 16,
   },
   iconContainer: {

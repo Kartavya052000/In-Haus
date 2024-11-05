@@ -611,15 +611,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  container: {
-    backgroundColor: "#F2F2F2",
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  contentContainer: {
-    alignItems: "center",
-    marginTop: height * 0.12,
-  },
+container: {
+  backgroundColor: "#F2F2F2",
+  flex: 1,
+  paddingHorizontal: 16,
+},
+contentContainer: {
+  alignItems: "center",
+  marginTop: height * 0.12,
+},
   deleteAction: {
     alignItems: "center",
     backgroundColor: "red",
