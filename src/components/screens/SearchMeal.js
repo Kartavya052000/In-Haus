@@ -1,25 +1,33 @@
-import React, { useState, useEffect } from "react";
-import {View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Platform, StatusBar, Dimensions,} from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Platform, StatusBar, Dimensions, } from "react-native";
 import Typography from "../../components/typography/Typography";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import CustomLoadingScreen from "../../components/Loading/CustomLoadingScreen";
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import Slider from "@react-native-community/slider";
-import { MealIcon,DessertIcon ,BreakfastIcon ,SnacksIcon ,SaladIcon ,SoupIcon  } from "../../components/icons/icons";
+import { ShoppingListContext } from "../../components/contexts/ShoppingListContext";
+import { MealIcon, DessertIcon, BreakfastIcon, SnacksIcon, SaladIcon, SoupIcon, GoBackIcon, SearchIcon, OpenIcon, CloseIcon, ChineseIcon, IndianIcon, JapaneseIcon, LatamIcon, ItalianIcon, VietnameseIcon } from "../../components/icons/icons";
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 const SearchMeal = ({ navigation }) => {
   const route = useRoute();
 
+  const {
+    shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems, selectedDate,  setSelectedDate, selectedMealType, setSelectedMealType 
+  } = useContext(ShoppingListContext);
+
   // Initialize state variables
   const [loading, setLoading] = useState(false);
-  const [servings, setServings] = useState(1);
+  const [servings, setServings] = useState(4);
   const [mealStyleExpanded, setMealStyleExpanded] = useState(true);
   const [cuisinesExpanded, setCuisinesExpanded] = useState(true);
   const [selectedMealStyles, setSelectedMealStyles] = useState([]);
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [searchInputText, setSearchInputText] = useState("");
+
+  const isSearchButtonEnabled = searchInputText || selectedMealStyles.length > 0 || selectedCuisines.length > 0;
 
   // Initialize cuisines and mealStyles from route params or use default values
   const mealStyles = route.params?.initialMealStyles ?? [
@@ -38,15 +46,15 @@ const SearchMeal = ({ navigation }) => {
     "italian",
     "vietnamese",
   ];
-  const selectedMealType = route.params?.selectedMealType ?? null;
-  const selectedDate = route.params?.selectedDate ?? new Date();
-  const setSelectedDate = route.params?.setSelectedDate ?? (() => {});
+  // const selectedMealType = route.params?.selectedMealType ?? null;
+  // const selectedDate = route.params?.selectedDate ?? new Date();
 
-  useEffect(() => {
-    // Log params for debugging
-    console.log("selectedMealType", selectedMealType);
-    console.log("selectedDate", selectedDate);
-  }, [route.params]);
+
+  // useEffect(() => {
+  //   // Log params for debugging
+    console.log("selectedMealType - SearchMeal:", selectedMealType);
+    console.log("selectedDate - SearchMeal:", selectedDate);
+  // }, [route.params]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -79,10 +87,10 @@ const SearchMeal = ({ navigation }) => {
         selectedCuisines,
         searchInput: searchInputText,
         selectedDate,
-        setSelectedDate,
         selectedMealType,
+        servings
       });
-    }, 1000); // Simulate loading time
+    }, 0); // Simulate loading time
   };
 
   const toggleSelection = (item, list, setList) => {
@@ -90,6 +98,24 @@ const SearchMeal = ({ navigation }) => {
       setList(list.filter((i) => i !== item));
     } else {
       setList([...list, item]);
+    }
+  };
+
+  // New function for selecting one meal style
+  const toggleMealStyleSelection = (item) => {
+    if (selectedMealStyles.includes(item)) {
+      setSelectedMealStyles([]); // Deselect if already selected
+    } else {
+      setSelectedMealStyles([item]); // Select only one
+    }
+  };
+
+  // New function for selecting one cuisine
+  const toggleCuisineSelection = (item) => {
+    if (selectedCuisines.includes(item)) {
+      setSelectedCuisines([]); // Deselect if already selected
+    } else {
+      setSelectedCuisines([item]); // Select only one
     }
   };
 
@@ -103,7 +129,9 @@ const SearchMeal = ({ navigation }) => {
       >
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <FontAwesome6 name="arrow-left" size={24} color="#FFFFFF" />
+            <View style={styles.backButtonContainer}>
+              <GoBackIcon size={24} color="#FF5A5F" />
+            </View>
           </TouchableOpacity>
           <Typography
             variant="H4"
@@ -116,19 +144,25 @@ const SearchMeal = ({ navigation }) => {
           </Typography>
         </View>
       </LinearGradient>
-  
+
       {/* Contenedor principal para personalizar el contenido */}
       <View style={styles.mainContentContainer}>
         <View style={styles.searchInputCameraContainer}>
-          <View style={styles.searchInputContainer}>
-            <FontAwesome6 name="binoculars" size={16} style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search specific meal"
-              value={searchInputText}
-              onChangeText={setSearchInputText}
-            />
-          </View>
+        <View style={styles.searchInputContainer}>
+  <SearchIcon size={24} style={styles.searchIcon} />
+  <TextInput
+    variant="BodyL"
+    style={styles.searchInput}
+    placeholder="Search specific meal"
+    value={searchInputText}
+    onChangeText={setSearchInputText}
+  />
+  {searchInputText.length > 0 && (
+    <TouchableOpacity onPress={() => setSearchInputText('')} style={styles.clearButton}>
+      <FontAwesome5 name="times" size={16} color="#999" />
+    </TouchableOpacity>
+  )}
+</View>
           <TouchableOpacity
             onPress={handleCameraPress}
             style={styles.cameraButton}
@@ -136,7 +170,7 @@ const SearchMeal = ({ navigation }) => {
             <FontAwesome6 name="camera" size={24} style={styles.cameraIcon} />
           </TouchableOpacity>
         </View>
-  
+
         <ScrollView
           style={styles.scrollContainer}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 0 }}
@@ -150,12 +184,10 @@ const SearchMeal = ({ navigation }) => {
               <Typography variant="SH3" style={styles.accordionTitle}>
                 Meal Style
               </Typography>
-              <FontAwesome6
-                name={mealStyleExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
-              />
+              {mealStyleExpanded ? <CloseIcon color={"#b74044"} /> : <OpenIcon color={"#b74044"} />}
+
             </TouchableOpacity>
-                        {mealStyleExpanded && (
+            {mealStyleExpanded && (
               <View style={styles.checkboxGroup}>
                 {mealStyles.map((mealType, index) => (
                   <TouchableOpacity
@@ -164,15 +196,8 @@ const SearchMeal = ({ navigation }) => {
                       styles.checkboxButton,
                       selectedMealStyles.includes(mealType) && styles.checkboxButtonSelected,
                     ]}
-                    onPress={() =>
-                      toggleSelection(
-                        mealType,
-                        selectedMealStyles,
-                        setSelectedMealStyles
-                      )
-                    }
+                    onPress={() => toggleMealStyleSelection(mealType)}
                   >
-                    {/* Selección de ícono basado en el tipo de comida */}
                     {mealType === "main course" && <MealIcon size={16} style={styles.checkboxIcon} />}
                     {mealType === "dessert" && <DessertIcon size={16} style={styles.checkboxIcon} />}
                     {mealType === "breakfast" && <BreakfastIcon size={16} style={styles.checkboxIcon} />}
@@ -180,7 +205,6 @@ const SearchMeal = ({ navigation }) => {
                     {mealType === "salad" && <SaladIcon size={16} style={styles.checkboxIcon} />}
                     {mealType === "soup" && <SoupIcon size={16} style={styles.checkboxIcon} />}
 
-                    {/* Mostrar el nombre correcto para "side dish" */}
                     <Text style={styles.checkboxLabel}>
                       {mealType === "side dish" ? "Snacks" : mealType.charAt(0).toUpperCase() + mealType.slice(1)}
                     </Text>
@@ -189,20 +213,18 @@ const SearchMeal = ({ navigation }) => {
               </View>
             )}
           </View>
-  
+
           {/* Select Cuisines Section */}
           <View style={styles.accordionSection}>
             <TouchableOpacity
               style={styles.accordionHeader}
               onPress={() => setCuisinesExpanded(!cuisinesExpanded)}
             >
-              <Typography variant="SH4" style={styles.accordionTitle}>
-                Select Cuisines (Max 5 cuisines)
+              <Typography variant="SH3" style={styles.accordionTitle}>
+                Select Cuisines
               </Typography>
-              <FontAwesome6
-                name={cuisinesExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
-              />
+              {cuisinesExpanded ? <CloseIcon color={"#b74044"} /> : <OpenIcon color={"#b74044"} />}
+
             </TouchableOpacity>
             {cuisinesExpanded && (
               <View style={styles.checkboxGroup}>
@@ -211,53 +233,60 @@ const SearchMeal = ({ navigation }) => {
                     key={index}
                     style={[
                       styles.checkboxButton,
-                      selectedCuisines.includes(cuisine) &&
-                        styles.checkboxButtonSelected,
+                      selectedCuisines.includes(cuisine) && styles.checkboxButtonSelected,
                     ]}
-                    onPress={() =>
-                      toggleSelection(
-                        cuisine,
-                        selectedCuisines,
-                        setSelectedCuisines
-                      )
-                    }
+                    onPress={() => toggleCuisineSelection(cuisine)}
                   >
-                    <FontAwesome6
-                      name="globe"
-                      size={16}
-                      style={styles.checkboxIcon}
-                    />
+                    {cuisine === "chinese" && <ChineseIcon size={16} style={styles.checkboxIcon} />}
+                    {cuisine === "indian" && <IndianIcon size={16} style={styles.checkboxIcon} />}
+                    {cuisine === "japanese" && <JapaneseIcon size={16} style={styles.checkboxIcon} />}
+                    {cuisine === "latin america" && <LatamIcon size={16} style={styles.checkboxIcon} />}
+                    {cuisine === "italian" && <ItalianIcon size={16} style={styles.checkboxIcon} />}
+                    {cuisine === "vietnamese" && <VietnameseIcon size={16} style={styles.checkboxIcon} />}
                     <Text style={styles.checkboxLabel}>{cuisine}</Text>
                   </TouchableOpacity>
                 ))}
+
               </View>
             )}
           </View>
-  
+
           {/* Amount of Servings Section */}
           <View style={styles.servingsSection}>
-            <Typography variant="SH4" style={styles.servingsTitle}>
+            <Typography variant="SH3" style={styles.servingsTitle}>
               Amount of Servings
             </Typography>
-            <Slider
-              style={{ width: "100%", height: 40 }}
-              minimumValue={1}
-              maximumValue={10}
-              step={1}
-              value={servings}
-              onValueChange={(value) => setServings(value)}
-            />
-            <Text
-              style={styles.servingsValue}
-            >{`Selected Servings: ${servings}`}</Text>
+            <View style={styles.sliderContainer}>
+              <Text
+                style={styles.servingsValue}
+              >1</Text>
+              <Slider
+                style={{ width: (width - 100), height: 40, marginTop: 8, }}
+                minimumValue={1}
+                maximumValue={10}
+                step={1}
+                value={servings}
+                thumbTintColor="#e27f82"              // Thumb color
+                minimumTrackTintColor="#b74044"      // Left track color
+                maximumTrackTintColor="#f3c8ca"
+                onValueChange={(value) => setServings(value)}
+              />
+              <Text
+                style={styles.servingsValue}
+              >{`${servings}`}</Text>
+            </View>
           </View>
-  
+
           {/* Search Button */}
         </ScrollView>
       </View>
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>Search</Text>
-          </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.searchButton, { opacity: isSearchButtonEnabled ? 1 : 0.5 }]}
+        onPress={handleSearch}
+        disabled={!isSearchButtonEnabled}
+      >
+        <Text style={styles.searchButtonText}>Search</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -267,36 +296,64 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+
+  },
+  clearButton:{
+paddingRight:5,
   },
   headerContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingTop: "26%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: width,
+    marginTop: 54,
   },
   headerBackground: {
-    paddingBottom: 16,
-    // borderBottomLeftRadius: 20,
-    // borderBottomRightRadius: 20,
-    overflow: 'hidden',
+    height: 140,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: width,
   },
   headerTitle: {
-    fontWeight: "bold",
+    position: 'absolute',
+    fontSize: 24,
+    lineHeight: 28,
     textAlign: "center",
-    marginBottom: 16,
+    color: "#B4525E",
+    marginBottom: 10,
+
+    left: 16 + 40,
+    paddingRight: 40,
+    width: width - (32 + 40),
+
+
+  },
+  backButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    backgroundColor: "#fff",
+
   },
   backButton: {
-    position: "absolute",
-    left: 16,
-    bottom: 16,
+
+    left: 0,
+
+    top: 0,
+    marginLeft: 16,
   },
   searchInputCameraContainer: {
     flexDirection: "row",
     alignItems: "center",
-    
+    paddingRight: 8,
+    paddingLeft: 16,
+    marginBottom: 8,
   },
   searchInputContainer: {
-    backgroundColor:'#F2F2F2',
+    backgroundColor: '#F2F2F2',
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 24,
@@ -307,6 +364,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+    marginLeft: 8,
     // width: '100%',
   },
   searchIcon: {
@@ -325,6 +383,11 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
+    backgroundColor: '#fff',
+    marginTop: 0,
+    paddingLeft: 16,
+    paddingRight: 8,
+    marginBottom: 8,
   },
   accordionSection: {
     marginBottom: 0,
@@ -334,12 +397,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+
   },
   accordionTitle: {
-    fontWeight: 600,
-    fontFamily: 'Boston',
     fontSize: 20,
     lineHeight: 24,
     textAlign: 'left',
@@ -348,22 +408,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f2f2f2",
+    marginBottom: 8,
     // marginVertical: 16,
   },
   checkboxButton: {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#fcfafa",
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 8,
-    minWidth: width * 0.25, // 25% del ancho de la pantalla
+    minWidth: (width - (16 * 2)) * 0.25, // 25% del ancho de la pantalla
     flex: 1, // Ancho completo (fill) si es posible
     margin: 4,
     borderWidth: 2,
     borderColor: "transparent",
-    minHeight: height * 0.08,
+    aspectRatio: 1,
   },
   checkboxButtonSelected: {
     backgroundColor: "#FBEDEE",
@@ -371,7 +434,7 @@ const styles = StyleSheet.create({
   },
   checkboxIcon: {
     // marginRight: 8,
-    marginBottom:5,
+    marginBottom: 5,
   },
   checkboxLabel: {
     fontSize: 16,
@@ -382,8 +445,8 @@ const styles = StyleSheet.create({
     marginVertical: 0,
   },
   servingsTitle: {
-    marginBottom: 8,
-    fontWeight: "bold",
+    marginTop: 16,
+
   },
   servingsValue: {
     marginTop: 8,
@@ -394,7 +457,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
-    marginVertical: "16%",
+    //marginVertical: 32,
+    marginBottom: 32,
+    marginTop: 20,
     // paddingBottom: 16,
     marginHorizontal: 16,
   },
@@ -405,15 +470,23 @@ const styles = StyleSheet.create({
   },
   mainContentContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingRight: 8,
     paddingTop: 16,
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     // borderTopRightRadius: 20,
-    marginTop: -20, // Para superponer ligeramente el fondo
+    marginTop: 120, // Para superponer ligeramente el fondo
     // paddingBottom: 16,
     marginHorizontal: 16,
   },
+  sliderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
+    flex: 1,
+    justifyContent: 'space-between',
+  }
 });
 
 export default SearchMeal;
