@@ -1,345 +1,343 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList,Platform, StatusBar } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList, Platform, StatusBar, Alert, Dimensions } from 'react-native';
 import Typography from '../../components/typography/Typography';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRoute } from '@react-navigation/native';
-import mealsData from '../../graphql/data/meals.json';  // Import meals.json
+import { useLazyQuery, gql } from '@apollo/client';
+import * as SecureStore from 'expo-secure-store';
+import { LinearGradient } from 'expo-linear-gradient';
+import { GoBackIcon, FiltersIcon } from "../../components/icons/icons";
+const { height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+
+import Colors from "../../components/Colors/Colors";
+
+// GraphQL query to fetch meals
+const GET_MEALS = gql`
+  query getMeals($mealStyle: String, $cuisine: String, $title: String, $ingredients: [String]) {
+    getMeals(mealStyle: $mealStyle, cuisine: $cuisine, title: $title, ingredients: $ingredients) {
+      mealStyle
+      cuisine
+      meals {
+        id
+        title
+        likes
+        image
+        missedIngredients {
+          id
+          name
+          amount
+          unit
+        }
+      }
+    }
+  }
+`;
 
 const SearchResults = ({ navigation }) => {
   const route = useRoute();
-  const { selectedMealStyles = [], selectedCuisines = [], searchInput = "" } = route.params || {};
-  const selectedMealType = route.params?.selectedMealType ?? null;
-const selectedDate = route.params?.selectedDate ?? new Date();
-const setSelectedDate = route.params?.setSelectedDate ?? (() => {});
+  const { selectedMealStyles, selectedCuisines, searchInput, servings, selectedIngredients } = route.params;
 
-console.log('selectedMealTyp search results:', selectedMealType);
-console.log('selectedDate search results:', selectedDate);
-  // Define the default meal styles and cuisines at the top level
-  const defaultMealStyles = ['main course', 'dessert', 'breakfast', 'side dish', 'salad', 'soup'];
-  const defaultCuisines = ['chinese', 'indian', 'japanese', 'latin america', 'italian', 'vietnamese'];
 
-  const getMealsByCriteria = (mealStyle, cuisine, searchInput = "") => {
-    let allMeals = [];
-    const searchQuery = searchInput.toLowerCase();
-  
-    // Define the default meal styles and cuisines
-    const defaultMealStyles = ['main course', 'dessert', 'breakfast', 'side dish', 'salad', 'soup'];
-    const defaultCuisines = ['chinese', 'indian', 'japanese', 'latin america', 'italian', 'vietnamese', 'general'];
-  
-    // Helper function to collect meals from a specific cuisine within a meal type
-    const collectMealsFromCuisine = (mealData, mealType, cuisine) => {
-      mealData[mealType].forEach(cuisineObj => {
-        if (cuisineObj[cuisine]) {
-          allMeals.push(...cuisineObj[cuisine]);  // Collect meals from the specified cuisine
+
+
+
+  const mealStyle = selectedMealStyles.length > 0 ? selectedMealStyles[0] : null;
+  const cuisine = selectedCuisines.length > 0 ? selectedCuisines[0] : null;
+
+  const [token, setToken] = useState(null);
+  const [fetchMeals, { loading, data, error }] = useLazyQuery(GET_MEALS);
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const authToken = await SecureStore.getItemAsync('authToken');
+        if (authToken) {
+          setToken(authToken);
+        } else {
+          console.log('No token found');
         }
-      });
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+        Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+      }
     };
-  
-    // Case 1: No mealStyle and no cuisine - search globally across all meal types and cuisines
-    if (!mealStyle && !cuisine) {
-      console.log("Global search: No mealStyle or cuisine selected. Searching across all meal types and cuisines.");
-      defaultMealStyles.forEach(type => {
-        const mealData = mealsData.meals.find(meal => meal[type]);
-        if (mealData) {
-          defaultCuisines.forEach(cuisineKey => {
-            collectMealsFromCuisine(mealData, type, cuisineKey);
-          });
-          if (mealData[type].general) {
-            allMeals.push(...mealData[type].general);  // Collect from the general dataset
-          }
-        }
-      });
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchMealData(token);
     }
-  
-    // Case 2: mealStyle is selected but no cuisine - search within that mealStyle across all cuisines including general
-    else if (mealStyle && !cuisine) {
-      console.log(`Searching within mealStyle: ${mealStyle} across all cuisines including general.`);
-      const mealData = mealsData.meals.find(meal => meal[mealStyle]);
-      if (mealData) {
-        // Collect from all available cuisines within the mealStyle
-        defaultCuisines.forEach(cuisineKey => {
-          if (mealData[mealStyle].some(cuisineObj => cuisineObj[cuisineKey])) {
-            collectMealsFromCuisine(mealData, mealStyle, cuisineKey);
-          }
-        });
-        // Collect from the general dataset within the mealStyle
-        // if (mealData[mealStyle].general) {
-        //   allMeals.push(...mealData[mealStyle].general);
-        // }
-      }
+  }, [token, searchInput, cuisine, mealStyle, selectedIngredients]);
+
+  const fetchMealData = (token) => {
+    const variables = {
+        title: searchInput || null,
+        cuisine: cuisine || null,
+        mealStyle: mealStyle || null,
+        ingredients: selectedIngredients && selectedIngredients.length > 0 ? selectedIngredients : null,
+    };
+
+    console.log('Variables sent to query:', variables);
+
+    fetchMeals({
+        context: {
+            headers: {
+                Authorization: `${token}`,
+            },
+        },
+        variables,
+    });  
+};
+
+// Log the response to see if data is populated
+useEffect(() => {
+    if (data) {
+        console.log('Query response data:', data);
     }
-  
-    // Case 3: Cuisine is selected but no mealStyle - search across all meal types within the selected cuisine
-    else if (!mealStyle && cuisine) {
-      console.log(`Searching within cuisine: ${cuisine} across all meal types.`);
-      // Iterate over all meal types to find meals for the selected cuisine
-      defaultMealStyles.forEach(type => {
-        const mealData = mealsData.meals.find(meal => meal[type]);
-        if (mealData) {
-          collectMealsFromCuisine(mealData, type, cuisine);  // Collect meals from the selected cuisine across all meal types
-        }
-      });
-    }
-  
-    // Case 4: Both mealStyle and cuisine are selected
-    else if (mealStyle && cuisine) {
-      console.log(`Searching within mealStyle: ${mealStyle} and cuisine: ${cuisine}.`);
-      const mealData = mealsData.meals.find(meal => meal[mealStyle]);
-      if (mealData) {
-        mealData[mealStyle].forEach(cuisineObj => {
-          if (cuisineObj[cuisine]) {
-            allMeals.push(...cuisineObj[cuisine]);  // Collect meals from the specified meal type and cuisine
-          }
-        });
-      }
-    }
-  
-    console.log("Total meals collected before filtering by search input:", allMeals.length);
-  
-    // Apply the search input filter, if provided
-    if (searchQuery) {
-      allMeals = allMeals.filter(meal => {
-        return meal.title.toLowerCase().includes(searchQuery);  // Filter meals by title match (partial, case-insensitive)
-      });
-      console.log("Filtered meals after applying search input:", allMeals.length);
-    }
-  
-    // Return the first 10 matching meals
-    return allMeals.slice(0, 10);
+}, [data]);
+
+  const handleFilters = () => {
+    navigation.navigate("FilterScreen", {
+
+      selectedMealStyles, 
+      selectedCuisines, 
+      searchInput, 
+      servings, 
+
+
+      selectedIngredients
+   
+    })
   };
-  
-
-  const renderFlatListForMeals = (mealStyle, cuisine) => {
-    const meals = getMealsByCriteria(mealStyle, cuisine, searchInput);
-    const maxChars = 20; 
-    return meals.length > 0 ? (
-      <FlatList
-        data={meals}
-        horizontal
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.mealCard}
-            onPress={() =>
-              navigation.navigate('MealDetails', {
-                id: item.id,
-                image: item.image,
-                title: item.title,
-                time: item.readyInMinutes,
-                healthScore: item.healthScore,
-                servings: item.servings,
-                ingredients: item.missedIngredients,
-                selectedDate: selectedDate,
-                setSelectedDate: setSelectedDate,
-                selectedMealType: selectedMealType  
-                
-                // assuming ingredients come under 'missedIngredients'
-
-              })
-            }
-          >
-            <Image source={{ uri: item.image }} style={styles.mealImage} />
-            <Text style={styles.mealTitle}>
-            {item.title.length > maxChars ? `${item.title.substring(0, maxChars)}...` : item.title}
-                </Text>
-          </TouchableOpacity>
-        )}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.mealItemsContainer}
-      />
-    ) : (
-      <View style={styles.noDataContainer}>
-        <Text style={styles.noDataText}>No meals found matching your search.</Text>
-      </View>
-    );
-  };
-  
-
+console.log("selectedIngredients results:", selectedIngredients);
   const handleBack = () => {
     navigation.goBack();
   };
-//maximun characters to show in the meal title
+
+const handleMealDetails = (meal) => {
+  console.log('Meal selected:', meal);
+  navigation.navigate('MealDetails', {
+    id: meal.id,
+    image: meal.image,
+    title: meal.title,
+    selectedServings: servings,
+  });
+};
+
+  const renderMealCard = ({ item }) => (
+    <TouchableOpacity
+      style={styles.mealCard}
+      onPress={() => handleMealDetails(item)}
+    >
+      <Image source={{ uri: item.image }} style={styles.mealImage} />
+      <Text style={styles.mealTitle}>{item.title}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <FontAwesome6 name="arrow-left" size={24} />
-        </TouchableOpacity>
-        <Typography variant="H4" style={styles.headerTitle}>MealAI</Typography>
-        <TouchableOpacity style={styles.filterButton}>
-          <FontAwesome6 name="sliders" size={24} />
-        </TouchableOpacity>
-      </View>
+      <LinearGradient
+        colors={['#F3C8CA', '#E27F82']}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.headerBackground}
+      >
+        <View style={styles.headerContainer}>
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+            <View style={styles.backButtonContainer}>
+              <GoBackIcon size={24} color="#FF5A5F" />
+            </View>
+          </TouchableOpacity>
+          <Typography variant="H4" style={styles.headerTitle}>MealAI</Typography>
+          <TouchableOpacity style={styles.filterButton} onPress={() => handleFilters()}>
+            <View style={styles.filterButtonContainer}>
+              <FiltersIcon size={24} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
 
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 24 }}>
-        {selectedCuisines.length === 0 && selectedMealStyles.length === 0 ? (
-          <>
-            <Typography variant="H4" style={styles.cuisineTitle}>All</Typography>
-            {defaultMealStyles.map((mealStyle, index) => {
-              const meals = getMealsByCriteria(mealStyle, null, searchInput);
-              if (meals.length > 0) {
-                return (
-                  <View key={index} style={styles.mealStyleSection}>
-                    <Typography variant="SH4" style={styles.mealStyleTitle}>{mealStyle}</Typography>
-                    {renderFlatListForMeals(mealStyle)}
-                  </View>
-                );
-              }else{
-                return (
-                    <View style={styles.noDataContainer}>
-                            <Text style={styles.noDataText}>No meals found matching your search.</Text>
-                          </View>
-                )
-                              }
-            })}
-          </>
-        ) : selectedMealStyles.length > 0 && selectedCuisines.length === 0 ? (
-          <>
-            <Typography variant="H4" style={styles.cuisineTitle}>All</Typography>
-            {selectedMealStyles.map((mealStyle, mealStyleIndex) => {
-              const meals = getMealsByCriteria(mealStyle, null, searchInput);
-              if (meals.length > 0) {
-                return (
-                  <View key={mealStyleIndex} style={styles.mealStyleSection}>
-                    <Typography variant="SH4" style={styles.mealStyleTitle}>{mealStyle}</Typography>
-                    {renderFlatListForMeals(mealStyle)}
-                  </View>
-                );
-              }else{
-return (
-    <View style={styles.noDataContainer}>
-            <Text style={styles.noDataText}>No meals found matching your search.</Text>
-          </View>
-)
-              }
-             
-            })}
-          </>
-        ) : selectedCuisines.length > 0 && selectedMealStyles.length === 0 ? (
-          selectedCuisines.map((cuisine, cuisineIndex) => (
-            <View key={cuisineIndex} style={styles.cuisineSection}>
-              <Typography variant="H4" style={styles.cuisineTitle}>{cuisine}</Typography>
-              {defaultMealStyles.map((mealStyle, mealStyleIndex) => {
-                const meals = getMealsByCriteria(mealStyle, cuisine, searchInput);
-                if (meals.length > 0) {
-                  return (
-                    <View key={mealStyleIndex} style={styles.mealStyleSection}>
-                      <Typography variant="SH4" style={styles.mealStyleTitle}>{mealStyle}</Typography>
-                      {renderFlatListForMeals(mealStyle, cuisine)}
-                    </View>
-                  );
-                }
-                return null;
-              })}
-            </View>
-          ))
-        ) : selectedCuisines.length > 0 && selectedMealStyles.length > 0 ? (
-          selectedCuisines.map((cuisine, cuisineIndex) => (
-            <View key={cuisineIndex} style={styles.cuisineSection}>
-              <Typography variant="H4" style={styles.cuisineTitle}>{cuisine}</Typography>
-              {selectedMealStyles.map((mealStyle, mealStyleIndex) => {
-                const meals = getMealsByCriteria(mealStyle, cuisine, searchInput);
-                if (meals.length > 0) {
-                  return (
-                    <View key={mealStyleIndex} style={styles.mealStyleSection}>
-                      <Typography variant="SH4" style={styles.mealStyleTitle}>{mealStyle}</Typography>
-                      {renderFlatListForMeals(mealStyle, cuisine)}
-                    </View>
-                  );
-                }
-                return null;
-              })}
-            </View>
-          ))
-        ) : (
-          <View style={styles.noDataContainer}>
-            <Text style={styles.noDataText}>No meals found matching your search.</Text>
-          </View>
+      <View style={styles.mainContentContainer}>
+        {cuisine && (
+          <Typography variant="H5" style={styles.cuisineTitle}>
+            {cuisine}
+          </Typography>
         )}
-      </ScrollView>
+        {mealStyle && (
+          <Typography variant="SH3" style={styles.mealStyleTitle}>
+            {mealStyle}
+          </Typography>
+        )}
+        {searchInput && (
+          <Typography variant="BodyS" style={styles.resultsForText}>
+            Results for: {searchInput}
+          </Typography>
+        )}
+<View style={styles.scrollContainer}>
+  {loading ? (
+    <View style={styles.loadingContainer}>
+      <Text style={styles.loadingText}>Loading...</Text>
+    </View>
+  ) : error ? (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorText}>Error loading meals: {error.message}</Text>
+    </View>
+  ) : data?.getMeals?.meals.length > 0 ? (
+    <FlatList
+      data={data.getMeals.meals}
+      numColumns={2}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={renderMealCard}
+      columnWrapperStyle={styles.mealItemsContainer}
+      contentContainerStyle={{ paddingBottom: 16 }}
+    />
+  ) : (
+    <View style={styles.noDataContainer}>
+      <Text style={styles.noDataText}>No meals found for this selection.</Text>
+    </View>
+  )}
+</View>
+
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 0,
-        backgroundColor: '#fff',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
-      },
-      headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 16,
-        marginBottom: 8,
-      },
-      headerTitle: {
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 16,
-      },
-  backButton: {
-    position: 'absolute',
-    padding: 8,
-    left: 0,
+  container: {
+    flex: 1,
+    backgroundColor: '#f2f2f2',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
   },
-  filterButton: {
+  headerBackground: {
+    height: 140,
     position: 'absolute',
-    padding: 8,
+    top: 0,
+    left: 0,
     right: 0,
   },
-  scrollContainer: {
-    flex: 1,
+  headerContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: width,
+    marginTop: 54,
   },
-  cuisineSection: {
-    marginBottom: 24,
+  headerTitle: {
+    position: 'absolute',
+    fontSize: 24,
+    lineHeight: 28,
+    textAlign: "center",
+    color: "#B4525E",
+    marginBottom: 0,
+    width: width,
+  },
+  backButtonContainer: {
+
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    backgroundColor: "#fff",
+
+  },
+  backButton: {
+position: "absolute",
+    left: 0,
+
+    top: -10,
+    marginLeft: 16,
+  },
+  filterButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    backgroundColor: "#ff5a5f",
+  },
+  filterButton: {
+    position: "absolute",
+    right: 16,
+    top: -10,
+  },
+  mainContentContainer: {
+    flex: 1,
+    paddingRight: 8,
+    paddingTop: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    // borderTopRightRadius: 20,
+    marginTop: 100, // Para superponer ligeramente el fondo
+    // paddingBottom: 16,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+  },
+  scrollContainer: {
+    
+    paddingTop: 5,
   },
   cuisineTitle: {
-    fontWeight: 'bold',
+    fontSize: 24,
+    color: '#000',
     marginBottom: 8,
     textTransform: 'capitalize',
-    marginBottom:8,
-  },
-  mealStyleSection: {
-    marginBottom: 16,
   },
   mealStyleTitle: {
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 20,
+    color: '#000',
+    marginBottom: 16,
     textTransform: 'capitalize',
   },
   mealItemsContainer: {
-    paddingBottom: 8,
+    justifyContent: 'space-between',
   },
   mealCard: {
-    width: 95,
-    marginRight: 8,
-    paddingTop: 0,
-    paddingBottom: 8,
+    flex: 0.5,
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
   mealImage: {
-    width: 95,
-    height: 95,
-    marginBottom: 8,
+    width: '100%',
+    height: 120,
     borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    overflow: 'hidden',
   },
   mealTitle: {
+    marginTop: 8,
     textAlign: 'center',
-    textTransform: 'capitalize',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#999',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#999',
   },
   noDataContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50,
+    paddingVertical: 20,
   },
   noDataText: {
     fontSize: 16,
