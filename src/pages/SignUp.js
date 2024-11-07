@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useMutation } from '@apollo/client';
 import { SIGN_UP_MUTATION } from '../graphql/mutations/authMutations';
-import * as Keychain from 'react-native-keychain';
-import InputField from '../components/Inputs/InputField';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import * as SecureStore from 'expo-secure-store';
-// Storing the token
+import InputField from '../components/Inputs/InputField';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Dimensions } from 'react-native';
+
+const { height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+
 const storeToken = async (token) => {
   try {
     await SecureStore.setItemAsync('authToken', token);
@@ -16,27 +22,28 @@ const storeToken = async (token) => {
     Alert.alert('Storage Error', 'Failed to store authentication token securely.');
   }
 };
+
 const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation(); // Get navigation from the hook
+  const navigation = useNavigation();
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar visibilidad de la contraseña
+
   const [signUp] = useMutation(SIGN_UP_MUTATION, {
     onCompleted: (data) => {
       console.log('Signup successful:', data.signup.token);
-    storeToken(data.signup.token);
-    navigation.replace('Onboarding'); // Use replace here
-    Alert.alert('Signup Successful', 'You have successfully signed up!');
-      // Optionally navigate to another screen or reset form here
+      storeToken(data.signup.token);
+      navigation.replace('Onboarding');
+      Alert.alert('Signup Successful', 'You have successfully signed up!');
     },
     onError: (error) => {
       console.error('Error signing up:', error);
       Alert.alert('Signup Error', error.message);
     },
   });
+
   const handleSave = () => {
-    // Add logic to save event to backend if needed
-    // Call the sign-up mutation when saving the event
     if (username && email && password) {
       signUp({
         variables: {
@@ -49,76 +56,142 @@ const SignUp = () => {
       Alert.alert('Validation Error', 'All fields are required.');
     }
   };
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Text style={styles.headerText}>Register for Event</Text>
-      </View> */}
-      {/* User Information */}
-      <InputField
-        label="Username"
-        placeholder="Enter your username"
-        value={username}
-        onChangeText={setUsername}
-        style={styles.inputField}
-      />
-      <InputField
-        label="Email"
-        placeholder="Enter your email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        style={styles.inputField}
-      />
-      <InputField
-        label="Password"
-        placeholder="Enter your password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.inputField}
-      />
-      {/* Discard and Save Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveText}>Register</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.replace('Login')}>
-          <Text style={styles.createAccountText}>Already Have an Account</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+          <LinearGradient
+            colors={['rgba(243, 245, 255, 1)','rgba(199, 210, 255, 1)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            style={styles.backgroundCircle}
+            opacity={0.5}
+          />
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Create an account</Text>
+          <InputField
+            label="Username"
+            placeholder="Enter your username"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.inputField}
+          />
+          <InputField
+            label="Email"
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            style={styles.inputField}
+          />
+    <View style={styles.passwordContainer}>
+              <InputField
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              >
+                <TouchableOpacity style={styles.iconContainer} onPress={() => setShowPassword(!showPassword)}>
+                  <Icon 
+                    name={showPassword ? 'visibility' : 'visibility-off'} 
+                    size={24} 
+                    color="gray" 
+                  />
+                </TouchableOpacity>
+              </InputField>
+            </View>
+            <View style={styles.passwordContainer}>
+              <InputField
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              >
+                <TouchableOpacity style={styles.iconContainer} onPress={() => setShowPassword(!showPassword)}>
+                  <Icon 
+                    name={showPassword ? 'visibility' : 'visibility-off'} 
+                    size={24} 
+                    color="gray" 
+                  />
+                </TouchableOpacity>
+              </InputField>
+            </View>
+                  <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveText}>Register</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.replace('Login')}>
+              <Text style={styles.createAccountText}>Already have an account?</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flexGrow: 1,
+    padding: 5,
+    justifyContent: 'center',
+    // backgroundColor: '#f0f4ff', // Fondo similar a los otros estilos
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    marginBottom: 20,
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#000',
   },
   inputField: {
     marginBottom: 20,
+    width: '100%',
   },
   buttonContainer: {
-    marginTop: 30,
+    position: 'absolute',
+    bottom: 20, // Ubica el contenedor a 20px del fondo
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
   saveButton: {
-    backgroundColor: 'black',
-    borderRadius: 25,
+    backgroundColor: '#4f67ff',
+    borderRadius: 16,
     paddingVertical: 15,
-    paddingHorizontal: 40,
+    paddingHorizontal: 80,
+    marginBottom: 15,
+    width: '80%',
+    height: 52,
   },
   saveText: {
     color: 'white',
     fontSize: 16,
+    fontWeight: '600',
     textAlign: 'center',
   },
+  createAccountText: {
+    color: '#4f67ff',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: "5%",
+    top: '50%',
+    transform: [{ translateY: -11 }],
+  },
+  backgroundCircle: {
+    position: 'absolute',
+    top: -165,
+    left: -90,
+    width: width*1.4,
+    height: width*1.4,
+    borderRadius: 304,
+  },
 });
+
 export default SignUp;
+

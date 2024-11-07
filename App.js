@@ -24,6 +24,10 @@ import WelcomePage from './src/pages/WelcomePage';
 import Settings from './src/components/screens/Settings';
 import Notifications from './src/components/screens/Notifications';
 import UserProfile from './src/components/screens/UserProfile';
+import AddRemoveMember from './src/components/screens/AddRemoveMember';
+// import UserList from '/src/components/screens/UserList';
+import UserDetails from './src/components/screens/UserDetails';
+
 
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
@@ -34,7 +38,7 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
-  uri: 'http://10.0.0.36:4000/graphql', // Your GraphQL endpoint
+  uri: 'http://10.128.231.24:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -85,8 +89,8 @@ export default function App() {
       <ShoppingListProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="WelcomePage">
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="SignUp" component={SignUp} />
+            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+            <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
             <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }} />
             <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
@@ -100,6 +104,9 @@ export default function App() {
             <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
             <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
             <Stack.Screen name="UserProfile" component={UserProfile} options={{ headerShown: false }} />
+            <Stack.Screen name="AddRemoveMember" component={AddRemoveMember} options={{ headerShown: false }} />
+            {/* <Stack.Screen name="UserList" component={UserList} options={{ headerShown: false }} /> */}
+            <Stack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </ShoppingListProvider>

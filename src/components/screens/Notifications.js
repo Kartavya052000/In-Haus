@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 16,
   },
   headerText: {
-    fontWeight: '700',
+    fontWeight: '400',
     fontSize: 24,
     lineHeight: 28,
     paddingBottom: 16,

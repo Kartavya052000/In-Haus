@@ -23,7 +23,7 @@ export default function Profile({ name = profileData.name, role = profileData.ro
     } else if (option === 'Notifications') {
       navigation.navigate('Notifications');
     } else if (option === 'Add/Remove Member') {
-      navigation.navigate('AddMember');
+      navigation.navigate('AddRemoveMember');
     } else if (option === 'Terms & Conditions') {
       navigation.navigate('TermsConditions');
     } else if (option === 'Log Out') {

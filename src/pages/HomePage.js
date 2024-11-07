@@ -10,6 +10,8 @@ import CalendarPage from './CalenderPage';
 
 // Import your SVG icons
 import { HausIcon, CalendarIcon, MealAIIcon, RewardsIcon, ProfileIcon } from '../components/icons/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 // Get screen dimensions
 const { width, height } = Dimensions.get('window');
@@ -107,8 +109,9 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <FontAwesomeIcon icon={faUser} color={focused ? '#3F80FF' : '#D0D5DD'} size={width * 0.05} />
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Profile</Text>
+              {/* <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} /> */}
             </View>
           ),
         }} 

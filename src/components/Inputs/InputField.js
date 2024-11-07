@@ -1,53 +1,58 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
-import Typography from '../typography/Typography'; // Usamos el componente de tipografía
+import Typography from '../typography/Typography';
 
-const InputField = ({ label, placeholder, value, onChangeText, disabled = false, inputHeight = 44, inputWidth = 208 }) => {
+const InputField = ({ label, placeholder, value, onChangeText, disabled = false, inputHeight = 44, inputWidth = '100%', secureTextEntry, children }) => {
   return (
     <View style={styles.container}>
-      {/* Etiqueta del campo (Label) */}
       <Typography variant="SH4" style={styles.label}>
         {label}
       </Typography>
-
-      {/* Espacio entre Label y el Input */}
       <View style={{ height: 4 }} />
-
-      {/* Campo de entrada (Input) */}
-      <TextInput
-        style={[
-          styles.input,
-          { height: inputHeight, width: inputWidth },
-          disabled ? styles.disabledInput : {}
-        ]}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={onChangeText}
-        placeholderTextColor="#A0A0A0" // Color del placeholder
-        editable={!disabled} // Campo editable o no editable
-      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[
+            styles.input,
+            { height: inputHeight, width: inputWidth },
+            disabled ? styles.disabledInput : {}
+          ]}
+          placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
+          placeholderTextColor="#A0A0A0"
+          editable={!disabled}
+          secureTextEntry={secureTextEntry}
+        />
+        {children}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20, // Espaciado entre campos
+    marginBottom: 20,
+    width: '100%',
   },
-  label: {
-    // marginBottom: 4, // Espaciado entre label y campo de entrada
+  label: {},
+  inputContainer: {
+    position: 'relative',
+    width: '100%',
+    justifyContent: 'center',
   },
   input: {
-    borderColor: '#000', // Color del borde
+    borderColor: '#000',
     borderWidth: 1,
-    borderRadius: 24, // Bordes redondeados
-    paddingHorizontal: 12, // Espaciado interno horizontal
-    fontSize: 16, // Tamaño del texto del campo de entrada
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    fontSize: 16,
     fontFamily: 'BostonRegular',
+    width: '100%',
+    paddingRight: 40, // espacio para el ícono
   },
   disabledInput: {
-    backgroundColor: '#f0f0f0', // Color de fondo más claro para indicar que está deshabilitado
-    borderColor: '#d3d3d3', // Color de borde más claro
+    backgroundColor: '#f0f0f0',
+    borderColor: '#d3d3d3',
   },
 });
 
