@@ -10,114 +10,114 @@ import Typography from "../components/typography/Typography";
 import { AddIcon } from "../components/icons/icons";
 import TaskCalendar from "../components/calendar/TaskCalendar";
 
-const CalendarPage = () => {
-  const [activeTab, setActiveTab] = useState("All");
-  const [token, setToken] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [groupId, setGroupId] = useState('');
-  
-  const navigation = useNavigation();
-  
-  const [fetchGroup, { loading, error }] = useLazyQuery(GET_GROUP, {
-    onCompleted: (data) => {
-      const transformedMembers = data.getGroup.members.map((member) => ({
-        name: member.username,
-        id: member.id
-      }));
-      console.log(data.getGroup)
-      setTasks(data.getGroup.filteredTasks);
-      setMembers(transformedMembers); 
-      setGroupId(data.getGroup.id);  
-    },
-    onError: (error) => {
-      console.error('Error fetching group:', error.message);
-    },
-  });
+  const CalendarPage = () => {
+    const [activeTab, setActiveTab] = useState("All");
+    const [token, setToken] = useState(null);
+    const [members, setMembers] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [groupId, setGroupId] = useState('');
+    
+    const navigation = useNavigation();
+    
+    const [fetchGroup, { loading, error }] = useLazyQuery(GET_GROUP, {
+      onCompleted: (data) => {
+        const transformedMembers = data.getGroup.members.map((member) => ({
+          name: member.username,
+          id: member.id
+        }));
+        console.log(data.getGroup)
+        setTasks(data.getGroup.filteredTasks);
+        setMembers(transformedMembers); 
+        setGroupId(data.getGroup.id);  
+      },
+      onError: (error) => {
+        console.error('Error fetching group:', error.message);
+      },
+    });
 
-  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] = useLazyQuery(GET_USER_TASK, {
-    onCompleted: (data) => {
-    console.log("Hit2",data.getUserTasksInGroup)
+    const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] = useLazyQuery(GET_USER_TASK, {
+      onCompleted: (data) => {
+      console.log("Hit2",data.getUserTasksInGroup)
 
-      setTasks(data.getUserTasksInGroup.filteredTasks);
-    },
-    onError: (error) => {
-      console.error('Error fetching user tasks:', error.message);
-    },
-  });
+        setTasks(data.getUserTasksInGroup.filteredTasks);
+      },
+      onError: (error) => {
+        console.error('Error fetching user tasks:', error.message);
+      },
+    });
 
-  const getToken = async () => {
-    try {
-      const token = await SecureStore.getItemAsync('authToken');
+    const getToken = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('authToken');
+        if (token) {
+          setToken(token);
+          fetchGroupData(token);
+        } else {
+          console.log('No token found');
+        }
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+        Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+      }
+    };
+
+    const fetchGroupData = async (token) => {
       if (token) {
-        setToken(token);
+        fetchGroup({
+          context: {
+            headers: {
+              Authorization: `${token}`,
+            },
+          },
+          variables: {
+            groupID: "test", 
+          },
+        });
+      }
+    };
+
+    const fetchUserData = async (token, userId) => {
+      console.log("Hit1")
+      if (token && groupId) {
+        fetchUserTask({
+          context: {
+            headers: {
+              Authorization: `${token}`,
+            },
+          },
+          variables: {
+            groupId: groupId,
+            userId,
+          },
+        });
+      }
+    };
+
+    useEffect(() => {
+      getToken(); 
+    }, []);
+
+    // useEffect(() => {
+    //   if (token && groupId) {
+    //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
+    //   }
+    // }, [groupId]);
+
+    if (loading || userTaskLoading) return <Text>Loading...</Text>;
+    if (error || userTaskError) return <Text>Error fetching data: {error?.message}</Text>;
+
+    const handleTabChange = (tabName) => {
+      setActiveTab(tabName.name);
+      if (tabName.name === 'All') {
         fetchGroupData(token);
       } else {
-        console.log('No token found');
+        fetchUserData(token, tabName.id);
       }
-    } catch (error) {
-      console.error('Error retrieving token:', error);
-      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
-    }
-  };
+    };
 
-  const fetchGroupData = async (token) => {
-    if (token) {
-      fetchGroup({
-        context: {
-          headers: {
-            Authorization: `${token}`,
-          },
-        },
-        variables: {
-          groupID: "test", 
-        },
-      });
-    }
-  };
-
-  const fetchUserData = async (token, userId) => {
-    console.log("Hit1")
-    if (token && groupId) {
-      fetchUserTask({
-        context: {
-          headers: {
-            Authorization: `${token}`,
-          },
-        },
-        variables: {
-          groupId: groupId,
-          userId,
-        },
-      });
-    }
-  };
-
-  useEffect(() => {
-    getToken(); 
-  }, []);
-
-  // useEffect(() => {
-  //   if (token && groupId) {
-  //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
-  //   }
-  // }, [groupId]);
-
-  if (loading || userTaskLoading) return <Text>Loading...</Text>;
-  if (error || userTaskError) return <Text>Error fetching data: {error?.message}</Text>;
-
-  const handleTabChange = (tabName) => {
-    setActiveTab(tabName.name);
-    if (tabName.name === 'All') {
-      fetchGroupData(token);
-    } else {
-      fetchUserData(token, tabName.id);
-    }
-  };
-
-  const handleClick = () => {
-    navigation.navigate('CreateTaskEvent');
-  };
+    const handleClick = () => {
+      navigation.navigate('CreateTaskEvent');
+    };
 
   return (
     <View style={styles.container}>
