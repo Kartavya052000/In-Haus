@@ -5,11 +5,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Import your screens
-import { Haus, Calendar, MealAI, Profile, Rewards, SearchCameraScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI } from '../components/screens';
+import { Haus, Calendar, MealAI, Profile, Rewards, SearchCameraScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI, FilterScreen } from '../components/screens';
 import CalendarPage from './CalenderPage';
 
 // Import your SVG icons
 import { HausIcon, CalendarIcon, MealAIIcon, RewardsIcon, ProfileIcon } from '../components/icons/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 // Get screen dimensions
 const { width, height } = Dimensions.get('window');
@@ -29,6 +31,7 @@ function MealAIStack() {
       <MealStack.Screen name="SearchResults" component={SearchResults} options={{ headerShown: false }} />
       <MealStack.Screen name="MealDetails" component={MealDetails} options={{ headerShown: false }} />
       <MealStack.Screen name="MealDetailsAI" component={MealDetailsAI} options={{ headerShown: false }} />
+      <MealStack.Screen name="FilterScreen" component={FilterScreen} options={{ headerShown: false }} />
     </MealStack.Navigator>
   );
 }
@@ -37,13 +40,17 @@ const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
   tabBarStyle: {
-    position: 'relative',
+    position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
-    height: width * 0.22, // Responsive height
+
+//     left: 0,
+//     right: 0,
+//     height: height * 0.1, // Responsive height
+
+    height: 60, // Increase if needed for consistency
+
     backgroundColor: '#ffffff',
-    paddingHorizontal: width * 0.02, // Responsive horizontal padding
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -59,7 +66,7 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <HausIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <HausIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width } height={width } />
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Haus</Text>
             </View>
           ),
@@ -71,7 +78,7 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <CalendarIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <CalendarIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width } height={width } />
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Calendar</Text>
             </View>
           ),
@@ -83,7 +90,7 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <MealAIIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <MealAIIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width } height={width } />
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>MealAI</Text>
             </View>
           ),
@@ -95,7 +102,7 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <RewardsIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+              <RewardsIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width } height={width } />
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Rewards</Text>
             </View>
           ),
@@ -107,8 +114,13 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabItem}>
-              <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} />
+
+{/* <FontAwesomeIcon icon={faUser} color={focused ? '#3F80FF' : '#D0D5DD'} size={width * 0.05} />*/}
+
+              <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width } height={width } />
+
               <Text style={[styles.tabText, { color: focused ? '#3F80FF' : '#D0D5DD' }]}>Profile</Text>
+              {/* <ProfileIcon color={focused ? '#3F80FF' : '#D0D5DD'} width={width * 0.07} height={width * 0.07} /> */}
             </View>
           ),
         }} 

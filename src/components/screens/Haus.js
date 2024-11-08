@@ -76,7 +76,8 @@
           <CalendarGraph data={taskData} iconColor={Colors.Primary.Success[300]} />
           <RewardsCards1 />
         </View>
-        </View>
+        </View>  
+        
 
       </View>
     );

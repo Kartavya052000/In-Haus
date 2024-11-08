@@ -1,4 +1,6 @@
-import { View, Text ,StyleSheet, Platform, Alert, Dimensions} from 'react-native'
+import { View, Text ,StyleSheet, Platform, Alert, Dimensions,StatusBar} from 'react-native'
+
+
 import React, { useEffect, useState } from 'react'
 import Typography from '../typography/Typography';
 import { TouchableOpacity } from 'react-native';

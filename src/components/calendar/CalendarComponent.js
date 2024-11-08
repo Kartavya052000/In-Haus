@@ -120,7 +120,7 @@ const CalendarComponent = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+   
   },
   headerContainer: {
     flexDirection: 'row',
@@ -130,11 +130,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   title: {
-    fontFamily: 'BostonRegular',
+    fontFamily: 'BostonSemiBold',
     fontSize: 20,
-    fontWeight: '600',
     lineHeight: 24,
     textAlign: 'left',
+    color: '#333232',
   },
   subtitle: {
     fontSize: 16,
