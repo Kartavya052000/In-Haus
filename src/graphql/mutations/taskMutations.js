@@ -43,8 +43,8 @@ export const CREATE_TASK = gql`
 `;
 
 export const GET_GROUP = gql`
-  query GetGroup($groupId: ID) {
-    getGroup(groupId: $groupId) {
+  query GetGroup($groupId: ID,$startDate: String) {
+    getGroup(groupId: $groupId,startDate: $startDate) {
       id
       groupName
       members {
@@ -117,8 +117,8 @@ export const GET_TASK = gql`
   }
 `;
 export const GET_USER_TASK = gql`
-  query GetUserTasksInGroup($groupId: ID!,$userId: ID!) {
-    getUserTasksInGroup(groupId: $groupId,userId:$userId) {
+  query GetUserTasksInGroup($groupId: ID!,$userId: ID!,$startDate:String) {
+    getUserTasksInGroup(groupId: $groupId,userId:$userId,startDate:$startDate) {
       id
       username
       filteredTasks {
