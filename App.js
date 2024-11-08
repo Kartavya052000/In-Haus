@@ -14,7 +14,6 @@ import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; 
 
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
-import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen';
 import 'react-native-reanimated';
 
 import {Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
