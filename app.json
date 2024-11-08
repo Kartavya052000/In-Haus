@@ -12,7 +12,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
-    "scheme": "inhaus", 
     "ios": {
       "bundleIdentifier": "com.inhaus.app",
       "supportsTablet": true,

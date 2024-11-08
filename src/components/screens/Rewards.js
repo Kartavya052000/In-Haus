@@ -20,6 +20,7 @@ const { height } = Dimensions.get("window");
 import Colors from "../../components/Colors/Colors";
 import RewardsCards1 from '../Cards/RewardsCards1';
 import { ScrollView } from 'react-native-gesture-handler';
+import { MY_PROFILE } from '../../graphql/mutations/authMutations';
 
 export default function Rewards() {
   const [drawerVisible, setDrawerVisible] = useState(true);
@@ -28,6 +29,8 @@ const[activeTab,setActiveTab]=useState("My Rewards")
 const [rewardDetails,setDetails] =useState([])
 const [token,setToken]=useState('')
 const [rewardPoints,setRewardPoints]=useState(0)
+const [shouldFetchRewards, setShouldFetchRewards] = useState(false); // New state to trigger fetch
+
 // -----OPTION TABS ----
   const optionsFromDatabase = [
     { name: 'My Rewards' },
@@ -43,6 +46,7 @@ const [rewardPoints,setRewardPoints]=useState(0)
         }
         if (token) {
           setToken(token);
+          fetchPoints(token)
           console.log('Token retrieved:', token);
         } else {
           console.error('No auth token found');
@@ -66,7 +70,8 @@ const [rewardPoints,setRewardPoints]=useState(0)
     onCompleted: (data) => {
       // Handle successful completion here
       console.log("Reward redeemed successfully!", data);
-
+      setShouldFetchRewards(true)
+      fetchUserPoints(token)
       // You can also show a success message or update local state
     },
     onError: (error) => {
@@ -100,6 +105,30 @@ const navigation =useNavigation();
    
   };
 
+// -- to get user points---
+  const [fetchUserPoints, { loading, error }] = useLazyQuery(MY_PROFILE, {
+    fetchPolicy: "network-only", // Forces fresh data fetch from network
+
+    onCompleted: (data) => {
+      // console.log("+++++++++++",data.myProfile.points)
+      setRewardPoints(data.myProfile.points)  
+    },
+    onError: (error) => {
+      console.error('Error fetching group:', error.message);
+    },
+  });
+
+  const fetchPoints = async (token) => {
+    if (token) {
+      fetchUserPoints({
+        context: {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+      });
+    }
+  };
   return (
     <View style={styles.container}>
        <LinearGradient
@@ -138,29 +167,21 @@ const navigation =useNavigation();
             onTabChange={handleTabChange} // Manejador de cambio de pestaña
           />
         </View>
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        >
+      
 {activeTab =="My Rewards"&&(
-//  <View  style={styles.rewards_points}>
-//  <Text style={styles.text}>Rewards</Text>
-//  <Text style={styles.text}>{rewardPoints}/5000</Text>
-// </View>
+
 <RewardsCards1 currentPoints={rewardPoints}/>
 )}
-     </ScrollView>
-{/* {activeTab =="My Rewards"&&(
- <View  style={styles.rewards_points}>
- <Text style={styles.text}>Rewards</Text>
- <Text style={styles.text}>{rewardPoints}/5000</Text>
-</View>
-)} */}
 
-     
    
-      <MyRewards text={activeTab =="My Rewards"?"My":"Assigned"}setIsVisible={setIsVisible} list ={'myRewards'} setDetails={setDetails} />
+      <MyRewards
+       text={activeTab =="My Rewards"?"My":"Assigned"}
+       setIsVisible={setIsVisible}
+        list ={'myRewards'} 
+        setDetails={setDetails}
+        shouldFetchRewards={shouldFetchRewards} // Pass down trigger
+        onFetchRewardsComplete={() => setShouldFetchRewards(false)} // Reset after fetch
+        />
 
    
       <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} rewardPoints={rewardPoints} />
