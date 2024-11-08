@@ -45,7 +45,7 @@ const CreateTaskEvent = () => {
           Edit
         </Typography>
       </View>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
           <EditTask />
       </ScrollView>
     </View>
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: "center",
     marginTop: height * 0.12,
+    marginBottom: 20
   },
   headerBackground: {
     height: height * 0.19,

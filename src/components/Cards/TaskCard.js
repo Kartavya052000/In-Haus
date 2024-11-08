@@ -172,22 +172,22 @@ const TaskCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
-  const categories = [
-    { label: 'Cleaning', Icon: CleaningIcon },
-    { label: 'Laundry', Icon: LaundryIcon },
-    { label: 'Dishes', Icon: DishesIcon },
-    { label: 'Homework', Icon: HomeworkIcon },
-    { label: 'Groceries', Icon: GroceriesIcon },
-    { label: 'Buy', Icon: BuyIcon },
-  ];
-  const [categoryIcon, setCategoryIcon] = useState(null); // State for the category icon
+  // const categories = [
+  //   { label: 'Cleaning', Icon: CleaningIcon },
+  //   { label: 'Laundry', Icon: LaundryIcon },
+  //   { label: 'Dishes', Icon: DishesIcon },
+  //   { label: 'Homework', Icon: HomeworkIcon },
+  //   { label: 'Groceries', Icon: GroceriesIcon },
+  //   { label: 'Buy', Icon: BuyIcon },
+  // ];
+  // const [categoryIcon, setCategoryIcon] = useState(null); // State for the category icon
 
-  useEffect(() => {
-    console.log(task.category,"CAR")
-    const matchedCategory = categories.find((cat) => cat.label === task.category);
-    console.log(matchedCategory,"NMMM");
-    setCategoryIcon(matchedCategory ? matchedCategory.Icon :categories[2].Icon );
-  }, [task.category]);
+  // useEffect(() => {
+  //   console.log(task.category,"CAR")
+  //   const matchedCategory = categories.find((cat) => cat.label === task.category);
+  //   console.log(matchedCategory,"NMMM");
+  //   setCategoryIcon(matchedCategory ? matchedCategory.Icon :categories[2].Icon );
+  // }, [task.category]);
   // Fetch token on component mount
   React.useEffect(() => {
     const getToken = async () => {
@@ -249,8 +249,8 @@ const TaskCard = ({
       onPress={() => setIsExpanded(!isExpanded)} // Toggle expansion
     >
       <View style={[styles.filledContent, { borderTopColor: borderColor }]}>
-        {/* <View style={styles.icon} /> */}
-        {/* {categoryIcon && (
+        {/* <View style={styles.icon} />
+        {categoryIcon && (
           <categoryIcon   /> // Render as a proper component
 
         )} */}
