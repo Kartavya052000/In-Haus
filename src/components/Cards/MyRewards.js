@@ -1,4 +1,4 @@
-import { View, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Typography from '../typography/Typography';
 import { useNavigation } from '@react-navigation/native';
@@ -8,20 +8,17 @@ import * as SecureStore from 'expo-secure-store';
 import { useLazyQuery } from '@apollo/client';
 import { GET_USER__REDEEMED_REWARD_LIST, GET_USER_REWARD_LIST } from '../../graphql/mutations/rewardsMutations';
 
-export default function MyRewards({ text, setIsVisible, list,setDetails }) {
+export default function MyRewards({ text, setIsVisible, list, setDetails,shouldFetchRewards, onFetchRewardsComplete }) {
   const navigation = useNavigation();
   const [members, setMembers] = useState([]);
   const [authToken, setAuthToken] = useState(null);
   const [rewards, setRewards] = useState([]);
   const [redeemRewards, setRedeemRewards] = useState({});
   
-  
   const handleRedirect = (item) => {
-    console.log(item,"ITEM")
     if (text === "My") {
-      setIsVisible(true); // Open modal or set visibility
-      setDetails(item)
-      // fetchUserRewards(authToken)
+      setIsVisible(true);
+      setDetails(item);
     } else {
       navigation.navigate("CreateReward", { text });
     }
@@ -40,7 +37,7 @@ export default function MyRewards({ text, setIsVisible, list,setDetails }) {
           fetchGroupData(token);
           if (text === "My") {
             fetchUserRewards(token);
-            fetchUserRedeemRewards(token)
+            fetchUserRedeemRewards(token);
           }
         } else {
           console.error('No auth token found');
@@ -51,14 +48,15 @@ export default function MyRewards({ text, setIsVisible, list,setDetails }) {
     };
     getToken();
   }, []);
-// ---------FETCH REWARDS-----
-  const [fetchRewards, { loading: rewardLoading, error: rewardError, data: rewardData }] = useLazyQuery(GET_USER_REWARD_LIST, {
+
+  const [fetchRewards] = useLazyQuery(GET_USER_REWARD_LIST, {
+    fetchPolicy: "network-only", // Forces fresh data fetch from network
     onCompleted: (data) => {
-      setRewards(data.getUserRewardList,"DTTTTTT");
-      // console.log(data, "DATA");
+      console.log(data.getUserRewardList,"USERRR")
+      setRewards(data.getUserRewardList);
     },
     onError: (error) => {
-      console.error('Error fetching user rewardss:', error.message);
+      console.error('Error fetching user rewards:', error.message);
     },
   });
 
@@ -66,43 +64,45 @@ export default function MyRewards({ text, setIsVisible, list,setDetails }) {
     fetchRewards({
       context: {
         headers: {
-          Authorization: `${token}`, // Use token in headers
+          Authorization: `${token}`,
         },
       },
     });
   };
-// -----FETCH REWARDS END-------
 
-// ---------FETCH REDEEMED REWARDS-----
-const [fetchRedeemedRewards, { loading: rewardRedeemLoading, error: rewardRedeemError, data: rewardRedeemData }] = useLazyQuery(GET_USER__REDEEMED_REWARD_LIST, {
-  onCompleted: (data) => {
-    setRedeemRewards(data.getRedeemedRewards);
-    console.log(data, "Redeem");
-  },
-  onError: (error) => {
-    console.error('Error fetching user rewards:', error.message);
-  },
-});
-
-const fetchUserRedeemRewards = async (token) => {
-  fetchRedeemedRewards({
-    context: {
-      headers: {
-        Authorization: `${token}`, // Use token in headers
-      },
+  const [fetchRedeemedRewards] = useLazyQuery(GET_USER__REDEEMED_REWARD_LIST, {
+    onCompleted: (data) => {
+      setRedeemRewards(data.getRedeemedRewards);
+    },
+    onError: (error) => {
+      console.error('Error fetching redeemed rewards:', error.message);
     },
   });
-};
-// -----FETCH REDEEMED REWARDS END-------
 
-// -------FETCH GROUP-----
-  const [fetchGroup, { loading, error, data }] = useLazyQuery(GET_GROUP, {
+  const fetchUserRedeemRewards = async (token) => {
+    fetchRedeemedRewards({
+      context: {
+        headers: {
+          Authorization: `${token}`,
+        },
+      },
+    });
+  };
+  useEffect(() => {
+    if (shouldFetchRewards && authToken) {
+      console.log("Hit")
+      fetchUserRewards(authToken); // Trigger fetch when shouldFetchRewards changes
+      fetchUserRedeemRewards(authToken)
+      onFetchRewardsComplete(); // Reset fetch trigger in parent
+    }
+  }, [shouldFetchRewards, authToken]);
+  const [fetchGroup] = useLazyQuery(GET_GROUP, {
     onCompleted: (data) => {
       const transformedMembers = data.getGroup.members.map((member) => ({
         name: member.username,
         id: member.id,
       }));
-      setMembers(transformedMembers);   
+      setMembers(transformedMembers);
     },
     onError: (error) => {
       console.error('Error fetching group:', error.message);
@@ -113,21 +113,19 @@ const fetchUserRedeemRewards = async (token) => {
     fetchGroup({
       context: {
         headers: {
-          Authorization: `${token}`, // Use token in headers
+          Authorization: `${token}`,
         },
       },
       variables: {
-        groupID: "test", // Replace with actual groupID if necessary
+        groupID: "test",
       },
     });
   };
-// -------FETCH GROUP ENDS-----
-
 
   const renderRewardItem = ({ item }) => (
     <View style={styles.rewardContainer}>
       <Image
-        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }} // Placeholder image
+        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
         style={styles.rewardImage}
       />
       <View style={styles.rewardDetails}>
@@ -148,26 +146,18 @@ const fetchUserRedeemRewards = async (token) => {
   const renderRedeemRewardItem = ({ item }) => (
     <View style={styles.rewardContainer}>
       <Image
-        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }} // Placeholder image
+        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
         style={styles.rewardImage}
       />
       <View style={styles.rewardDetails}>
         <Typography variant="SH4" color="#000">{item.name}</Typography>
         <Typography variant="Caption" color="#888">{item.pointsAssigned} points</Typography>
       </View>
-      {/* <TouchableOpacity 
-        style={styles.redeemButton} 
-        onPress={handleRedirect}
-      >
-        <Typography variant="SH4" color="#007AFF">
-          {text === "My" ? "Redeem" : "Edit"}
-        </Typography>
-      </TouchableOpacity> */}
     </View>
   );
 
   return (
-    <>
+    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
       {(members.length > 0 && text !== "My") && (
         <TabsNavigation
           users={members}
@@ -176,57 +166,59 @@ const fetchUserRedeemRewards = async (token) => {
           style={styles.members}
         />
       )}
+      
       <View style={styles.parentRewardContainer}>
-      <View style={styles.header}>
-        <Typography variant="SH3" color="#000">{text} Rewards</Typography>
-        <TouchableOpacity onPress={handleDetailsList}>
-          <Typography variant="BodyS" color="#000">See All</Typography>
-        </TouchableOpacity>
+        <View style={styles.header}>
+          <Typography variant="SH3" color="#000">{text} Rewards</Typography>
+          <TouchableOpacity onPress={handleDetailsList}>
+            <Typography variant="BodyS" color="#000">See All</Typography>
+          </TouchableOpacity>
+        </View>
+        
+        <FlatList
+          data={rewards} 
+          renderItem={renderRewardItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.rewardList}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Typography variant="BodyS" color="#888">No rewards found.</Typography>
+            </View>
+          }
+        />
       </View>
       
-      {/* Rewards List */}
-      <FlatList
-        data={rewards} 
-        renderItem={renderRewardItem}
-        keyExtractor={(item) => item.id} // Ensure `id` is a string
-        contentContainerStyle={styles.rewardList}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Typography variant="BodyS" color="#888">No rewards found.</Typography>
-          </View>
-        }
-        
-      />
-      </View>
       <View style={styles.parentRewardContainer}>
-
-      <View style={styles.header}>
-        <Typography variant="SH3" color="#000">Redeemed Rewards</Typography>
-        <TouchableOpacity onPress={handleDetailsList}>
-          <Typography variant="BodyS" color="#000">See All</Typography>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={redeemRewards} 
-        renderItem={renderRedeemRewardItem}
-        keyExtractor={(item) => item.id} // Ensure `id` is a string
-        contentContainerStyle={styles.rewardList}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Typography variant="BodyS" color="#888">No rewards found.</Typography>
-          </View>
-        }
+        <View style={styles.header}>
+          <Typography variant="SH3" color="#000">Redeemed Rewards</Typography>
+          <TouchableOpacity onPress={handleDetailsList}>
+            <Typography variant="BodyS" color="#000">See All</Typography>
+          </TouchableOpacity>
+        </View>
         
-      />
+        <FlatList
+          data={redeemRewards} 
+          renderItem={renderRedeemRewardItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.rewardList}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Typography variant="BodyS" color="#888">No rewards found.</Typography>
+            </View>
+          }
+        />
       </View>
-    </>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
   header: {
     flexDirection: "row",
     justifyContent: 'space-between',
@@ -235,9 +227,10 @@ const styles = StyleSheet.create({
   members: {
     marginBottom: 20,
   },
-  parentRewardContainer:{
-minHeight:202,
-maxHeight:402
+  parentRewardContainer: {
+    backgroundColor: "#fff",
+    marginTop: 16,
+    padding: 10,
   },
   rewardContainer: {
     flexDirection: 'row',
@@ -246,6 +239,7 @@ maxHeight:402
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     paddingVertical: 10,
+    backgroundColor: "#fff",
   },
   rewardImage: {
     width: 80,
@@ -271,7 +265,7 @@ maxHeight:402
   emptyContainer: {
     paddingVertical: 20,
     alignItems: 'center',
-    height:140,
-    backgroundColor:"#FCFAFA"
+    height: 140,
+    backgroundColor: "#FCFAFA",
   },
 });
