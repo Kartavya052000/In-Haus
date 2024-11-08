@@ -62,7 +62,7 @@ const data = [
 
 const OnboardingScreen = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  // const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const navigation = useNavigation();
   const carouselRef = useRef(null);
 
@@ -121,7 +121,7 @@ const OnboardingScreen = () => {
   const renderAddRewardButton = () => (
     <TouchableOpacity
       style={styles.createButton}
-      onPress={() => console.log("Add Reward button pressed")}
+      onPress={() => navigation.navigate("CreateReward", {undefined})}
     >
       <AddIcon
         style={styles.icon}
@@ -134,17 +134,17 @@ const OnboardingScreen = () => {
     </TouchableOpacity>
   );
 
-  const renderNotificationButton = () => (
-    <CustomToggle
-      label="Enable Notifications"
-      initialValue={notificationsEnabled}
-      onToggle={(value) => {
-        setNotificationsEnabled(value);
-        console.log("Notifications enabled:", value);
-      }}
-      // style={{ width: 250 }}
-    />
-  );
+  // const renderNotificationButton = () => (
+  //   <CustomToggle
+  //     label="Enable Notifications"
+  //     initialValue={notificationsEnabled}
+  //     onToggle={(value) => {
+  //       setNotificationsEnabled(value);
+  //       console.log("Notifications enabled:", value);
+  //     }}
+  //     // style={{ width: 250 }}
+  //   />
+  // );
 
   const renderItem = ({ title, description }, index) => (
     <View style={styles.slide}>
@@ -159,7 +159,7 @@ const OnboardingScreen = () => {
       {index === 3 && renderMealAiButton()}
       {index === 4 && renderAddMealPlanButton()}
       {index === 5 && renderAddRewardButton()}
-      {index === 6 && renderNotificationButton()}
+      {/* {index === 6 && renderNotificationButton()} */}
     </View>
   );
 
