@@ -96,11 +96,10 @@ const CalendarPage = () => {
           variables: {
             groupID: "test", 
           },
-        },
-        variables: {
-          groupID: "test",
-        },
+        
+       
       });
+    
     }
   };
 
@@ -113,7 +112,8 @@ const CalendarPage = () => {
             Authorization: `${token}`,
 
           },
-        });
+        }
+      });
       }
     };
 
