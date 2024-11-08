@@ -10,6 +10,7 @@ import {
   StatusBar,
   Dimensions,
 } from "react-native";
+
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
 import TaskCard from "../components/Cards/TaskCard";
 import { useNavigation } from "@react-navigation/native";
@@ -57,6 +58,7 @@ const CalendarPage = () => {
       onCompleted: (data) => {
         console.log("Hit2", data.getUserTasksInGroup);
 
+
         setTasks(data.getUserTasksInGroup.filteredTasks);
       },
       onError: (error) => {
@@ -82,12 +84,17 @@ const CalendarPage = () => {
     }
   };
 
-  const fetchGroupData = async (token) => {
-    if (token) {
-      fetchGroup({
-        context: {
-          headers: {
-            Authorization: `${token}`,
+
+    const fetchGroupData = async (token) => {
+      if (token) {
+        fetchGroup({
+          context: {
+            headers: {
+              Authorization: `${token}`,
+            },
+          },
+          variables: {
+            groupID: "test", 
           },
         },
         variables: {
@@ -104,25 +111,21 @@ const CalendarPage = () => {
         context: {
           headers: {
             Authorization: `${token}`,
+
           },
-        },
-        variables: {
-          groupId: groupId,
-          userId,
-        },
-      });
-    }
-  };
+        });
+      }
+    };
 
   useEffect(() => {
     getToken();
   }, []);
 
-  // useEffect(() => {
-  //   if (token && groupId) {
-  //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
-  //   }
-  // }, [groupId]);
+    // useEffect(() => {
+    //   if (token && groupId) {
+    //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
+    //   }
+    // }, [groupId]);
 
   // if (loading || userTaskLoading) return <Text>Loading...</Text>;
   // if (error || userTaskError)
@@ -151,6 +154,7 @@ const CalendarPage = () => {
 
   };
 
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -165,6 +169,7 @@ const CalendarPage = () => {
           style={[
             styles.headerTitle,
             { textAlign: "center", color: "#183AC1" },
+
           ]}
         >
           Calendar
@@ -174,6 +179,7 @@ const CalendarPage = () => {
           onPress={() => handleClick()}
         >
           <View style={styles.addContainer}>
+
             <AddIcon color="#FFFFFF" style={styles.addIcon} />
           </View>
         </TouchableOpacity>
@@ -325,6 +331,7 @@ const styles = StyleSheet.create({
     // minHeight: 100,
     felx: 1,
     marginVertical: 50,
+
   },
   tabsContainer: {
     // alignItems: "center",
@@ -372,6 +379,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#333",
   },
+  headerBackground: {
+    height: height * 0.19,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "120%",
+  },
+  headerContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    lineHeight: 28,
+  },
+  
 });
 
 export default CalendarPage;

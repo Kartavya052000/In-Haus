@@ -12,7 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
-    "scheme": "inhaus", 
+    "entryPoint": "./App.js", // Add this line to explicitly specify the entry point
     "ios": {
       "bundleIdentifier": "com.inhaus.app",
       "supportsTablet": true,

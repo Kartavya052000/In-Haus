@@ -22,7 +22,7 @@ const ResultScreen = ({ navigation, route }) => {
             });
             formData.append('export', 'json');
 
-            const response = await fetch('http://192.168.1.174:3000/api/recognize-meal', {
+            const response = await fetch('http://192.168.110.150:3000/api/recognize-meal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',

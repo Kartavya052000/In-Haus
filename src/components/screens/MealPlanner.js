@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from 'react'
 import {
   View,
   StyleSheet,
@@ -31,31 +31,66 @@ import { DELETE_MEAL } from "../../graphql/mutations/mealMutations/mealMutations
 import { ShoppingListContext } from "../../components/contexts/ShoppingListContext";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { LinearGradient } from "expo-linear-gradient";
+import * as SecureStore from 'expo-secure-store';
+import Toast from 'react-native-toast-message';
+
+
+
 import Colors from "../../components/Colors/Colors";
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 
 const optionsFromDatabase = [{ name: "My Plan" }, { name: "Shopping List" }];
 
-const handleMealCardPress = (meal) => {
-  if (meal) {
-    navigation.navigate("MealDetails", {
-      mealId: meal.mealId,
-      selectedDate: selectedDate,
-      selectedMealType: meal.mealType,
-    });
-  }
-};
 
 const MealPlanner = ({ route, userId }) => {
   // Accept userId as a prop
   const navigation = useNavigation();
+
+  const { notification } = route.params || {};
+
+  console.log("Notification:", notification);
+
+ // Use Toast to show a notification when `notification` state changes
+ useEffect(() => {
+  if (notification) {
+    Toast.show({
+      type: 'success',
+      text1: notification,
+      position: 'top',
+    });
+  }
+}, [notification]);
+
+
+  const [token, setToken] = useState('')
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('authToken');
+        //     const points = await SecureStore.getItemAsync('points'); 
+
+        if (token) {
+          setToken(token);
+          console.log('Token retrieved meal planner:', token);
+        } else {
+          console.error('No auth token found');
+        }
+      } catch (error) {
+        console.error('Error retrieving auth token:', error);
+      }
+    };
+
+    getToken();
+  }, []);
+
   const [selectedTab, setSelectedTab] = React.useState(
     route?.params?.selectedTab || "My Plan"
   );
-  const [selectedDate, setSelectedDate] = React.useState(
-    new Date().toISOString().split("T")[0]
-  );
+  // const [selectedDate, setSelectedDate] = React.useState(
+  //   new Date().toISOString().split("T")[0]
+  // );
   const [selectedFilter, setSelectedFilter] = React.useState("All"); // Initial filter is "All"
   const [isFilterOpen, setIsFilterOpen] = React.useState(false); // For opening/closing the filter dropdown
   const [meals, setMeals] = React.useState({
@@ -66,14 +101,11 @@ const MealPlanner = ({ route, userId }) => {
   });
 
   const {
-    shoppingListItems,
-    setShoppingListItems,
-    mealPlanItems,
-    setMealPlanItems,
+    shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems, selectedDate,  setSelectedDate, selectedMealType, setSelectedMealType 
   } = useContext(ShoppingListContext);
   const [mealDates, setMealDates] = React.useState({});
 
-  console.log("Meal plan items:", mealPlanItems); // Verifica el estado de mealPlanItems
+  //console.log("Meal plan items:", mealPlanItems); // Verifica el estado de mealPlanItems
   // GraphQL queries and mutations
   const { data: mealsData, refetch: refetchMeals } = useQuery(
     GET_USER_MEALS_BY_DATE,
@@ -113,13 +145,13 @@ const MealPlanner = ({ route, userId }) => {
   }, [mealDatesData]);
 
   React.useEffect(() => {
-    console.log("Current selected date:", selectedDate); // Verifica la fecha seleccionada
-    console.log("Current shopping list items:", shoppingListItems); // Verifica el estado de shoppingListItems
+    //   console.log("Current selected date:", selectedDate); // Verifica la fecha seleccionada
+    //  console.log("Current shopping list items:", shoppingListItems); // Verifica el estado de shoppingListItems
 
     const mealsForDate = shoppingListItems.filter(
       (meal) => meal.date === selectedDate
     );
-    console.log("Meals for selected date:", mealsForDate); // Verifica que las comidas para la fecha seleccionada se están filtrando correctamente
+    // console.log("Meals for selected date:", mealsForDate); // Verifica que las comidas para la fecha seleccionada se están filtrando correctamente
 
     const mealsByType = mealsForDate.reduce(
       (acc, meal) => {
@@ -129,13 +161,29 @@ const MealPlanner = ({ route, userId }) => {
       { Breakfast: null, Lunch: null, Dinner: null, Snacks: null }
     );
 
-    console.log("Meals organized by type:", mealsByType); // Verifica que las comidas se están organizando por tipo
+    // console.log("Meals organized by type:", mealsByType); // Verifica que las comidas se están organizando por tipo
     setMeals(mealsByType);
   }, [shoppingListItems, selectedDate]);
 
   const handleTabChange = (optionName) => {
     setSelectedTab(optionName);
   };
+
+
+  
+const handleMealCardPress = (meal) => {
+  if (meal) {
+console.log("Meal:", meal);
+     navigation.navigate('MealDetails', {
+       id: +meal.mealId,
+       title: meal.mealTitle,
+       image: meal.image,
+       selectedServings: meal.servings,
+     })
+
+    
+  }
+};
 
   const confirmAction = (action, message) => {
     Alert.alert("Confirm Action", message, [
@@ -162,22 +210,23 @@ const MealPlanner = ({ route, userId }) => {
   };
 
   const handleAddMeal = (mealType) => {
+    setSelectedMealType(mealType);
     navigation.navigate("SearchMeal", {
-      selectedMealType: mealType,
-      selectedDate: selectedDate,
-      setSelectedDate: setSelectedDate,
+      // selectedMealType: mealType,
+      // selectedDate: selectedDate,
+   //   setSelectedDate: setSelectedDate,
     });
   };
 
   const handleMealClick = (mealType) => {
-    if (meals[mealType]) {
-      navigation.navigate("MealAIResult", {
-        meal: meals[mealType],
-        selectedDate,
-      });
-    } else {
+    // if (meals[mealType]) {
+    //   navigation.navigate("MealAIResult", {
+    //     meal: meals[mealType],
+    //     selectedDate,
+    //   });
+    // } else {
       handleAddMeal(mealType);
-    }
+  //  }
   };
 
   const handleFilterChange = (filter) => {
@@ -188,7 +237,7 @@ const MealPlanner = ({ route, userId }) => {
       ? shoppingListItems.flatMap((meal) => meal.ingredients) // Flatten all ingredients across meals
       : shoppingListItems; // Show by meal when filtered by "Recipe"
 
-  const handleDeleteMeal = (mealId, mealType) => {
+  const handleDeleteMeal = (mealId, mealType, selectedDate) => {
     Alert.alert("Delete Meal", "Are you sure you want to delete this meal?", [
       {
         text: "Cancel",
@@ -198,15 +247,13 @@ const MealPlanner = ({ route, userId }) => {
         text: "Delete",
         style: "destructive",
         onPress: () => {
-          deleteMeal({ variables: { mealId } })
-            .then(() => {
-              setMeals((prevMeals) => ({
-                ...prevMeals,
-                [mealType]: null,
-              }));
-              refetchMeals(); // Refresh after deletion
-            })
-            .catch((error) => console.error("Error deleting meal", error));
+         console.log("Deleting Meal ID:", mealId, "Meal Type:", mealType, "Selected Date:", selectedDate);
+         setMealPlanItems((prevMealPlanItems) =>
+          prevMealPlanItems.filter(
+            (meal) =>
+              !(meal.mealId === mealId && meal.mealType === mealType && meal.date === selectedDate)
+          )
+        );
         },
       },
     ]);
@@ -221,13 +268,19 @@ const MealPlanner = ({ route, userId }) => {
     setIsFilterOpen(false); // Close the dropdown after selection
   };
 
-  const handleCheckboxToggle = (ingredientIndex, mealIndex = null) => {
+  const handleCheckboxToggle = (ingredientUniqueKey) => {
     // For 'All' filter, toggle the flattened list
     if (selectedFilter === "All") {
       const updatedIngredients = [...filteredItems]; // Get the flattened list
-      updatedIngredients[ingredientIndex].checked =
-        !updatedIngredients[ingredientIndex].checked; // Toggle the checked state
-
+      
+      const ingredientIndex = updatedIngredients.findIndex(
+        ingredient => ingredient.uniqueKey === ingredientUniqueKey
+      );
+  
+      if (ingredientIndex !== -1) {
+        updatedIngredients[ingredientIndex].checked = !updatedIngredients[ingredientIndex].checked; // Toggle the checked state
+      }
+  
       // Update the original shoppingListItems state based on these changes
       const updatedShoppingList = shoppingListItems.map((meal) => ({
         ...meal,
@@ -235,22 +288,32 @@ const MealPlanner = ({ route, userId }) => {
           (ingredient) =>
             updatedIngredients.find(
               (updatedIngredient) =>
-                updatedIngredient.name === ingredient.name &&
-                updatedIngredient.checked === ingredient.checked
+                updatedIngredient.uniqueKey === ingredient.uniqueKey
             ) || ingredient
         ),
       }));
-
+  
       setShoppingListItems(updatedShoppingList);
     } else {
       // For 'Recipe' filter, toggle the ingredients within each meal
       const updatedMeals = [...shoppingListItems]; // Copy shopping list
-      updatedMeals[mealIndex].ingredients[ingredientIndex].checked =
-        !updatedMeals[mealIndex].ingredients[ingredientIndex].checked; // Toggle checkbox
+  
+      updatedMeals.forEach(meal => {
+        meal.ingredients.forEach(ingredient => {
+          if (ingredient.uniqueKey === ingredientUniqueKey) {
+            ingredient.checked = !ingredient.checked; // Toggle checkbox
+          }
+        });
+      });
+  
       setShoppingListItems(updatedMeals); // Update state
     }
   };
-
+  
+ //console log ingredients
+ console.log("Selected date:" , selectedDate);
+ console.log("Meal Type: ", selectedMealType);
+  console.log("Shopping List Items:", shoppingListItems);
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -262,13 +325,11 @@ const MealPlanner = ({ route, userId }) => {
       <View style={styles.contentContainer}>
         <Typography
           variant="H4"
-          style={[
-            styles.headerTitle,
-            { textAlign: "center", color: "#B4525E" },
-          ]} // Ajusta el color para igualar el diseño
+          style={[styles.headerTitle]}
         >
           MealAI
         </Typography>
+
         <TouchableOpacity
           style={styles.addMealButton}
           onPress={() => handleAddMeal("General")}
@@ -278,146 +339,153 @@ const MealPlanner = ({ route, userId }) => {
           </View>
         </TouchableOpacity>
       </View>
-        {/* Option Tabs Section */}
-        <View style={styles.optionTabsContainer}>
-          <OptionTabs
-            options={optionsFromDatabase}
-            containerColor={Colors.Secondary.Gray[100]} // Cambia el color del contenedor
-            activeColor={"#F3C8CA"} // Color activo igual que en `Haus`
-            inactiveColor={"#FFF"} // Color inactivo si es necesario (opcional)
-            textColor={Colors.Primary.Purple} // Color de texto igual que en `Haus`
-            onTabChange={handleTabChange} // Manejador de cambio de pestaña
-          />
-        </View>
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        >
+      {/* Option Tabs Section */}
+      <View style={styles.optionTabsContainer}>
+        <OptionTabs
+          options={optionsFromDatabase}
+          containerColor={Colors.Secondary.Gray[100]} // Cambia el color del contenedor
+          activeColor={"#F3C8CA"} // Color activo igual que en `Haus`
+          inactiveColor={"#FFF"} // Color inactivo si es necesario (opcional)
+          textColor={"#B74044"} // Color de texto igual que en `Haus`
+          onTabChange={handleTabChange} // Manejador de cambio de pestaña
+        />
+      </View>
+
+      <View
+        style={{ flex: 1, paddingBottom: 0 }}
+      >
 
         {selectedTab === "My Plan" && (
           <>
             {/* Calendar Section */}
-            <View style={styles.calendarSection}>
-            <CalendarComponent
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              selectedDayColor="#ff0000" // Ejemplo de color del día seleccionado
-              eventDotColor="#00adf5" // Ejemplo de color para el punto de eventos
-              iconColor="#B74044" // Ejemplo de color de los iconos
-              themeColors={{
-                backgroundColor: '#F2F2F2',
-                calendarBackground: '#F2F2F2',
-                todayTextColor: '#333',
-                arrowColor: '#333',
-                monthTextColor: '#000',
-              }}
-            />
-            </View>
 
+            <View style={styles.calendarSection}>
+              <CalendarComponent
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                selectedDayColor="#ff0000" // Ejemplo de color del día seleccionado
+                eventDotColor="#00adf5" // Ejemplo de color para el punto de eventos
+                iconColor="#B74044" // Ejemplo de color de los iconos
+                themeColors={{
+                  backgroundColor: '#F2F2F2',
+                  calendarBackground: '#F2F2F2',
+                  todayTextColor: '#333',
+                  arrowColor: '#333',
+                  monthTextColor: '#000',
+                }}
+              />
+            </View>
             {/* Meal Cards Section */}
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={styles.mealCardsContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              {["Breakfast", "Lunch", "Dinner", "Snacks"].map(
-                (mealType, index) => {
-                  const mealData = mealPlanItems.find(
-                    (item) =>
-                      item.date === selectedDate && item.mealType === mealType
-                  );
-                  return (
-                    <View key={index} style={styles.mealSection}>
-                      <Typography variant="SH4" style={styles.mealTitle}>
-                        {mealType}
-                      </Typography>
-                      <MealCard
+            <View style={styles.scrollContainer}>
+              <ScrollView
+                style={[styles.mealCardsContainer]}
+                showsVerticalScrollIndicator={true}
+              >
+                {["Breakfast", "Lunch", "Dinner", "Snacks"].map(
+                  (mealType, index) => {
+                    const mealData = mealPlanItems.find(
+                      (item) =>
+                        item.date === selectedDate && item.mealType === mealType
+                    );
+                    return (
+                      <View key={index} style={styles.mealSection}>
+                        <Typography variant="SH4" style={styles.mealTitle}>
+                          {mealType}
+                        </Typography>
+                        <MealCard
                           mealName={mealData?.mealTitle || null}
                           portions={mealData?.servings || null}
                           onAddPress={() => handleMealClick(mealType)}
                           onPress={() => handleMealCardPress(mealData)} // Pasa solo el mealId y otros datos necesarios
-                          mealNameColor={Colors.Primary.Purple} 
-                          portionsColor={Colors.Secondary.Orange[400]} 
-                          backgroundColor={Colors.Secondary.Gray[110]} 
-                          borderColor={Colors.Secondary.Orange[400]} 
+                          onDelete={() => handleDeleteMeal(mealData?.mealId, mealType, selectedDate)}
+                          mealNameColor={Colors.Primary.Purple}
+                          portionsColor={Colors.Secondary.Orange[400]}
+                          backgroundColor={Colors.Secondary.Gray[110]}
+                          borderColor={Colors.Secondary.Orange[400]}
                         />
-                    </View>
-                  );
-                }
-              )}
-            </ScrollView>
+                      </View>
+                    );
+                  }
+                )}
+              </ScrollView>
+            </View>
           </>
         )}
 
-{selectedTab === "Shopping List" && (
-  <View style={styles.shoppingListSection}>
-    {/* Contenedor para el encabezado de filtro (Filter by, All y el icono) */}
-    <View style={styles.filterHeader}>
-      <Typography variant="SH3" style={styles.filterTitle}>
-        Filter by
-      </Typography>
-      <TouchableOpacity
-        onPress={toggleFilter}
-        style={styles.filterButton}
-      >
-        <Typography variant="Body" style={styles.filterText}>
-          {selectedFilter}
-        </Typography>
-        {isFilterOpen ? (
-          <CloseIcon color="#B74044" /> // Color del icono siempre #B74044
-        ) : (
-          <OpenIcon color="#B74044" />
-        )}
-      </TouchableOpacity>
-    </View>
+        {selectedTab === "Shopping List" && (
+   
+   <>
 
-    {/* Menú desplegable de opciones, que aparece debajo del encabezado de filtro */}
-    {isFilterOpen && (
-      <View style={styles.filterDropdown}>
-        {/* "All" filter option */}
-        <TouchableOpacity
-          onPress={() => selectFilter("All")}
-          style={[
-            styles.filterOption,
-            selectedFilter === "All" && styles.selectedOption,
-          ]}
-        >
-          <Typography
-            variant="Body"
-            style={[
-              styles.filterText,
-              selectedFilter === "All" && styles.selectedText,
-            ]}
+            {/* Contenedor para el encabezado de filtro (Filter by, All y el icono) */}
+            <View style={styles.filterHeader}>
+              <Typography variant="SH3" style={styles.filterTitle}>
+                Filter by
+              </Typography>
+              <TouchableOpacity
+                onPress={toggleFilter}
+                style={styles.filterButton}
+              >
+                <Typography variant="Body" style={styles.filterText}>
+                  {selectedFilter}
+                </Typography>
+                {isFilterOpen ? (
+                  <CloseIcon color="#B74044" /> // Color del icono siempre #B74044
+                ) : (
+                  <OpenIcon color="#B74044" />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Menú desplegable de opciones, que aparece debajo del encabezado de filtro */}
+            {isFilterOpen && (
+              <View style={styles.filterDropdown}>
+                {/* "All" filter option */}
+                <TouchableOpacity
+                  onPress={() => selectFilter("All")}
+                  style={[
+                    styles.filterOption,
+                    selectedFilter === "All" && styles.selectedOption,
+                  ]}
+                >
+                  <Typography
+                    variant="Body"
+                    style={[
+                      styles.filterText,
+                      selectedFilter === "All" && styles.selectedText,
+                    ]}
+                  >
+                    All
+                  </Typography>
+                </TouchableOpacity>
+
+                {/* "Recipe" filter option */}
+                <TouchableOpacity
+                  onPress={() => selectFilter("Recipe")}
+                  style={[
+                    styles.filterOption,
+                    selectedFilter === "Recipe" && styles.selectedOption,
+                  ]}
+                >
+                  <Typography
+                    variant="Body"
+                    style={[
+                      styles.filterText,
+                      selectedFilter === "Recipe" && styles.selectedText,
+                      selectedFilter !== "Recipe" && styles.disabledText,
+                    ]}
+                  >
+                    Recipe
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            )}
+            <View style={styles.scrollListContainer}>
+  <ScrollView
+            style={[styles.shoppingListContainer]}
+            showsVerticalScrollIndicator={true}
           >
-            All
-          </Typography>
-        </TouchableOpacity>
-
-        {/* "Recipe" filter option */}
-        <TouchableOpacity
-          onPress={() => selectFilter("Recipe")}
-          style={[
-            styles.filterOption,
-            selectedFilter === "Recipe" && styles.selectedOption,
-          ]}
-        >
-          <Typography
-            variant="Body"
-            style={[
-              styles.filterText,
-              selectedFilter === "Recipe" && styles.selectedText,
-              selectedFilter !== "Recipe" && styles.disabledText,
-            ]}
-          >
-            Recipe
-          </Typography>
-        </TouchableOpacity>
-      </View>
-    )}
-
-    {/* Shopping List Items */}
-    {selectedFilter === "All" && (
+{/* Shopping List Items */}
+{selectedFilter === "All" && (
   filteredItems.length === 0 ? (
     <View style={styles.emptyShoppingListContainer}>
       <Typography variant="Body" style={styles.emptyShoppingListText}>
@@ -425,31 +493,32 @@ const MealPlanner = ({ route, userId }) => {
       </Typography>
     </View>
   ) : (
-    <View style={styles.shoppingListCard}>
-      {filteredItems.map((ingredient, ingredientIndex) => (
-        <View key={ingredientIndex} style={styles.shoppingListItem}>
-          <View style={styles.ingredientInfo}>
-            <Typography
-              style={[
-                styles.itemName,
-                ingredient.checked && styles.checkedText,
-              ]}
-            >
-              {ingredient.name}
-            </Typography>
-            <Typography
-              style={[
-                styles.itemQuantity,
-                ingredient.checked && styles.checkedText,
-              ]}
-            >
-              {ingredient.amount} {ingredient.unit}
-            </Typography>
-          </View>
+    <>
+      {filteredItems.map((ingredient) => (
+        <View key={ingredient.uniqueKey} style={styles.shoppingListItem}>
           <TouchableOpacity
             style={styles.checkboxContainer}
-            onPress={() => handleCheckboxToggle(ingredientIndex)} // Asegúrate de que esto llame a la función correctamente
+            onPress={() => handleCheckboxToggle(ingredient.uniqueKey)} // Pass the uniqueKey
           >
+            <View style={styles.ingredientInfo}>
+              <Typography
+                style={[
+                  styles.itemName,
+                  ingredient.checked && styles.checkedText,
+                ]}
+              >
+                {ingredient.name} 
+              </Typography>
+              <Typography
+                style={[
+                  styles.itemQuantity,
+                  ingredient.checked && styles.checkedText,
+                ]}
+              >
+                {ingredient.amount} {ingredient.unit}
+              </Typography>
+            </View>
+
             <FontAwesome6
               name={ingredient.checked ? "check-square" : "square"}
               size={24}
@@ -458,43 +527,44 @@ const MealPlanner = ({ route, userId }) => {
           </TouchableOpacity>
         </View>
       ))}
-    </View>
+    </>
   )
 )}
-    
-    {selectedFilter === "Recipe" &&
-  shoppingListItems.map((meal, mealIndex) => (
-    <View key={meal.mealId} style={styles.mealSection}>
+
+{selectedFilter === "Recipe" &&
+  shoppingListItems.map((meal) => (
+    <View key={meal.uniqueKey} style={styles.mealSection}>
       <TouchableOpacity>
         <Typography variant="SH3" style={styles.mealTitle}>
-          {meal.mealTitle}
+          {meal.mealTitle} 
         </Typography>
       </TouchableOpacity>
 
-      {meal.ingredients.map((ingredient, ingredientIndex) => (
-        <View key={ingredientIndex} style={styles.shoppingListItem}>
-          <View style={styles.ingredientInfo}>
-            <Typography
-              style={[
-                styles.itemName,
-                ingredient.checked && styles.checkedText,
-              ]}
-            >
-              {ingredient.name}
-            </Typography>
-            <Typography
-              style={[
-                styles.itemQuantity,
-                ingredient.checked && styles.checkedText,
-              ]}
-            >
-              {ingredient.amount} {ingredient.unit}
-            </Typography>
-          </View>
+      {meal.ingredients.map((ingredient) => (
+        <View key={ingredient.uniqueKey} style={styles.shoppingListItem}>
           <TouchableOpacity
             style={styles.checkboxContainer}
-            onPress={() => handleCheckboxToggle(ingredientIndex, mealIndex)}
+            onPress={() => handleCheckboxToggle(ingredient.uniqueKey)} // Pass the uniqueKey
           >
+            <View style={styles.ingredientInfo}>
+              <Typography
+                style={[
+                  styles.itemName,
+                  ingredient.checked && styles.checkedText,
+                ]}
+              >
+                {ingredient.name} 
+              </Typography>
+              <Typography
+                style={[
+                  styles.itemQuantity,
+                  ingredient.checked && styles.checkedText,
+                ]}
+              >
+                {ingredient.amount} {ingredient.unit}
+              </Typography>
+            </View>
+
             <FontAwesome6
               name={ingredient.checked ? "check-square" : "square"}
               size={24}
@@ -507,41 +577,45 @@ const MealPlanner = ({ route, userId }) => {
   ))}
 
 
-    {/* Button to Clear the Shopping List */}
-    {shoppingListItems.length > 0 && (
-      <View style={styles.buttonRow}>
-        {/* Clear List Button */}
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() =>
-            confirmAction(
-              handleClearList,
-              "Are you sure you want to clear the entire list?"
-            )
-          }
-        >
-          <FontAwesome6 name="trash" size={16} color="#fff" />
-          <Text style={styles.buttonText}>Clear All</Text>
-        </TouchableOpacity>
 
-        {/* Remove Selected Ingredients Button */}
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() =>
-            confirmAction(
-              handleRemoveSelectedIngredients,
-              "Are you sure you want to remove selected ingredients?"
-            )
-          }
-        >
-          <FontAwesome6 name="circle-minus" size={16} color="#fff" />
-          <Text style={styles.buttonText}>Delete Checked</Text>
-        </TouchableOpacity>
+            {/* Button to Clear the Shopping List */}
+            {shoppingListItems.length > 0 && (
+              <View style={styles.buttonRow}>
+                {/* Clear List Button */}
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() =>
+                    confirmAction(
+                      handleClearList,
+                      "Are you sure you want to clear the entire list?"
+                    )
+                  }
+                >
+                  <FontAwesome6 name="trash" size={16} color="#fff" />
+                  <Text style={styles.buttonText}>Clear All</Text>
+                </TouchableOpacity>
+
+                {/* Remove Selected Ingredients Button */}
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() =>
+                    confirmAction(
+                      handleRemoveSelectedIngredients,
+                      "Are you sure you want to remove selected ingredients?"
+                    )
+                  }
+                >
+                  <FontAwesome6 name="circle-minus" size={16} color="#fff" />
+                  <Text style={styles.buttonText}>Delete Checked</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            </ScrollView>
+            </View>
+       
+          </>
+        )}
       </View>
-    )}
-  </View>
-)}
-      </ScrollView>
     </View>
   );
 };
@@ -556,7 +630,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    // shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
@@ -579,18 +653,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: Colors.Primary.Brand[100],
   },
-  addMealContent: {
-    alignItems: "center",
-    flexDirection: "row",
-  },
-  addMealContentCenter: {
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "center",
-  },
-  addMealText: {
-    lineHeight: 17,
-  },
+
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -598,6 +661,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   checkboxContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingRight: 10,
     paddingLeft: 10,
   },
   clearButton: {
@@ -611,6 +678,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+
   container: {
     backgroundColor: "#F2F2F2",
     flex: 1,
@@ -618,7 +686,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     alignItems: "center",
-    marginTop: height * 0.12,
+    marginTop: 60,
   },
   deleteAction: {
     alignItems: "center",
@@ -640,17 +708,18 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   filterDropdown: {
-    backgroundColor: "#FFF",
-    borderRadius: 20,
+
     width: "100%",
     paddingVertical: 8,
     marginTop: 8,
+    marginBottom: 16,
   },
   filterOption: {
-    paddingVertical: 10,
+    paddingTop: 14,
+    paddingBottom: 10,
     paddingHorizontal: 15,
-    alignItems: "center",
-    borderRadius: 20,
+    alignItems: "left",
+    borderRadius: 12,
     width: "100%",
   },
   selectedOption: {
@@ -671,11 +740,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerBackground: {
-    height: height * 0.19,
+    height: 140,
     left: 0,
     position: "absolute",
     top: 0,
-    width: "120%",
+    width: width,
   },
   headerContainer: {
     alignItems: "center",
@@ -685,8 +754,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: "bold",
     lineHeight: 28,
+    textAlign: "center",
+    color: "#B4525E",
+    marginBottom: 10,
+
   },
   itemName: {
     fontSize: 16,
@@ -699,12 +771,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   mealSection: {
-    padding: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
     borderRadius: 12,
   },
   mealTitle: {
     fontSize: 16,
-    fontWeight: "bold",
     marginBottom: 8,
     color: "#333",
   },
@@ -734,12 +806,46 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 16,
   },
-  mealCardsContainer: {
+  scrollContainer: {
+    flex: 1,
+    paddingBottom: 16,
+    paddingTop: 16,
+    paddingLeft: 16,
+    paddingRight: 8,
+    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     backgroundColor: "#fff",
-    borderRadius: 16,
+  },
+  scrollListContainer: {
+    flex: 1,
+    paddingBottom: 16,
+    paddingTop: 16,
+    paddingLeft: 16,
+    paddingRight: 8,
+    borderTopRightRadius: 16,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    backgroundColor: "#fff",
+  },
+  mealCardsContainer: {
+    flex: 1,
+
+    paddingLeft: 0,
+
+    paddingRight: 8,
+
+  },
+  shoppingListContainer:{
+    flex: 1,
+    paddingLeft: 0,
+    paddingRight: 8,
   },
   calendarSection: {
     marginBottom: 10,
+
   },
   mealCard: {
     mealNameColor: Colors.Primary.Purple,
@@ -748,15 +854,15 @@ const styles = StyleSheet.create({
     borderColor: Colors.Secondary.Orange[400],
   },
   emptyShoppingListContainer: {
-    backgroundColor: "#FAFAFA",
-    borderRadius: 12,
-    borderWidth: 1,
+   
+
+ 
     borderColor: "#F0F0F0",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 40,
     paddingHorizontal: 20,
-    marginTop: 20,
+   
     height: '100%',
   },
   emptyShoppingListText: {
@@ -764,13 +870,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   shoppingListCard: {
-    backgroundColor: "#FAFAFA",
-    borderRadius: 12,
+
+   
     padding: 16,
   },
   ingredientInfo: {
-    flex: 1,
-    paddingRight: 10,
+
   },
 });
 
