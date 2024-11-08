@@ -13,6 +13,11 @@ import SearchMeal from './SearchMeal';
 import SearchResults from './SearchResults';
 import MealDetails from './MealDetails';
 import MealDetailsAI from './MealDetailsAI';
+
 import Settings from './Settings';
 
-export { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI, SearchCameraScreen, Settings };
+
+import FilterScreen from './FilterScreen';
+
+export { Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen, MealPlanner, SearchMeal, SearchResults, MealDetails, MealDetailsAI, SearchCameraScreen, FilterScreen };
+

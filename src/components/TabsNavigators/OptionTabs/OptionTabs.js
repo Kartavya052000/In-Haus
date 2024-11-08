@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     borderRadius: 16,
     width: '100%',
-    height: windowWidth * 0.12, // 15% of the width
+    
   },
   tab: {
     flex: 1,

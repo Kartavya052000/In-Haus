@@ -1,14 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
+import React, { useState, useEffect } from 'react';
+
+import { StyleSheet, View } from 'react-native';
+
+
+import { NavigationContainer } from '@react-navigation/native';
+
+import { createStackNavigator } from '@react-navigation/stack';
+
+
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; // Custom loading screen
+
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
 import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen';
 import 'react-native-reanimated';
+
 import {Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
+
+import Toast from 'react-native-toast-message';
+
+
+// Import your screens
+
 import SignUp from './src/pages/SignUp';
 import Login from './src/pages/Login';
 import HomePage from './src/pages/HomePage';
@@ -29,6 +44,7 @@ import AddRemoveMember from './src/components/screens/AddRemoveMember';
 import UserDetails from './src/components/screens/UserDetails';
 
 
+
 // Bottom Tab Navigator
 const Tab = createBottomTabNavigator();
 // Stack Navigator for MealAI
@@ -38,12 +54,20 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
-  uri: 'http://10.128.231.24:4000/graphql', // Your GraphQL endpoint
+
+//  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+
+  // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+  uri: 'http://192.168.1.174:4000/graphql', // Your GraphQL endpoint
+
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+
 
 const screenOptions = {
   tabBarShowLabel: false,
@@ -63,26 +87,22 @@ const screenOptions = {
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  const loadFonts = async () => {
-    try {
+  useEffect(() => {
+    const loadFonts = async () => {
       await Font.loadAsync({
-        Aleo: require('./assets/Fonts/Aleo-VariableFont_wght.ttf'),
-        BostonRegular: require('./assets/Fonts/BostonRegular.otf'),
-        BostonSemiBold: require('./assets/Fonts/BostonSemiBold.otf'),
+        Aleo: require('./assets/Fonts/Aleo-Bold.ttf'),
+        BostonRegular: require('./assets/Fonts/BostonRegular.ttf'),
+        BostonSemiBold: require('./assets/Fonts/BostonSemiBold.ttf'),
       });
       setFontsLoaded(true);
-    } catch (error) {
-      console.error('Error loading fonts', error);
-    }
-  };
+    };
 
-  useEffect(() => {
     loadFonts();
   }, []);
 
-  if (!fontsLoaded) {
-    return <CustomLoadingScreen />;
-  }
+  if (!fontsLoaded) return <CustomLoadingScreen />;
+
+
 
   return (
     <ApolloProvider client={client}>
@@ -108,7 +128,9 @@ export default function App() {
             {/* <Stack.Screen name="UserList" component={UserList} options={{ headerShown: false }} /> */}
             <Stack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
           </Stack.Navigator>
+      <Toast />
         </NavigationContainer>
+
       </ShoppingListProvider>
     </ApolloProvider>
   );
