@@ -54,6 +54,8 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
+ // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+
 
 //  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
   // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
@@ -101,6 +103,7 @@ export default function App() {
   }, []);
 
   if (!fontsLoaded) return <CustomLoadingScreen />;
+
 
 
 
