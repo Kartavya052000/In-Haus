@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Switch, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Dropdown from "../Dropdown/Dropdown";
-import { AntDesign } from "@expo/vector-icons";
+import { OpenIcon, CloseIcon } from "../icons/icons"; 
+import Typography from '../typography/Typography'; 
 
-const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
+const DateTimeComponent = ({ onDateTimeChange, repeat2 }) => {
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -17,11 +18,11 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    console.log(repeat2,"repeat2")
     if (repeat2) {
-        setRepeat(repeat2);
+      setRepeat(repeat2);
     }
-}, [repeat2])
+  }, [repeat2]);
+
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
@@ -46,15 +47,14 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
   useEffect(() => {
     const startDateTime = combineDateAndTime(startDate, startTime);
     const endDateTime = combineDateAndTime(endDate, endTime);
-    onDateTimeChange(startDateTime, endDateTime, repeat);;
+    onDateTimeChange(startDateTime, endDateTime, repeat);
   }, [repeat]);
 
   const handleStartDateChange = (event, selectedDate) => {
     setShowStartDatePicker(false);
     if (selectedDate) {
       setStartDate(selectedDate);
-      setEndDate(selectedDate); 
-      console.log("Start Date selected:", selectedDate);
+      setEndDate(selectedDate);
     }
   };
 
@@ -62,7 +62,6 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
     setShowStartTimePicker(false);
     if (selectedTime) {
       setStartTime(selectedTime);
-      console.log("Start Time selected:", selectedTime);
     }
   };
 
@@ -70,7 +69,6 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
     setShowEndTimePicker(false);
     if (selectedTime) {
       setEndTime(selectedTime);
-      console.log("End Time selected:", selectedTime);
     }
   };
 
@@ -79,12 +77,16 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
       {/* Header Summary */}
       <TouchableOpacity onPress={toggleExpanded} style={styles.headerContainer}>
         <View style={styles.summaryTextContainer}>
-          <Text style={styles.label}>Date & Time</Text>
-          <Text style={styles.summaryText}>
+          <Typography variant="SH4" style={styles.label}>
+            Date & Time
+          </Typography>
+          <Typography variant="BodyS" style={styles.summaryText}>
             {`Starts on ${startDate.toDateString()} at ${startTime.toLocaleTimeString()} until ${endTime.toLocaleTimeString()}`}
-          </Text>
+          </Typography>
         </View>
-        <AntDesign name={isExpanded ? "up" : "down"} size={24} color="black" />
+        <View style={styles.icon}>
+          {isExpanded ? <CloseIcon /> : <OpenIcon />}
+        </View>
       </TouchableOpacity>
 
       {/* Collapsible Content */}
@@ -92,23 +94,28 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
         <View>
           {/* All Day Switch */}
           <View style={styles.allDayContainer}>
-            <Text style={styles.label}>All Day</Text>
+            <Typography variant="SH4" style={styles.label}>
+              All Day
+            </Typography>
             <Switch
               value={isAllDay}
               onValueChange={(value) => {
                 setIsAllDay(value);
-                console.log("All Day switch toggled:", value);
               }}
             />
           </View>
 
           {/* Start Date & Time */}
-          <Text style={styles.label}>Starts</Text>
+          <Typography variant="SH4" style={styles.label}>
+            Starts
+          </Typography>
           <TouchableOpacity
             onPress={() => setShowStartDatePicker(true)}
             style={styles.dropdownContainer}
           >
-            <Text style={styles.dropdownText}>{startDate.toDateString()}</Text>
+            <Typography variant="BodyS" style={styles.dropdownText}>
+              {startDate.toDateString()}
+            </Typography>
           </TouchableOpacity>
           {showStartDatePicker && (
             <DateTimePicker
@@ -124,9 +131,9 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
               onPress={() => setShowStartTimePicker(true)}
               style={styles.dropdownContainer}
             >
-              <Text style={styles.dropdownText}>
+              <Typography variant="BodyS" style={styles.dropdownText}>
                 {startTime.toLocaleTimeString()}
-              </Text>
+              </Typography>
             </TouchableOpacity>
           )}
           {showStartTimePicker && (
@@ -139,10 +146,14 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
           )}
 
           {/* End Date */}
-          <Text style={styles.label}>Ends</Text>
+          <Typography variant="SH4" style={styles.label}>
+            Ends
+          </Typography>
           <View style={styles.dropdownContainer}>
             {/* Display endDate as non-editable */}
-            <Text style={styles.dropdownText}>{endDate.toDateString()}</Text>
+            <Typography variant="BodyS" style={styles.dropdownText}>
+              {endDate.toDateString()}
+            </Typography>
           </View>
 
           {/* End Time */}
@@ -151,9 +162,9 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
               onPress={() => setShowEndTimePicker(true)}
               style={styles.dropdownContainer}
             >
-              <Text style={styles.dropdownText}>
+              <Typography variant="BodyS" style={styles.dropdownText}>
                 {endTime.toLocaleTimeString()}
-              </Text>
+              </Typography>
             </TouchableOpacity>
           )}
           {showEndTimePicker && (
@@ -166,7 +177,9 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
           )}
 
           {/* Repeat Dropdown */}
-          <Text style={styles.label}>Repeat</Text>
+          <Typography variant="SH4" style={styles.label}>
+            Repeat
+          </Typography>
           <Dropdown
             options={[
               "Never",
@@ -176,10 +189,9 @@ const DateTimeComponent = ({ onDateTimeChange,repeat2}) => {
               "Every Month",
               "Every Year",
             ]}
-            value={repeat} 
+            selectedValue={repeat} 
             onValueChange={(value) => {
               setRepeat(value);
-              console.log("Repeat option selected:", value);
             }}
           />
         </View>
@@ -202,7 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   summaryText: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#666",
   },
   label: {
@@ -212,12 +224,16 @@ const styles = StyleSheet.create({
   dropdownContainer: {
     padding: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
+    borderColor: "#000", 
+    borderRadius: 24, 
     marginBottom: 15,
+    flexDirection: 'row', 
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   dropdownText: {
-    color: "#333",
+    fontSize: 14,
+    color: "#504F4F",
   },
   allDayContainer: {
     flexDirection: "row",
@@ -225,6 +241,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     marginTop: 20,
+  },
+  icon: {
+    marginLeft: 10,
   },
 });
 
