@@ -3,40 +3,185 @@ import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, 
 import { Picker } from '@react-native-picker/picker';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import CalendarComponent from '../../components/calendar/CalendarComponent';
+import { useLazyQuery, gql, useMutation  } from '@apollo/client';
 import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
+import { generateRandom } from 'expo-auth-session/build/PKCE';
+import * as SecureStore from 'expo-secure-store';
+
 
 const { height } = Dimensions.get('window');
 
+const GET_RECIPE = gql`
+  query getRecipeById($id: Int!) {
+    getRecipeById(id: $id) {
+      id
+      title
+      image
+      summary
+      readyInMinutes
+      healthScore
+      cuisines
+      servings
+      instructions
+      ingredients {
+        name
+        amount
+        unit
+      }
+      steps {
+        step
+      }
+    }
+  }
+`;
+
+// GraphQL mutation to save a recipe to the database
+const SAVE_RECIPE = gql`
+  mutation addRecipe($recipe: RecipeInput!) {
+    addRecipe(recipe: $recipe) {
+      id
+      title
+    }
+  }
+`;
+
+
 const MealDetails = ({ route, navigation }) => {
-  const { id, image, title, selectedDate, setSelectedDate } = route.params;
-  const [recipeDetails, setRecipeDetails] = useState(null);
+  const { id, image, title, selectedServings} = route.params;
+  const [recipeDetails, setRecipeDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [currentServings, setCurrentServings] = useState(1);
-  const selectedMealType = route.params?.selectedMealType ?? null;
+  const [token, setToken] = useState(null);
+
+  // console.log("id - params:", id);
+  // console.log("image - params:", image);
+  // console.log("title - params:", title);
+  // console.log("selectedServings - params:", selectedServings);
+  
+
+
+  const {
+    shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems, selectedDate,  setSelectedDate, selectedMealType, setSelectedMealType 
+  } = useContext(ShoppingListContext);
+
   const [mealType, setMealType] = useState(selectedMealType);
 
-  const { shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems } = useContext(ShoppingListContext);
+ 
+
+  //console.log("selectedMealType - mealDetails:", selectedMealType);
+  //console.log("selectedDate  - mealDetails:", selectedDate);
+
+  // Retrieve recipe from database
+  const [fetchRecipe, { data: recipeData, loading: recipeLoading }] = useLazyQuery(GET_RECIPE, {
+    context: {
+      headers: {
+        Authorization: `${token}`,
+      },
+    },
+    fetchPolicy: 'network-only', // Make sure to fetch the latest from server
+  });
+
+  // Mutation to save recipe
+  const [saveRecipe] = useMutation(SAVE_RECIPE, {
+    context: {
+      headers: {
+        Authorization: `${token}`,
+      },
+    },
+  });
 
   useEffect(() => {
-    fetchRecipeDetails();
+    const getToken = async () => {
+      try {
+        const authToken = await SecureStore.getItemAsync('authToken');
+        if (authToken) {
+          setToken(authToken);
+        } else {
+          console.log('No token found');
+        }
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+      }
+    };
+    getToken();
   }, []);
 
-  const fetchRecipeDetails = async () => {
-    try {
-      const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=bead92b5abb949b7b5a0c0a4d585a623`);
-      const data = await response.json();
-      setRecipeDetails(data);
-      setCurrentServings(data.servings);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching recipe details:", error);
-      setLoading(false);
+  useEffect(() => {
+    if (token) {
+      fetchRecipeFromDatabase();
     }
+  }, [token]);
+
+  const fetchRecipeFromDatabase = () => {
+    fetchRecipe({ variables: { id } });
   };
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+// Check the response from the database query
+useEffect(() => {
+  if (recipeData && recipeData.getRecipeById) {
+    console.log("Data retrieved from database:", recipeData.getRecipeById);
+    setRecipeDetails(recipeData.getRecipeById);
+    setCurrentServings(+selectedServings);
+    setLoading(false);
+  } else if (recipeData && !recipeData.getRecipeById) {
+    console.log("Recipe not found in database. Fetching from Spoonacular...");
+    fetchRecipeDetailsFromSpoonacular();
+  }
+}, [recipeData]);
+
+// Fetch recipe details from Spoonacular if not found in the database
+const fetchRecipeDetailsFromSpoonacular = async () => {
+  try {
+    const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=bead92b5abb949b7b5a0c0a4d585a623`);
+    const data = await response.json();
+
+    if (response.ok && data && !data.status) {
+      console.log("Data retrieved from Spoonacular API:", data);
+
+      // Save the fetched recipe to the database
+      await saveRecipe({
+        variables: {
+          recipe: {
+            id: data.id,
+            title: data.title,
+            image: data.image,
+            summary: data.summary,
+            readyInMinutes: data.readyInMinutes.toString(),
+            healthScore: data.healthScore.toString(),
+            cuisines: data.cuisines,
+            servings: data.servings.toString(),
+            instructions: data.analyzedInstructions[0]?.steps.map((step) => step.step).join('\n'), // Save steps as a single string
+            ingredients: data.extendedIngredients.map((ing) => ({
+              name: ing.name,
+              amount: ing.amount,
+              unit: ing.unit,
+            })),
+            steps: data.analyzedInstructions[0]?.steps.map((step) => ({
+              step: step.step,
+            })),
+          },
+        },
+      });
+
+      console.log("Data saved to database");
+
+      // Fetch the saved data from the database for consistency
+      fetchRecipeFromDatabase();
+    } else {
+      console.log('Failed to fetch recipe from Spoonacular');
+    }
+
+    setLoading(false);
+  } catch (error) {
+    console.error('Error fetching recipe details from Spoonacular:', error);
+    setLoading(false);
+  }
+};
+
+const handleBack = () => {
+  navigation.goBack();
+};
+
 
   const adjustServings = (type) => {
     if (type === 'increment') {
@@ -47,10 +192,15 @@ const MealDetails = ({ route, navigation }) => {
   };
 
   const addToShoppingList = () => {
+    const timestamp = Date.now(); // Generate a unique timestamp for each addition
     const newMeal = {
-      mealId: recipeDetails.id,
+      mealId: recipeDetails.id, // Original recipe ID for API calls
+      uniqueKey: `${recipeDetails.id}-${timestamp}-${generateRandom(5)}`, // Unique key for rendering
       mealTitle: recipeDetails.title,
-      ingredients: recipeDetails.extendedIngredients.map(ingredient => ({
+      mealImage: recipeDetails.image,
+      ingredients: recipeDetails.ingredients.map(ingredient => ({
+        id: `${ingredient.id}`, // Unique ID for each ingredient
+        uniqueKey: `${ingredient.id}-${timestamp}-${generateRandom(5)}`, // Unique key for rendering
         name: ingredient.name,
         amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
         unit: ingredient.unit || '',
@@ -59,7 +209,10 @@ const MealDetails = ({ route, navigation }) => {
     };
 
     setShoppingListItems([...shoppingListItems, newMeal]);
-    navigation.navigate('MealPlanner', { selectedTab: 'Shopping List' });
+
+   
+    
+    navigation.navigate('MealPlanner', { selectedTab: 'Shopping List', notification: 'Ingredients added to the shopping list!' });
   };
 
   const addToPlan = async () => {
@@ -69,6 +222,7 @@ const MealDetails = ({ route, navigation }) => {
       servings: currentServings,
       date: selectedDate,
       mealType: mealType,
+      image: image,
     };
 
     setMealPlanItems((prevItems) => {
@@ -83,7 +237,7 @@ const MealDetails = ({ route, navigation }) => {
     });
 
     addToShoppingList();
-    navigation.navigate('MealPlanner', { selectedTab: 'My Plan' });
+    navigation.navigate('MealPlanner', { selectedTab: 'My Plan', notification: 'The recipe is now in your plan and shopping list' });
   };
 
   if (loading) {
@@ -148,29 +302,36 @@ const MealDetails = ({ route, navigation }) => {
           </View>
         </View>
 
-        <Text style={styles.ingredientsTitle}>Ingredients</Text>
-        {recipeDetails.extendedIngredients.map((ingredient, index) => (
+{/* Render details such as ingredients, instructions, etc. */}
+<Text style={styles.ingredientsTitle}>Ingredients</Text>
+      {recipeDetails.ingredients && recipeDetails.ingredients.length > 0 ? (
+        recipeDetails.ingredients.map((ingredient, index) => (
           <View key={index} style={styles.ingredientItem}>
             <Text style={styles.ingredientAmount}>
               {parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2))} {ingredient.unit}
             </Text>
             <Text style={styles.ingredientName}>{ingredient.name}</Text>
           </View>
-        ))}
+        ))
+      ) : (
+        <Text style={styles.noInstructionsText}>No ingredients available.</Text>
+      )}
+
 
         <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7}>
           <Text style={styles.addButtonText}>Add Ingredients to Shopping List</Text>
         </TouchableOpacity>
 
         <Text style={styles.ingredientsTitle}>Instructions</Text>
-        {recipeDetails.analyzedInstructions.length > 0
-          ? recipeDetails.analyzedInstructions[0].steps.map((step, index) => (
-            <Text key={index} style={styles.instructionText}>
-              {index + 1}. {step.step}
-            </Text>
-          ))
-          : <Text style={styles.noInstructionsText}>No instructions available.</Text>
-        }
+      {recipeDetails.steps && recipeDetails.steps.length > 0 ? (
+        recipeDetails.steps.map((step, index) => (
+          <Text key={index} style={styles.instructionText}>
+            {index + 1}. {step.step}
+          </Text>
+        ))
+      ) : (
+        <Text style={styles.noInstructionsText}>No instructions available.</Text>
+      )}
       </View>
     </ScrollView>
   );
