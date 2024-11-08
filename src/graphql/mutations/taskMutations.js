@@ -9,7 +9,6 @@ export const CREATE_TASK = gql`
     $assignedTo: ID!,
     $description:String
     $points: Int,
-    $category: String!
     $type: String!
   ) {
     createTask(
@@ -20,7 +19,6 @@ export const CREATE_TASK = gql`
       assignedTo: $assignedTo,
       points: $points,
       description: $description,
-      category: $category
       type: $type
     ) {
       id
@@ -28,7 +26,6 @@ export const CREATE_TASK = gql`
       startDate
       endDate
       repeat
-      category
       assignedTo {
         id
         username
@@ -57,6 +54,7 @@ export const GET_GROUP = gql`
         taskName
         startDate
         endDate
+        category
         assignedTo {
           id
           username
@@ -125,7 +123,8 @@ export const GET_USER_TASK = gql`
         id
         taskName
         startDate
-        endDate
+        endDate,
+        category
         assignedTo {
           id
         }

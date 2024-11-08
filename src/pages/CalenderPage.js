@@ -53,6 +53,7 @@ const CalendarPage = () => {
     },
   });
 
+
   const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] =
     useLazyQuery(GET_USER_TASK, {
       onCompleted: (data) => {
@@ -281,6 +282,7 @@ const CalendarPage = () => {
             return (
               <View key={task.id} style={styles.taskSection}>
                 <TaskCard
+                task={task}
                 id={task.id}
                   taskName={task.taskName}
                   startTime={startTimeFormatted}

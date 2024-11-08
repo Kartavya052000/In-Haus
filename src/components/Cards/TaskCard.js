@@ -148,7 +148,7 @@
 // });
 
 // export default TaskCard;
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Text, Alert } from "react-native";
 import Typography from "../../components/typography/Typography";
 import Colors from "../../components/Colors/Colors";
@@ -156,8 +156,10 @@ import { useNavigation } from "@react-navigation/native";
 import { useMutation } from "@apollo/client";
 import { TASK_COMPLETE } from "../../graphql/mutations/taskMutations";
 import * as SecureStore from "expo-secure-store";
+import { BuyIcon, CleaningIcon, DishesIcon, GroceriesIcon, HomeworkIcon, LaundryIcon } from "../icons/icons";
 
 const TaskCard = ({
+  task,
   id, // Add the task ID prop
   taskName,
   startTime,
@@ -170,7 +172,22 @@ const TaskCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
+  const categories = [
+    { label: 'Cleaning', Icon: CleaningIcon },
+    { label: 'Laundry', Icon: LaundryIcon },
+    { label: 'Dishes', Icon: DishesIcon },
+    { label: 'Homework', Icon: HomeworkIcon },
+    { label: 'Groceries', Icon: GroceriesIcon },
+    { label: 'Buy', Icon: BuyIcon },
+  ];
+  const [categoryIcon, setCategoryIcon] = useState(null); // State for the category icon
 
+  useEffect(() => {
+    console.log(task.category,"CAR")
+    const matchedCategory = categories.find((cat) => cat.label === task.category);
+    console.log(matchedCategory,"NMMM");
+    setCategoryIcon(matchedCategory ? matchedCategory.Icon :categories[2].Icon );
+  }, [task.category]);
   // Fetch token on component mount
   React.useEffect(() => {
     const getToken = async () => {
@@ -232,7 +249,11 @@ const TaskCard = ({
       onPress={() => setIsExpanded(!isExpanded)} // Toggle expansion
     >
       <View style={[styles.filledContent, { borderTopColor: borderColor }]}>
-        <View style={styles.icon} />
+        {/* <View style={styles.icon} /> */}
+        {/* {categoryIcon && (
+          <categoryIcon   /> // Render as a proper component
+
+        )} */}
         <View>
           <Typography
             variant="SH3"
