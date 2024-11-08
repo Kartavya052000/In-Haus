@@ -99,7 +99,8 @@ CreateTask = (activetab) => {
     try {
       const startDateTimeISO = startDateTime.toISOString();
       const endDateTimeISO = endDateTime.toISOString();
-
+// console.log(category,"CCCCC")
+// return
       // Log values
       let variables = {};
       if (activetab.activeTab == "Task") {
@@ -110,6 +111,7 @@ CreateTask = (activetab) => {
           repeat: repeat,
           assignedTo: assignedTo,
           points: points,
+          category:category,
           type: "task",
         };
       } else {
@@ -120,7 +122,9 @@ CreateTask = (activetab) => {
           repeat: repeat,
           assignedTo: assignedTo,
           description: description,
+          category:category,
           type: "event",
+
         };
       }
 
@@ -168,6 +172,8 @@ CreateTask = (activetab) => {
             <View style={styles.categoryComponent}>
               <CategorySelection
                 onSelect={(selectedCategory) => setCategory(selectedCategory)}
+                setCategory={setCategory}
+
               />
             </View>
           </View>
@@ -179,6 +185,8 @@ CreateTask = (activetab) => {
             <View style={styles.categoryComponent}>
               <CategorySelectionEvent
                 onSelect={(selectedCategory) => setCategory(selectedCategory)}
+                setCategory={setCategory}
+
               />
             </View>
           </View>
