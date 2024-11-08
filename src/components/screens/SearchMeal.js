@@ -7,8 +7,13 @@ import CustomLoadingScreen from "../../components/Loading/CustomLoadingScreen";
 import { useRoute, useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import Slider from "@react-native-community/slider";
+
+import Colors from "../../components/Colors/Colors";
+
+
 import { ShoppingListContext } from "../../components/contexts/ShoppingListContext";
 import { MealIcon, DessertIcon, BreakfastIcon, SnacksIcon, SaladIcon, SoupIcon, GoBackIcon, SearchIcon, OpenIcon, CloseIcon, ChineseIcon, IndianIcon, JapaneseIcon, LatamIcon, ItalianIcon, VietnameseIcon } from "../../components/icons/icons";
+
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 const SearchMeal = ({ navigation }) => {
@@ -128,11 +133,13 @@ const SearchMeal = ({ navigation }) => {
         style={styles.headerBackground}
       >
         <View style={styles.headerContainer}>
+
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <View style={styles.backButtonContainer}>
               <GoBackIcon size={24} color="#FF5A5F" />
             </View>
           </TouchableOpacity>
+
           <Typography
             variant="H4"
             style={[
@@ -479,6 +486,7 @@ paddingRight:5,
     // paddingBottom: 16,
     marginHorizontal: 16,
   },
+
   sliderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -487,6 +495,7 @@ paddingRight:5,
     flex: 1,
     justifyContent: 'space-between',
   }
+
 });
 
 export default SearchMeal;
