@@ -168,19 +168,20 @@ const TaskCard = ({
   timeColor,
   backgroundColor,
   borderColor,
+  selectedCategory,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
-  // const categories = [
-  //   { label: 'Cleaning', Icon: CleaningIcon },
-  //   { label: 'Laundry', Icon: LaundryIcon },
-  //   { label: 'Dishes', Icon: DishesIcon },
-  //   { label: 'Homework', Icon: HomeworkIcon },
-  //   { label: 'Groceries', Icon: GroceriesIcon },
-  //   { label: 'Buy', Icon: BuyIcon },
-  // ];
-  // const [categoryIcon, setCategoryIcon] = useState(null); // State for the category icon
+  const categoryIcons = {
+    Cleaning: CleaningIcon,
+    Laundry: LaundryIcon,
+    Dishes: DishesIcon,
+    Homework: HomeworkIcon,
+    Groceries: GroceriesIcon,
+    Buy: BuyIcon,
+  };
+  const CategoryIcon = categoryIcons[selectedCategory]; // Get icon for the selected category
 
   // useEffect(() => {
   //   console.log(task.category,"CAR")
@@ -249,11 +250,11 @@ const TaskCard = ({
       onPress={() => setIsExpanded(!isExpanded)} // Toggle expansion
     >
       <View style={[styles.filledContent, { borderTopColor: borderColor }]}>
-        {/* <View style={styles.icon} />
-        {categoryIcon && (
-          <categoryIcon   /> // Render as a proper component
-
-        )} */}
+      {CategoryIcon && (
+          <View style={styles.icon}>
+            <CategoryIcon />
+          </View>
+        )}
         <View>
           <Typography
             variant="SH3"

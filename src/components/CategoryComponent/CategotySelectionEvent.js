@@ -65,7 +65,7 @@ const CategorySelectionEvent = ({setCategory}) => {
               isSelected={selectedCategory === category.label}
               onPress={() => {
                 setSelectedCategory(category.label);
-                setIsExpanded(false); 
+                setIsExpanded(true); 
                 setCategory(category.label)
               }}
             />

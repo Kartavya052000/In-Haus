@@ -170,15 +170,15 @@ const EditTask = () => {
         <View style={styles.fieldContainer}>
           <View style={styles.categoryComponent}>
             <CategorySelection
-              onSelect={(selectedCategory) => setCategory(selectedCategory)}
               setCategory={setCategory}
+              onSelect={(selectedCategory) => setCategory(selectedCategory)}
             />
           </View>
         </View>
 
         {/* Assign To */}
         <View style={styles.fieldContainer}>
-        <Typography variant="SH4" style={styles.label}>
+          <Typography variant="SH4" style={styles.label}>
             Assign to
           </Typography>
           <Dropdown
@@ -196,9 +196,9 @@ const EditTask = () => {
 
         {/* Amount of Points */}
         <View style={styles.fieldContainer}>
-        <Typography variant="SH4" style={styles.label}>
-              Amount of Points
-            </Typography>
+          <Typography variant="SH4" style={styles.label}>
+            Amount of Points
+          </Typography>
           <Dropdown
             options={[100, 200, 300, 5]} // Added the existing value for points (5)
             selectedValue={points}

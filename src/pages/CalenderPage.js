@@ -293,6 +293,7 @@ const CalendarPage = () => {
                   timeColor={Colors.Secondary.Navy[400]}
                   backgroundColor={Colors.Secondary.Navy[100]}
                   borderColor={Colors.Secondary.Navy[400]}
+                  selectedCategory={task.category}
                 />
               </View>
             );
