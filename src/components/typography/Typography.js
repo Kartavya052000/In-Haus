@@ -2,6 +2,21 @@ import React from 'react';
 import { Text } from 'react-native';
 
 const TYPOGRAPHY_STYLES = {
+
+//   H1: { fontSize: 40, lineHeight: 2.5 * 16, fontFamily: 'Aleo', textTransform: 'capitalize' },
+//   H2: { fontSize: 36, lineHeight: 2.25 * 16,  fontFamily: 'Aleo', textTransform: 'capitalize' },
+//   H3: { fontSize: 32, lineHeight: 2 * 16,  fontFamily: 'Aleo', textTransform: 'capitalize' },
+//   H4: { fontSize: 28, lineHeight: 1.75 * 16,  fontFamily: 'Aleo', textTransform: 'none' },
+//   H5: { fontSize: 24, lineHeight: 1.5 * 16, fontFamily: 'Aleo', textTransform: 'capitalize' },
+//   SH1: { fontSize: 28, lineHeight: 1.75 * 16, fontFamily: 'BostonRegular', textTransform: 'capitalize' },
+//   SH2: { fontSize: 24, lineHeight: 1.5 * 16,  fontFamily: 'BostonRegular', textTransform: 'capitalize' },
+//   SH3: { fontSize: 20, lineHeight: 1.25 * 16, fontFamily: 'BostonRegular', textTransform: 'capitalize' },
+//   SH4: { fontSize: 16, lineHeight: 1 * 16, fontFamily: 'BostonSemiBold', textTransform: 'capitalize' },
+//   SH5: { fontSize: 12, lineHeight: 0.75 * 16, fontFamily: 'BostonRegular', textTransform: 'capitalize' },
+//   BodyL: { fontSize: 20, lineHeight: 1.25 * 16, fontFamily: 'BostonRegular' },
+//   BodyS: { fontSize: 16, lineHeight: 1 * 16, fontFamily: 'BostonRegular' },
+//   Caption: { fontSize: 12, lineHeight: 0.75 * 16,  fontFamily: 'BostonRegular' },
+
   H1: { fontSize: 40, lineHeight: 2.5 * 16, fontFamily: 'Aleo' },
   H2: { fontSize: 36, lineHeight: 2.25 * 16,  fontFamily: 'Aleo' },
   H3: { fontSize: 32, lineHeight: 2 * 16,  fontFamily: 'Aleo' },
@@ -15,6 +30,7 @@ const TYPOGRAPHY_STYLES = {
   BodyL: { fontSize: 20, lineHeight: 1.25 * 16,  fontFamily: 'BostonRegular' },
   BodyS: { fontSize: 16, lineHeight: 1 * 16,  fontFamily: 'BostonRegular' },
   Caption: { fontSize: 12, lineHeight: 0.75 * 16, fontFamily: 'BostonRegular' },
+
 };
 
 const Typography = ({ variant = 'BodyS', children, color, align, style }) => {

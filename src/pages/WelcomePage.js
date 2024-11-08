@@ -57,40 +57,43 @@ export default function WelcomePage() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Typography variant="H2" align="center" style={styles.heading}>Welcome to in-Haus</Typography>
-        <Typography variant="H4" align="center" style={styles.subheading}>AI powered app that simplifies your household management</Typography>
-        
-        <Carousel
-          loop
-          width={300}
-          height={300}
-          data={slides}
-          autoPlay={true}
-          renderItem={renderItem}
-          scrollAnimationDuration={1000}
-          onSnapToItem={(index) => setActiveIndex(index)} // Update active index on slide change
-        />
-<View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace("SignUp")}>
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-        <Text style={styles.loginText}>
-          Already have an account?
-          <TouchableOpacity onPress={()=> navigation.replace("Login")}>
-             <Text style={styles.loginLink}>Log In here</Text>
-             </TouchableOpacity>
-        </Text>
-      </View>
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Typography variant="H2" align="center" style={styles.heading}>Welcome to in-Haus</Typography>
+          <Typography variant="H4" align="center" style={styles.subheading}>AI powered app that simplifies your household management</Typography>
+          
+          <Carousel
+            loop
+            width={300}
+            height={300}
+            data={slides}
+            autoPlay={true}
+            renderItem={renderItem}
+            scrollAnimationDuration={1500}
+            onSnapToItem={(index) => setActiveIndex(index)} // Update active index on slide change
+          />
+  <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.replace("SignUp")}>
+            <Text style={styles.buttonText}>Get Started</Text>
+          </TouchableOpacity>
+          <Text style={styles.loginText}>
+            Already have an account?
+            <TouchableOpacity onPress={()=> navigation.replace("Login")}>
+              <Text style={styles.loginLink}> Log In here</Text>
+            </TouchableOpacity>
+          </Text>
+        </View>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    // height: '100%',
   },
   container: {
     flex: 1,
@@ -153,9 +156,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   bottomContainer:{
-marginBottom:100,
-// flex:1,
-alignItems:'center'
+  marginBottom:100,
   },
   button: {
     backgroundColor: '#497DF6',
@@ -175,6 +176,8 @@ alignItems:'center'
     color: '#555',
     marginTop: 10,
     textAlign: 'center',
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   loginLink: {
     color: '#497DF6',
