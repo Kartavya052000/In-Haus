@@ -49,7 +49,7 @@ const [currentTask,setCurrentTask] = useState([])
         name: member.username,
         id: member.id,
       }));
-      // console.log(data.getGroup);
+      console.log(data.getGroup);
       setTasks(data.getGroup.filteredTasks);
       setMembers(transformedMembers);
       setGroupId(data.getGroup.id);
@@ -108,7 +108,6 @@ const [currentTask,setCurrentTask] = useState([])
         
        
       });
-    
     }
   };
 
@@ -124,7 +123,8 @@ const [currentTask,setCurrentTask] = useState([])
         },
         variables: {
           groupId: groupId, // Include groupId variable
-          userId: userId,   // Include userId variable if required
+          userId: userId,
+          startDate:selectedDate   // Include userId variable if required
         },
       });
       }
@@ -160,7 +160,28 @@ const [currentTask,setCurrentTask] = useState([])
     // Logic to mark the task as done
 
   };
+  const fetchGroupDataWithDate = async (token,startDate) => {
+    if (token) {
+      fetchGroup({
+        context: {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+        variables: {
+          groupID: "test", 
+          startDate
+        },
+      
+     
+    });
+  }
+};
 
+useEffect(() => {
+console.log(selectedDate)
+fetchGroupDataWithDate(token,selectedDate)
+},[selectedDate])
 useEffect(()=>{
 console.log(currentTask,"currentTask");
 fetchGroupData(token);
@@ -312,10 +333,10 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   calendarSection: {
-    height: 30,
+    // height: 30,
     // minHeight: 100,
-    felx: 1,
-    marginVertical: 50,
+    // felx: 1,
+    marginVertical: 20,
 
   },
   tabsContainer: {
