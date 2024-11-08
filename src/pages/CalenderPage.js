@@ -104,6 +104,7 @@ const [currentTask,setCurrentTask] = useState([])
           },
           variables: {
             groupID: "test", 
+            startDate:selectedDate
           },
         
        
