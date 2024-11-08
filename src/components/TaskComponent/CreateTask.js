@@ -99,7 +99,7 @@ CreateTask = (activetab) => {
     try {
       const startDateTimeISO = startDateTime.toISOString();
       const endDateTimeISO = endDateTime.toISOString();
-// console.log(category,"CCCCC")
+console.log(category,"CCCCC")
 // return
       // Log values
       let variables = {};

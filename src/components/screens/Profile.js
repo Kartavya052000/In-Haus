@@ -77,7 +77,7 @@ export default function Profile({ name = profileData.name, role = profileData.ro
               <Text style={styles.optionIcon}>›</Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.logoutItem}>
+          <TouchableOpacity style={styles.logoutItem} onPress={logOut}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </View>
