@@ -10,6 +10,7 @@ export const CREATE_TASK = gql`
     $description:String
     $points: Int,
     $type: String!
+    $category: String!
   ) {
     createTask(
       taskName: $taskName,
@@ -19,7 +20,8 @@ export const CREATE_TASK = gql`
       assignedTo: $assignedTo,
       points: $points,
       description: $description,
-      type: $type
+      type: $type,
+      category: $category
     ) {
       id
       taskName
@@ -125,6 +127,7 @@ export const GET_USER_TASK = gql`
         startDate
         endDate,
         category
+        points
         assignedTo {
           id
         }
@@ -133,7 +136,25 @@ export const GET_USER_TASK = gql`
   }
 `;
 
-
+export const GET_MY_TASK = gql`
+  query getMyTasksInGroup{
+    getMyTasksInGroup{
+      id
+      username
+      filteredTasks {
+        id
+        taskName
+        startDate
+        endDate,
+        category
+        points
+        assignedTo {
+          id
+        }
+      }
+    }
+  }
+`;
 export const TASK_COMPLETE = gql`
   mutation completeTask(
     $taskId: ID!,

@@ -169,6 +169,9 @@ const TaskCard = ({
   backgroundColor,
   borderColor,
   selectedCategory,
+  setIsVisible,
+  setCurrentTask
+
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation();
@@ -215,7 +218,9 @@ const TaskCard = ({
     },
     variables: { taskId: id },
     onCompleted: (data) => {
-      Alert.alert("Task completed!");
+      // Alert.alert("Task completed!");
+      setIsVisible(true);
+      setCurrentTask(task)
       console.log("Task marked as completed:", data.completeTask);
       // Refresh or update the task list as needed
     },
