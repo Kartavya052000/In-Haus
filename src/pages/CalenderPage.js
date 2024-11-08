@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Alert, Platform, StatusBar, Dimensions } from "react-native";
+import {
+  View,
+  ScrollView,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Platform,
+  StatusBar,
+  Dimensions,
+} from "react-native";
 import TabsNavigation from "../components/TabsNavigators/TabsNavigation";
-import TaskCard from "../components/CardComponent/TaskCard";
-import { useNavigation } from '@react-navigation/native';
-import { useLazyQuery } from "@apollo/client"; 
-import { GET_GROUP, GET_USER_TASK } from '../graphql/mutations/taskMutations';
-import * as SecureStore from 'expo-secure-store';  
+import TaskCard from "../components/Cards/TaskCard";
+import { useNavigation } from "@react-navigation/native";
+import { useLazyQuery } from "@apollo/client";
+import { GET_GROUP, GET_USER_TASK } from "../graphql/mutations/taskMutations";
+import * as SecureStore from "expo-secure-store";
 import Typography from "../components/typography/Typography";
 import { AddIcon } from "../components/icons/icons";
-import TaskCalendar from "../components/calendar/TaskCalendar"
-// import Colors from ". components/Colors/Colors";
+// import TaskCalendar from "../components/calendar/TaskCalendar"
+import CalendarComponent from "../components/calendar/CalendarComponent";
+import Colors from "../components/Colors/Colors";
 import { LinearGradient } from "expo-linear-gradient";
 const { height } = Dimensions.get("window");
 
@@ -18,49 +29,56 @@ const CalendarPage = () => {
   const [token, setToken] = useState(null);
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [groupId, setGroupId] = useState('');
-  
+  const [groupId, setGroupId] = useState("");
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  ); // Define selectedDate state
+
   const navigation = useNavigation();
-  
+
   const [fetchGroup, { loading, error }] = useLazyQuery(GET_GROUP, {
     onCompleted: (data) => {
       const transformedMembers = data.getGroup.members.map((member) => ({
         name: member.username,
-        id: member.id
+        id: member.id,
       }));
-      console.log(data.getGroup)
+      console.log(data.getGroup);
       setTasks(data.getGroup.filteredTasks);
-      setMembers(transformedMembers); 
-      setGroupId(data.getGroup.id);  
+      setMembers(transformedMembers);
+      setGroupId(data.getGroup.id);
     },
     onError: (error) => {
-      console.error('Error fetching group:', error.message);
+      console.error("Error fetching group:", error.message);
     },
   });
 
-  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] = useLazyQuery(GET_USER_TASK, {
-    onCompleted: (data) => {
-    console.log("Hit2",data.getUserTasksInGroup)
+  const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] =
+    useLazyQuery(GET_USER_TASK, {
+      onCompleted: (data) => {
+        console.log("Hit2", data.getUserTasksInGroup);
 
-      setTasks(data.getUserTasksInGroup.filteredTasks);
-    },
-    onError: (error) => {
-      console.error('Error fetching user tasks:', error.message);
-    },
-  });
+        setTasks(data.getUserTasksInGroup.filteredTasks);
+      },
+      onError: (error) => {
+        console.error("Error fetching user tasks:", error.message);
+      },
+    });
 
   const getToken = async () => {
     try {
-      const token = await SecureStore.getItemAsync('authToken');
+      const token = await SecureStore.getItemAsync("authToken");
       if (token) {
         setToken(token);
         fetchGroupData(token);
       } else {
-        console.log('No token found');
+        console.log("No token found");
       }
     } catch (error) {
-      console.error('Error retrieving token:', error);
-      Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
+      console.error("Error retrieving token:", error);
+      Alert.alert(
+        "Retrieval Error",
+        "Failed to retrieve authentication token."
+      );
     }
   };
 
@@ -73,14 +91,14 @@ const CalendarPage = () => {
           },
         },
         variables: {
-          groupID: "test", 
+          groupID: "test",
         },
       });
     }
   };
 
   const fetchUserData = async (token, userId) => {
-    console.log("Hit1")
+    console.log("Hit1");
     if (token && groupId) {
       fetchUserTask({
         context: {
@@ -97,7 +115,7 @@ const CalendarPage = () => {
   };
 
   useEffect(() => {
-    getToken(); 
+    getToken();
   }, []);
 
   // useEffect(() => {
@@ -106,12 +124,13 @@ const CalendarPage = () => {
   //   }
   // }, [groupId]);
 
-  if (loading || userTaskLoading) return <Text>Loading...</Text>;
-  if (error || userTaskError) return <Text>Error fetching data: {error?.message}</Text>;
+  // if (loading || userTaskLoading) return <Text>Loading...</Text>;
+  // if (error || userTaskError)
+  //   return <Text>Error fetching data: {error?.message}</Text>;
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName.name);
-    if (tabName.name === 'All') {
+    if (tabName.name === "All") {
       fetchGroupData(token);
     } else {
       fetchUserData(token, tabName.id);
@@ -119,13 +138,23 @@ const CalendarPage = () => {
   };
 
   const handleClick = () => {
-    navigation.navigate('CreateTaskEvent');
+    navigation.navigate("CreateTaskEvent");
+  };
+
+  const handleEdit = (task) => {
+    // Navigate to the EditTaskEvent screen
+    navigation.navigate('EditTaskEvent', { task });
+  };
+
+  const handleMarkAsDone = (taskId) => {
+    // Logic to mark the task as done
+
   };
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={["rgba(243, 200, 202, 1)", "rgba(226, 127, 130, 1)"]}
+        colors={["rgba(243, 245, 255, 1)", "rgba(199, 210, 255, 1)"]}
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.headerBackground}
@@ -135,44 +164,128 @@ const CalendarPage = () => {
           variant="H4"
           style={[
             styles.headerTitle,
-            { textAlign: "center", color: "#B4525E" },
+            { textAlign: "center", color: "#183AC1" },
           ]}
         >
           Calendar
         </Typography>
         <TouchableOpacity
-          style={styles.addMealButton}
+          style={styles.addButton}
           onPress={() => handleClick()}
         >
-          <View style={styles.addMealContainer}>
+          <View style={styles.addContainer}>
             <AddIcon color="#FFFFFF" style={styles.addIcon} />
           </View>
         </TouchableOpacity>
       </View>
-      <View style={styles.taskCalendar}>
-      <TaskCalendar
-              markedDates={{}} // Placeholder for marked dates
-              activities={[]} // Placeholder for activities
-              themeColors={{ primary: '#000', arrowColor: '#000', monthTextColor: '#000' }} // Example theme colors
-              selectedDate={new Date()} // Pass selectedDate to CalendarComponent
-            />
-              
-          </View>
-   
-      <TabsNavigation
-        users={members}
-        activeColor="black"
-        inactiveColor="gray"
-        onTabChange={handleTabChange}
-      />
 
-      <ScrollView style={styles.scrollView}>
-        {tasks?.map((data) => (
-          <View key={data.id}> 
-            <TaskCard taskName={data.taskName} startTime={data.startDate} endTime={data.endDate} id={data.id} />
-          </View>
-        ))}
-      </ScrollView>
+      {/* Calendar Section */}
+      <View style={styles.calendarSection}>
+        <CalendarComponent
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          selectedDayColor="#476BFB"
+          eventDotColor="#00adf5"
+          iconColor="#476BFB"
+          themeColors={{
+            backgroundColor: "#F2F2F2",
+            calendarBackground: "#F2F2F2",
+            todayTextColor: "#333",
+            arrowColor: "#333",
+            monthTextColor: "#000",
+          }}
+        />
+      </View>
+
+      {/* Tabs and Task Cards */}
+      <View style={styles.tabsContainer}>
+        <View style={styles.tabsWrapper}>
+          <TabsNavigation
+            users={members}
+            activeColor="black"
+            inactiveColor="gray"
+            onTabChange={handleTabChange}
+          />
+        </View>
+        {/* <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.taskCardsContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {tasks?.map((task, index) => {
+            const startDate = new Date(task.startDate);
+            const endDate = new Date(task.endDate);
+
+            const options = {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            };
+            const startTimeFormatted = startDate.toLocaleTimeString(
+              [],
+              options
+            );
+            const endTimeFormatted = endDate.toLocaleTimeString([], options);
+
+            return (
+              <View key={task.id} style={styles.taskSection}>
+                <TaskCard
+                  taskName={task.taskName}
+                  startTime={startTimeFormatted}
+                  endTime={endTimeFormatted}
+                  assignedTo={task.assignedTo}
+                  onPress={() => handleTaskCardPress(task)}
+                  onDelete={() => handleDeleteTask(task.id)}
+                  taskNameColor={Colors.Primary.Purple}
+                  infoColor={Colors.Secondary.Navy[400]}
+                  backgroundColor={Colors.Secondary.Navy[100]}
+                  borderColor={Colors.Secondary.Navy[400]}
+                />
+              </View>
+            );
+          })}
+        </ScrollView> */}
+
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.taskCardsContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {tasks?.map((task, index) => {
+            // Parse ISO string to Date objects
+            const startDate = new Date(task.startDate);
+            const endDate = new Date(task.endDate);
+
+            // Format dates into readable time format 
+            const startTimeFormatted = startDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            });
+            const endTimeFormatted = endDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            });
+
+            return (
+              <View key={task.id} style={styles.taskSection}>
+                <TaskCard
+                  taskName={task.taskName}
+                  startTime={startTimeFormatted}
+                  endTime={endTimeFormatted}
+                  onEdit={() => handleEdit(task)} 
+                  onMarkAsDone={() => handleMarkAsDone(task.id)}
+                  taskNameColor={Colors.Secondary.Navy[400]}
+                  timeColor={Colors.Secondary.Navy[400]}
+                  backgroundColor={Colors.Secondary.Navy[100]}
+                  borderColor={Colors.Secondary.Navy[400]}
+                />
+              </View>
+            );
+          })}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -181,44 +294,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 24,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
+    // paddingVertical: 24,
+    backgroundColor: "#F2F2F2",
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
   },
-  taskCalendar:{
-    height:400,
-    marginBottom: 24,
-    paddingHorizontal: 0,
-  },
-  addIcon: {
-    marginBottom: -2,
-  },
-  addMealButton: {
-    position: "absolute",
-    right: 0,
-    top: -10,
-  },
-  addMealContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 16,
+  contentContainer: {
     alignItems: "center",
-    justifyContent: "center",
-    // backgroundColor: Colors.Primary.Brand[100],
-  },
-  addMealContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: -2,
-  },
-  addMealText: {
-    lineHeight: 17,
-  },
-  addIcon: {
-    marginBottom: -2,
-  },
-  scrollView: {
-    padding: 16,
+    marginTop: height * 0.12,
   },
   headerBackground: {
     height: height * 0.19,
@@ -238,7 +320,58 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     lineHeight: 28,
   },
-  
+  calendarSection: {
+    height: 30,
+    // minHeight: 100,
+    felx: 1,
+    marginVertical: 50,
+  },
+  tabsContainer: {
+    // alignItems: "center",
+    flex: 1,
+    width: "100%",
+    marginVertical: 0,
+  },
+  tabsWrapper: {
+    paddingBottom: 16,
+  },
+  addIcon: {
+    marginBottom: -2,
+  },
+  addButton: {
+    position: "absolute",
+    right: 0,
+    top: -10,
+  },
+  addContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.Primary.Brand[400],
+  },
+  // scrollView: {
+  //   // flex: 1,
+  //   padding: 16,
+  // },
+  taskCardsContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  taskSection: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
 });
 
 export default CalendarPage;

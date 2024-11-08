@@ -43,7 +43,7 @@ const client = new ApolloClient({
   // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
 
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  uri: 'http://10.128.214.79:4000/graphql', // Your GraphQL endpoint
+  uri: 'http://172.20.10.2:4000/graphql', // Your GraphQL endpoint
   cache: new InMemoryCache(),
   headers: {
     'Content-Type': 'application/json',
@@ -110,8 +110,8 @@ export default function App() {
           <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }}/>
          <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
           <Stack.Screen name="CalenderPage" component={CalendarPage} />
-          <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
-          <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+          <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} options={{ headerShown: false }}/>
+          <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} options={{ headerShown: false }}/>
           <Stack.Screen name="CreateReward" component={CreateRewards} />
           <Stack.Screen name="RewardsList" component={RewardsList} />
           <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />
