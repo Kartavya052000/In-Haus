@@ -17,7 +17,7 @@ const CategoryButton = ({ label, Icon, isSelected, onPress }) => {
   );
 };
 
-const CategorySelectionEvent = () => {
+const CategorySelectionEvent = ({setCategory}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -66,6 +66,7 @@ const CategorySelectionEvent = () => {
               onPress={() => {
                 setSelectedCategory(category.label);
                 setIsExpanded(false); 
+                setCategory(category.label)
               }}
             />
           ))}

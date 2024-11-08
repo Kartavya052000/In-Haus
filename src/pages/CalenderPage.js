@@ -112,7 +112,11 @@ const CalendarPage = () => {
             Authorization: `${token}`,
 
           },
-        }
+        },
+        variables: {
+          groupId: groupId, // Include groupId variable
+          userId: userId,   // Include userId variable if required
+        },
       });
       }
     };
@@ -277,6 +281,7 @@ const CalendarPage = () => {
             return (
               <View key={task.id} style={styles.taskSection}>
                 <TaskCard
+                id={task.id}
                   taskName={task.taskName}
                   startTime={startTimeFormatted}
                   endTime={endTimeFormatted}
