@@ -10,6 +10,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useMutation } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
+import { GoogleIcon } from '../icons/icons';
 
 
 const webClientId ="733893558665-4pfkbdmufs6o2iedfcp9u2sfbiiiur74.apps.googleusercontent.com"
@@ -84,7 +85,7 @@ handleToken()
   },[response])
   return (
     <View style={styles.ContainerButton}>
-      <FontAwesome name="google" size={24} color="white" style={{ marginRight: 10 }} />
+      <GoogleIcon style={styles.GoogleContainerButton}/>
       <Button
         title="Continue with Google"
         color={'white'}
@@ -115,5 +116,10 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     height: 50,
     marginBottom: 20,
+  },
+  GoogleContainerButton: {
+    width: 24,
+    height: 24,
+    // marginLeft: 10,
   },
 });
