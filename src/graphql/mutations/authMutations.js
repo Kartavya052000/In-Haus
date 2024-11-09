@@ -21,3 +21,27 @@ export const LOGIN_MUTATION = gql`
     }
   }
 `;
+
+export const GOOGLE_MUTATION = gql`
+  mutation googleSignIn($username: String!, $email: String!, $googleId: ID!) {
+    googleSignIn(username: $username, email: $email, googleId: $googleId) {
+      id
+      username
+      email
+      token
+    }
+  }
+`;
+
+
+export const MY_PROFILE = gql`
+  query myProfile {
+    myProfile {
+      id
+      username
+      email
+      points
+    }
+  }
+`;
+

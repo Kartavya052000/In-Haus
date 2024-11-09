@@ -1,12 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Import useRoute
-import { GET_TASK, EDIT_TASK } from '../../graphql/mutations/taskMutations';
-import InputField from '../Inputs/InputField';
-import Dropdown from '../Dropdown/Dropdown';
-import DateTimeComponent from '../DateTime/DateTimeComponent';
-import * as SecureStore from 'expo-secure-store';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useNavigation, useRoute } from "@react-navigation/native"; // Import useRoute
+import { GET_TASK, EDIT_TASK } from "../../graphql/mutations/taskMutations";
+import InputField from "../Inputs/InputField";
+import Dropdown from "../Dropdown/Dropdown";
+import DateTimeComponent from "../DateTime/DateTimeComponent";
+import * as SecureStore from "expo-secure-store";
+import Typography from "../typography/Typography";
+import CategorySelection from "../CategoryComponent/CategorySelection";
 
 const EditTask = () => {
   const route = useRoute(); // Get the route object
@@ -20,7 +30,7 @@ const EditTask = () => {
   });
 
   const fetchTaskData = async (token) => {
-    console.log(token,"++++",id)
+    console.log(token, "++++", id);
     if (token) {
       getTask({
         context: {
@@ -36,28 +46,28 @@ const EditTask = () => {
   };
   const [editTask] = useMutation(EDIT_TASK);
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [repeat, setRepeat] = useState('Never');
-  const [category, setCategory] = useState('');
-  const [assignedTo, setAssignedTo] = useState('');
+  const [repeat, setRepeat] = useState("Never");
+  const [category, setCategory] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
   const [points, setPoints] = useState(100);
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
     const getToken = async () => {
       try {
-        const token = await SecureStore.getItemAsync('authToken');
+        const token = await SecureStore.getItemAsync("authToken");
         if (token) {
           setAuthToken(token);
           fetchTaskData(token);
-          console.log('Token retrieved:', token);
+          console.log("Token retrieved:", token);
         } else {
-          console.error('No auth token found');
+          console.error("No auth token found");
         }
       } catch (error) {
-        console.error('Error retrieving auth token:', error);
+        console.error("Error retrieving auth token:", error);
       }
     };
 
@@ -65,7 +75,7 @@ const EditTask = () => {
   }, []);
 
   useEffect(() => {
-    console.log(data,"DATTAA")
+    console.log(data, "DATTAA");
     if (data && data.getTask) {
       const task = data.getTask;
       setTitle(task.taskName);
@@ -73,10 +83,10 @@ const EditTask = () => {
       setEndDateTime(new Date(task.endDate));
       // setRepeat(task.repeat);
       setRepeat("Never");
-      setCategory("Shopping");  /// change it later
+      setCategory(data.category);
       setAssignedTo(task.assignedTo.id);
       setPoints(100);
-console.log(repeat)
+      console.log(repeat);
       // console.log('Fetched Task:', task);
     }
   }, [data]);
@@ -90,26 +100,27 @@ console.log(repeat)
         repeat,
         assignedTo,
         points,
+        category,
         type: category,
       };
 
       const response = await editTask({
         variables: {
-          taskId:id,
-          updatedTaskDetails
+          taskId: id,
+          updatedTaskDetails,
         },
         context: {
           headers: {
-            Authorization: authToken ? `${authToken}` : '',
+            Authorization: authToken ? `${authToken}` : "",
           },
         },
       });
-Alert.alert("Updated Successfully")
-navigation.replace('CalenderPage');
+      Alert.alert("Updated Successfully");
+      navigation.replace("CalenderPage");
 
-      console.log('Task updated:', response.data);
+      console.log("Task updated:", response.data);
     } catch (error) {
-      console.error('Error updating task:', error);
+      console.error("Error updating task:", error);
     }
   };
 
@@ -117,31 +128,36 @@ navigation.replace('CalenderPage');
   if (error) return <Text>Error loading task details: {error.message}</Text>;
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Task Name */}
-      <InputField
-        label="Task name"
-        placeholder={title || "Task Name"}
-        value={title}
-        onChangeText={setTitle}
-        style={styles.inputField}
-      />
+    <View style={styles.mainContentContainer}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.fieldContainer}>
+          {/* Task Name */}
+          <InputField
+            label="Task name"
+            placeholder={title || "Task Name"}
+            value={title}
+            onChangeText={setTitle}
+            style={styles.inputField}
+          />
+        </View>
 
-      {/* Date & Time */}
-      <View style={styles.fieldContainer}>
-        <DateTimeComponent
-          startDateTime={startDateTime}
-          endDateTime={endDateTime}
-          onDateTimeChange={(start, end) => {
-            setStartDateTime(start);
-            setEndDateTime(end);
-          }}
-          repeat2={repeat}
-        />
-      </View>
+        {/* Date & Time */}
+        <View style={styles.fieldContainer}>
+          <View style={styles.dateTimeComponent}>
+            <DateTimeComponent
+              startDateTime={startDateTime}
+              endDateTime={endDateTime}
+              onDateTimeChange={(start, end) => {
+                setStartDateTime(start);
+                setEndDateTime(end);
+              }}
+              repeat2={repeat}
+            />
+          </View>
+        </View>
 
-      {/* Repeat */}
-      {/* <View style={styles.fieldContainer}>
+        {/* Repeat */}
+        {/* <View style={styles.fieldContainer}>
         <Text style={styles.label}>Repeat</Text>
         <Dropdown
           options={['Never', 'Daily', 'Weekly', 'Monthly']}
@@ -150,60 +166,93 @@ navigation.replace('CalenderPage');
         />
       </View> */}
 
-      {/* Category */}
-      <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Category</Text>
-        <Dropdown
-          options={['Cleaning', 'Cooking', 'Shopping', 'feature']}
-          selectedValue={category}
-          onValueChange={setCategory}
-        />
-      </View>
+        {/* Category */}
+        <View style={styles.fieldContainer}>
+          <View style={styles.categoryComponent}>
+            <CategorySelection
+              setCategory={setCategory}
+              onSelect={(selectedCategory) => setCategory(selectedCategory)}
+            />
+          </View>
+        </View>
 
-      {/* Assign To */}
-      <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Assign to</Text>
-        <Dropdown
-          options={[
-            { id: '67062299d001f960932e8c1b', username: 'Mateo' },
-            { id: '67062290d001f960932e8c18', username: 'Aryan' },
-            { id: '670622a3d001f960932e8c1e', username: 'Kartavya' }
-          ]}
-          selectedValue={assignedTo}
-          onValueChange={(value) => setAssignedTo(value)}
-          labelExtractor={(item) => item.username}
-          valueExtractor={(item) => item.id}
-        />
-      </View>
+        {/* Assign To */}
+        <View style={styles.fieldContainer}>
+          <Typography variant="SH4" style={styles.label}>
+            Assign to
+          </Typography>
+          <Dropdown
+            options={[
+              { id: "67062299d001f960932e8c1b", username: "Mateo" },
+              { id: "67062290d001f960932e8c18", username: "Aryan" },
+              { id: "670622a3d001f960932e8c1e", username: "Kartavya" },
+            ]}
+            selectedValue={assignedTo}
+            onValueChange={(value) => setAssignedTo(value)}
+            labelExtractor={(item) => item.username}
+            valueExtractor={(item) => item.id}
+          />
+        </View>
 
-      {/* Amount of Points */}
-      <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Amount of Points</Text>
-        <Dropdown
-          options={[100, 200, 300, 5]} // Added the existing value for points (5)
-          selectedValue={points}
-          onValueChange={setPoints}
-        />
-      </View>
+        {/* Amount of Points */}
+        <View style={styles.fieldContainer}>
+          <Typography variant="SH4" style={styles.label}>
+            Amount of Points
+          </Typography>
+          <Dropdown
+            options={[100, 200, 300, 5]} // Added the existing value for points (5)
+            selectedValue={points}
+            onValueChange={setPoints}
+          />
+        </View>
 
-      {/* Save Button */}
-      <View style={styles.buttonContainer}>
+        {/* Save Button */}
+        {/* <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Save</Text>
         </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </View> */}
+
+        {/* Discard and Save Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.discardButton}
+            onPress={() => console.log("Discarded")}
+          >
+            <Text style={[styles.discardText, { color: "#476BFB" }]}>
+              Discard
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={[styles.saveText, { color: "#FFFFFF" }]}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  inputField: {
+  mainContentContainer: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
     marginBottom: 20,
   },
+  container: {
+    padding: 20,
+    // marginTop: 40
+  },
+  // inputField: {
+  //   marginBottom: 20,
+  // },
   fieldContainer: {
+    marginBottom: 10,
+  },
+  dateTimeComponent: {
+    marginBottom: 20,
+  },
+  categoryComponent: {
     marginBottom: 20,
   },
   label: {
@@ -213,16 +262,29 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 30,
   },
+  discardButton: {
+    borderColor: "#476BFB",
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    marginBottom: 15,
+  },
+  discardText: {
+    color: "black",
+    fontSize: 16,
+    textAlign: "center",
+  },
   saveButton: {
-    backgroundColor: 'black',
-    borderRadius: 25,
+    backgroundColor: "#476BFB",
+    borderRadius: 16,
     paddingVertical: 15,
     paddingHorizontal: 40,
   },
   saveText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

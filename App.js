@@ -14,7 +14,6 @@ import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen'; 
 
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { ShoppingListProvider } from './src/components/contexts/ShoppingListContext';
-import CustomLoadingScreen from './src/components/Loading/CustomLoadingScreen';
 import 'react-native-reanimated';
 
 import {Haus, Calendar, MealAI, Profile, Rewards, CameraScreen, ResultScreen, FixMealCameraScreen, FixMealResultScreen } from './src/components/screens';
@@ -54,16 +53,17 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
+ // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
+
 
 //  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
   // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
 
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-<<<<<<< Updated upstream
-  uri: 'http://192.168.1.174:4000/graphql', // Your GraphQL endpoint
-=======
-  uri: 'http://172.20.10.11:4000/graphql', // Your GraphQL endpoint
->>>>>>> Stashed changes
+
+
+  uri: 'http://10.128.226.175:4000/graphql', // Your GraphQL endpoint
+
 
   cache: new InMemoryCache(),
   headers: {
@@ -108,9 +108,12 @@ export default function App() {
 
 
 
+
+
   return (
     <ApolloProvider client={client}>
       <ShoppingListProvider>
+
         <NavigationContainer>
           <Stack.Navigator initialRouteName="WelcomePage">
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
@@ -119,8 +122,8 @@ export default function App() {
             <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }} />
             <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
             <Stack.Screen name="CalenderPage" component={CalendarPage} />
-            <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} />
-            <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} />
+            <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} options={{ headerShown: false }}/>
+            <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} options={{ headerShown: false }}/>
             <Stack.Screen name="CreateReward" component={CreateRewards} />
             <Stack.Screen name="RewardsList" component={RewardsList} />
             <Stack.Screen name="ComponentCompiler" component={ComponentCompiler} />

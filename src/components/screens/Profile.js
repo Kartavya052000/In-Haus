@@ -4,12 +4,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Typography from '../typography/Typography';
 import Colors from '../Colors/Colors';
-<<<<<<< Updated upstream
-=======
+
 import * as SecureStore from "expo-secure-store";
 import { useQuery } from "@apollo/client";
 import { MY_PROFILE } from '../../graphql/mutations/authMutations'; // Ajusta la ruta según tu estructura de carpetas
->>>>>>> Stashed changes
+
 
 const { height } = Dimensions.get('window');
 
@@ -44,18 +43,20 @@ export default function Profile() {
     navigation.navigate('UserProfile');
   };
 
-<<<<<<< Updated upstream
-=======
   const logOut = async () => {
     try {
+      // Delete only the authToken from SecureStore
       await SecureStore.deleteItemAsync("authToken");
+  
+      // Navigate to the WelcomePage after logging out
+
       navigation.navigate("WelcomePage");
     } catch (error) {
       console.log("Error logging out:", error);
     }
   };
 
->>>>>>> Stashed changes
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -100,14 +101,8 @@ export default function Profile() {
             <TouchableOpacity style={styles.logoutItem} onPress={logOut}>
               <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
-<<<<<<< Updated upstream
-          ))}
-          <TouchableOpacity style={styles.logoutItem}>
-            <Text style={styles.logoutText}>Log Out</Text>
-          </TouchableOpacity>
-=======
+
           </View>
->>>>>>> Stashed changes
         </View>
       </View>
     </View>
