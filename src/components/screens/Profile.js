@@ -1,21 +1,30 @@
-// import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Typography from '../typography/Typography';
 import Colors from '../Colors/Colors';
+<<<<<<< Updated upstream
+=======
+import * as SecureStore from "expo-secure-store";
+import { useQuery } from "@apollo/client";
+import { MY_PROFILE } from '../../graphql/mutations/authMutations'; // Ajusta la ruta según tu estructura de carpetas
+>>>>>>> Stashed changes
 
 const { height } = Dimensions.get('window');
-const profileData = {
-  name: "Arthur Weasley",
-  role: "Admin",
-  email: "arthurw00@hogwarts.com",
-};
 
-
-export default function Profile({ name = profileData.name, role = profileData.role, email = profileData.email }) {
-
+export default function Profile() {
   const navigation = useNavigation();
+
+  // Realiza la consulta MY_PROFILE para obtener los datos del usuario
+  const { loading, error, data } = useQuery(MY_PROFILE);
+
+  if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
+  if (error) return <Text>Error: {error.message}</Text>;
+
+  // Extrae los datos de perfil obtenidos de la consulta
+  const { username, email } = data.myProfile;
+  const role = "Admin"; // Puedes ajustar este valor según tus necesidades
 
   const handleOptionPress = (option) => {
     if (option === 'Settings') {
@@ -31,11 +40,22 @@ export default function Profile({ name = profileData.name, role = profileData.ro
     }
   };
 
-  // Nueva función para navegar a userProfile cuando se presiona la imagen de perfil
   const handleProfileImagePress = () => {
     navigation.navigate('UserProfile');
   };
 
+<<<<<<< Updated upstream
+=======
+  const logOut = async () => {
+    try {
+      await SecureStore.deleteItemAsync("authToken");
+      navigation.navigate("WelcomePage");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -45,45 +65,50 @@ export default function Profile({ name = profileData.name, role = profileData.ro
         style={styles.headerBackground}
       />
       <View style={styles.contentContainer}>
-        <Typography 
-          variant="H5" 
+        <Typography
+          variant="H5"
           color={Colors.Secondary.Blue[500]}
           align="center"
           style={styles.headerText}
         >
           Edit Profile
         </Typography>
-        
+
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <TouchableOpacity onPress={handleProfileImagePress}>
             <View style={styles.profileImagePlaceholder} />
           </TouchableOpacity>
-          <Typography variant="SH3" style={styles.userName} >
-          {name}
+          <Typography variant="SH3" style={styles.userName}>
+            {username}
           </Typography>
-          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]} >
-          {role}
+          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]}>
+            {role}
           </Typography>
-          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]}  >
-          {email}
+          <Typography variant="S" style={styles.userInfo} color={Colors.Secondary.Gray[400]}>
+            {email}
           </Typography>
           <View style={styles.optionsList}>
-          {['Settings', 'Notifications', 'Add/Remove Member', 'Terms & Conditions'].map((option, index) => (
-            <TouchableOpacity key={index} style={styles.optionItem} onPress={() => handleOptionPress(option)}>
-              <Typography variant="SH3" style={styles.userInfo} >
-                {option}
-              </Typography> 
-              <Text style={styles.optionIcon}>›</Text>
+            {['Settings', 'Notifications', 'Add/Remove Member', 'Terms & Conditions'].map((option, index) => (
+              <TouchableOpacity key={index} style={styles.optionItem} onPress={() => handleOptionPress(option)}>
+                <Typography variant="SH3" style={styles.userInfo}>
+                  {option}
+                </Typography>
+                <Text style={styles.optionIcon}>›</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.logoutItem} onPress={logOut}>
+              <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
+<<<<<<< Updated upstream
           ))}
           <TouchableOpacity style={styles.logoutItem}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
+=======
+          </View>
+>>>>>>> Stashed changes
         </View>
-        </View>
-
-        {/* Options List */}
       </View>
     </View>
   );

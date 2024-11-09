@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import axios from 'axios';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function CustomLoadingScreen() {
   const [joke, setJoke] = useState('');
@@ -49,7 +50,12 @@ export default function CustomLoadingScreen() {
 
   // Render the loading screen with a joke and an activity indicator
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#E27F82', '#F3C8CA']}
+      style={styles.container}
+      start={[0, 0]}
+      end={[0, 1]}
+    >
       <Text style={styles.emoji}>{currentEmoji}</Text>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -60,7 +66,7 @@ export default function CustomLoadingScreen() {
           </Text>
         )
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -71,7 +77,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5', // Add a light background color
   },
   joke: {
     fontSize: 24,

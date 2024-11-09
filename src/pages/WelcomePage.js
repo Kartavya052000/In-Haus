@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 20,
+    paddingHorizontal: "1%",
   },
   heading: {
     marginTop: 40,
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     height: 140 ,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',

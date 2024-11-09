@@ -11,15 +11,15 @@ const DayColumn = ({ day, tasksAssigned, tasksCompleted, iconColor }) => {
   let barColors;
 
 
-  if (completionRatio <= 0.10) {
+  if (completionRatio < 0.10) {
     IconComponent = frownIcon;
     barColors = ['#EAA4A6', '#F3C8CA'];
     iconColor = '#FF5252';
-} else if (completionRatio > 0.10 && completionRatio < 0.50) {
+} else if (completionRatio >= 0.10 && completionRatio < 0.50) {
     IconComponent = mehIcon;
     barColors = ['#C7D2FF', '#F3F5FF'];
     iconColor = '#3F51B5';
-} else { // This covers completionRatio >= 0.50
+} else { // Esto cubre completionRatio >= 0.50
     IconComponent = smileIcon;
     barColors = ['#9ED69A', '#CFEACC'];
     iconColor = '#4CAF50';

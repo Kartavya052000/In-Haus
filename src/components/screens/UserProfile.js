@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, Alert, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Typography from '../typography/Typography';
 import Colors from '../Colors/Colors';
@@ -8,18 +8,46 @@ import { useNavigation } from '@react-navigation/native';
 import Dropdown from '../Dropdown/Dropdown';
 import InputField from '../Inputs/InputField';
 import { BackIcon } from '../icons/icons';
+import { useQuery, useMutation } from "@apollo/client";
+import { MY_PROFILE, UPDATE_PROFILE_MUTATION } from '../../graphql/mutations/authMutations'; // Ajusta esta ruta según tu estructura
 
 const { height } = Dimensions.get('window');
 
-const profileData = {
-    name: "Arthur Weasley",
-    role: "Admin",
-    email: "arthurw00@hogwarts.com",
-  };
-
-export default function UserProfile({ name = profileData.name, role = profileData.role, email = profileData.email }) {
+export default function UserProfile() {
     const navigation = useNavigation();
-  
+
+    const { data, loading, error } = useQuery(MY_PROFILE);
+    
+    const [name, setName] = useState('');
+    const [role, setRole] = useState('');
+    const [email, setEmail] = useState('');
+
+    React.useEffect(() => {
+        if (data) {
+            setName(data.myProfile.username);
+            setRole("Admin");
+            setEmail(data.myProfile.email);
+        }
+    }, [data]);
+
+    // const [updateProfile] = useMutation(UPDATE_PROFILE_MUTATION, {
+    //     onCompleted: () => Alert.alert("Profile updated successfully!"),
+    //     onError: (err) => Alert.alert("Error updating profile", err.message),
+    // });
+
+    const handleSave = () => {
+        updateProfile({
+            variables: {
+                username: name,
+                email: email,
+                role: role,
+            },
+        });
+    };
+
+    if (loading) return <Typography>Loading...</Typography>;
+    if (error) return <Typography>Error: {error.message}</Typography>;
+
     return (
         <View style={styles.container}>
           <LinearGradient
@@ -29,14 +57,12 @@ export default function UserProfile({ name = profileData.name, role = profileDat
             style={styles.headerBackground}
           />
           <View style={styles.contentContainer}>
-            {/* Back Button */}
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <View style={styles.viewBackButton}>
                 <BackIcon color={Colors?.Secondary?.Blue?.[400]} />
               </View>
             </TouchableOpacity>
             
-            {/* Header */}
             <Typography 
               variant="H5" 
               color={Colors.Secondary.Blue[500]}
@@ -46,126 +72,122 @@ export default function UserProfile({ name = profileData.name, role = profileDat
               Edit Profile
             </Typography>
             <View style={styles.permissionCard}>
-
-                  {/* Profile Image Placeholder with Camera Icon */}
-                  <View style={styles.profileImageContainer}>
+                {/* Contenedor centrado para la imagen del perfil */}
+                <View style={styles.profileImageContainer}>
                     <View style={styles.profileImagePlaceholder}>
-                      {/* Espacio reservado para la imagen */}
+                        {/* Espacio reservado para la imagen */}
                     </View>
-                    <View style={styles.cameraIconContainer}>
-                      {/* Icono de cámara (deja en blanco por ahora) */}
-                    </View>
-                  </View>
+                </View>
                   
-                  {/* Profile Form Fields */}
-                  <InputField label="Full Name" placeholder="Arthur Weasley" value={name} inputWidth="100%" />
-                  <InputField label="Email" placeholder="arthurw00@hogwarts.com" value={email} inputWidth="100%" />
-                  <InputField label="Date of Birth" placeholder="Oct 10, 1989" inputWidth="100%" />
-                  <InputField label="Groups" placeholder="Weasley Wizard Family" inputWidth="100%" />
-                  
-                  {/* Dropdown for Role */}
-                  <Dropdown 
-                    label="Role" 
-                    options={['Admin', 'User', 'Guest']} 
-                    selectedValue={role}
-                  />
-                  
-                  {/* Save Button */}
-                  <TouchableOpacity style={styles.saveButton}>
-                    <Typography style={styles.saveButtonText} variant="BodyS" color="#FFFFFF">
-                      Save
-                    </Typography>
-                  </TouchableOpacity>
+                <InputField
+                    label="Full Name"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChangeText={setName}
+                    inputWidth="100%"
+                />
+                <InputField
+                    label="Email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChangeText={setEmail}
+                    inputWidth="100%"
+                    disabled
+                />
+                <InputField
+                    label="Date of Birth"
+                    placeholder="DD/MM/YYYY"
+                    inputWidth="100%"
+                    disabled
+                />
+                <InputField
+                    label="Groups"
+                    placeholder="Team Atlas"
+                    inputWidth="100%"
+                />
 
+                <Dropdown 
+                    label="Role" 
+                    options={['Admin', 'User', 'Guest']}
+                    selectedValue={role}
+                    onValueChange={setRole}
+                    disabled={true}
+                />
+                  
+                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                    <Typography style={styles.saveButtonText} variant="BodyS" color="#FFFFFF">
+                        Save
+                    </Typography>
+                </TouchableOpacity>
             </View>
           </View>
         </View>
-      );
-  }
+    );
+}
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F2F2F2',
-      },
-      headerBackground: {
+    },
+    headerBackground: {
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: height * 0.19,
-      },
-      contentContainer: {
+    },
+    contentContainer: {
         marginTop: height * 0.12,
         alignItems: 'center',
-        // paddingHorizontal: 16,
-      },
-      headerText: {
+    },
+    headerText: {
         fontWeight: '700',
         fontSize: 24,
         lineHeight: 28,
         paddingBottom: 16,
-      },
-      permissionCard: {
+    },
+    permissionCard: {
         padding: 16,
         backgroundColor: '#FFFFFF',
         borderRadius: 12,
         width: '90%',
         marginBottom: 16,
-      },
-      permissionDescription: {
-        // fontSize: 14,
-        // color: '#333',
-        marginBottom: 16,
-      },
-      toggleContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-      },
-      toggleLabel: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-      },
-      cameraHeaderText: {
-        fontWeight: '700',
-        fontSize: 24,
-        lineHeight: 28,
-        paddingBottom: 16,
-        paddingLeft: 16,
-      },
-      backButton: {
+    },
+    backButton: {
         position: 'absolute',
         top: -20,
         left: 10,
         padding: 10,
         zIndex: 1,
-      },
-      viewBackButton: {
+    },
+    viewBackButton: {
         width: 40,
         height: 40,
         borderRadius: 16,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#fff",
-      },
-      saveButton: {
-        width: 361, // Anchura completa
-        height: 52, // Altura específica
-        paddingVertical: 16, // Espacio superior e inferior
-        paddingHorizontal: 0, // Sin espacio lateral
-        backgroundColor: Colors.Primary.Brand[400], // Color de fondo azul (ajustado al color de la imagen)
-        borderRadius: 16, // Bordes redondeados
-        alignItems: 'center', // Centrado horizontal
-        justifyContent: 'center', // Centrado vertical
-        opacity: 1, // Asegurar opacidad
-      },
-      profileImagePlaceholder: {
+    },
+    profileImageContainer: {
+        alignItems: 'center', // Centra horizontalmente
+        justifyContent: 'center', // Centra verticalmente
+        marginBottom: 16,
+    },
+    profileImagePlaceholder: {
         width: 80,
         height: 80,
         borderRadius: 40,
         backgroundColor: '#ccc',
         marginBottom: 12,
-      },
-
+    },
+    saveButton: {
+        width: 361,
+        height: 52,
+        paddingVertical: 16,
+        backgroundColor: Colors.Primary.Brand[400],
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });

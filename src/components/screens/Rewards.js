@@ -123,7 +123,22 @@ const navigation =useNavigation();
 
       <MyRewards text={activeTab =="My Rewards"?"My":"Assigned"}setIsVisible={setIsVisible} list ={'myRewards'} setDetails={setDetails} />
    
+<<<<<<< Updated upstream
       <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} rewardPoints={rewardPoints} />
+=======
+      <MyRewards
+       text={activeTab =="My Rewards"?"My":"Assigned"}
+       setIsVisible={setIsVisible}
+        list ={'myRewards'} 
+        setDetails={setDetails}
+        shouldFetchRewards={shouldFetchRewards} 
+        onFetchRewardsComplete={() => setShouldFetchRewards(false)} 
+        style={styles.rewardCardContainer}
+        />
+
+   
+      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} Details={rewardDetails} rewardPoints={rewardPoints} />
+>>>>>>> Stashed changes
       </View>
   )
 }
@@ -163,5 +178,8 @@ const styles = StyleSheet.create({
   },
   rewards_points:{
     backgroundColor:"lightblue"
-  }
+  },
+  rewardCardContainer:{
+    borderRadius:16
+  },
   });

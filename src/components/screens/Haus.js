@@ -77,7 +77,62 @@
           <RewardsCards1 />
         </View>
         </View>  
+<<<<<<< Updated upstream
         
+=======
+        <ScrollView
+  style={{ flex: 1 }}
+  contentContainerStyle={styles.taskCardsContainer}
+  showsVerticalScrollIndicator={false}
+>
+  <Typography variant="SH3" style={styles.taskSectionHeading}>Today's Tasks</Typography>
+
+  {tasks && tasks.length > 0 ? (
+    tasks.map((task, index) => {
+      // Parse ISO string to Date objects
+      const startDate = new Date(task.startDate);
+      const endDate = new Date(task.endDate);
+
+      // Format dates into readable time format 
+      const startTimeFormatted = startDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const endTimeFormatted = endDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      return (
+        <View key={task.id} style={styles.taskSection}>
+          <TaskCard
+            task={task}
+            id={task.id}
+            taskName={task.taskName}
+            startTime={startTimeFormatted}
+            endTime={endTimeFormatted}
+            // onEdit={() => handleEdit(task)} 
+            // onMarkAsDone={() => handleMarkAsDone(task.id)}
+            taskNameColor={Colors.Secondary.Navy[400]}
+            timeColor={Colors.Secondary.Navy[400]}
+            backgroundColor={Colors.Secondary.Navy[100]}
+            borderColor={Colors.Secondary.Navy[400]}
+            setIsVisible={setIsVisible}
+            setCurrentTask={setCurrentTask}
+          />
+        </View>
+      );
+    })
+  ) : (
+    <Typography variant="SH4" style={styles.noTasksMessage}>
+      No tasks for today
+    </Typography>
+  )}
+</ScrollView>
+
+>>>>>>> Stashed changes
 
       </View>
     );
@@ -88,6 +143,21 @@
       flex: 1,
       backgroundColor: '#F2F2F2',
     },
+<<<<<<< Updated upstream
+=======
+    taskCardsContainer: {
+      backgroundColor: "#fff",
+      borderRadius: 16,
+      paddingTop: 15,
+      paddingBottom: 15,
+      marginHorizontal:16,
+      marginTop:16,
+      paddingHorizontal:16
+    },
+    taskSectionHeading:{
+marginBottom: 12,
+    },
+>>>>>>> Stashed changes
     headerBackground: {
       position: 'absolute',
       top: 0,
@@ -108,5 +178,11 @@
     },
     graphContainer: {
       paddingTop: 20,
+    },
+    noTasksMessage: {
+      textAlign: 'center',
+      color: Colors.Secondary.Navy[400],
+      marginVertical: 20,
+      fontSize: 16,
     },
   });
