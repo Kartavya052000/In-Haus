@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Button, Text, View } from 'react-native';
+import { Button, Text, View, StyleSheet} from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
@@ -9,6 +9,7 @@ import { GOOGLE_MUTATION } from '../../graphql/mutations/authMutations';
 import * as SecureStore from 'expo-secure-store';
 import { useMutation } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
 
 
 const webClientId ="733893558665-4pfkbdmufs6o2iedfcp9u2sfbiiiur74.apps.googleusercontent.com"
@@ -82,15 +83,37 @@ try{
 handleToken()
   },[response])
   return (
-    <View>
-      
-        <Button
-          title="Sign in with Google"
-          disabled={!request}
-          onPress={() => {
-            promptAsync();
-          }}
-        />
+    <View style={styles.ContainerButton}>
+      <FontAwesome name="google" size={24} color="white" style={{ marginRight: 10 }} />
+      <Button
+        title="Continue with Google"
+        color={'white'}
+        style={styles.Button}
+        disabled={!request}
+        onPress={() => {
+          promptAsync();
+        }}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  Button: {
+    color: 'white',
+    fontSize: 20,
+    padding: 10,
+    borderRadius: 10,
+    margin: 10,
+  },
+  ContainerButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '80%',
+    backgroundColor: '#476BFB',
+    borderRadius: 17,
+    height: 50,
+    marginBottom: 20,
+  },
+});

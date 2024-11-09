@@ -186,7 +186,7 @@ const navigation =useNavigation();
         />
 
    
-      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} rewardDetails={rewardDetails} rewardPoints={rewardPoints} />
+      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} Details={rewardDetails} rewardPoints={rewardPoints} />
       </View>
   )
 }

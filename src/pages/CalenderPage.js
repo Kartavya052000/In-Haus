@@ -23,11 +23,15 @@ import { AddIcon } from "../components/icons/icons";
 import CalendarComponent from "../components/calendar/CalendarComponent";
 import Colors from "../components/Colors/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import BottomSwipeableDrawer from "../components/Drawer/BottomSwipeableDrawer";
 const { height } = Dimensions.get("window");
 
 const CalendarPage = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const [activeTabId,setActiveTabId]=useState("");
   const [token, setToken] = useState(null);
+const [isVisible,setIsVisible]=useState(false)
+
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [groupId, setGroupId] = useState("");
@@ -36,8 +40,10 @@ const CalendarPage = () => {
   ); // Define selectedDate state
 
   const navigation = useNavigation();
-
+const [currentTask,setCurrentTask] = useState([])
   const [fetchGroup, { loading, error }] = useLazyQuery(GET_GROUP, {
+    fetchPolicy: "network-only", // Forces fresh data fetch from network
+
     onCompleted: (data) => {
       const transformedMembers = data.getGroup.members.map((member) => ({
         name: member.username,
@@ -53,8 +59,11 @@ const CalendarPage = () => {
     },
   });
 
+
   const [fetchUserTask, { loading: userTaskLoading, error: userTaskError }] =
     useLazyQuery(GET_USER_TASK, {
+    fetchPolicy: "network-only", // Forces fresh data fetch from network
+
       onCompleted: (data) => {
         console.log("Hit2", data.getUserTasksInGroup);
 
@@ -95,11 +104,11 @@ const CalendarPage = () => {
           },
           variables: {
             groupID: "test", 
+            startDate:selectedDate
           },
         
        
       });
-    
     }
   };
 
@@ -112,7 +121,12 @@ const CalendarPage = () => {
             Authorization: `${token}`,
 
           },
-        }
+        },
+        variables: {
+          groupId: groupId, // Include groupId variable
+          userId: userId,
+          startDate:selectedDate   // Include userId variable if required
+        },
       });
       }
     };
@@ -121,18 +135,12 @@ const CalendarPage = () => {
     getToken();
   }, []);
 
-    // useEffect(() => {
-    //   if (token && groupId) {
-    //     fetchUserData(token, tabId); // Handle appropriate user ID based on the tab.
-    //   }
-    // }, [groupId]);
 
-  // if (loading || userTaskLoading) return <Text>Loading...</Text>;
-  // if (error || userTaskError)
-  //   return <Text>Error fetching data: {error?.message}</Text>;
+   
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName.name);
+    setActiveTabId(tabName.id);
     if (tabName.name === "All") {
       fetchGroupData(token);
     } else {
@@ -153,8 +161,33 @@ const CalendarPage = () => {
     // Logic to mark the task as done
 
   };
+  const fetchGroupDataWithDate = async (token,startDate) => {
+    if (token) {
+      fetchGroup({
+        context: {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+        variables: {
+          groupID: "test", 
+          startDate
+        },
+      
+     
+    });
+  }
+};
 
-
+useEffect(() => {
+console.log(selectedDate)
+fetchGroupDataWithDate(token,selectedDate)
+},[selectedDate])
+useEffect(()=>{
+console.log(currentTask,"currentTask");
+fetchGroupData(token);
+fetchUserData(token,activeTabId)
+},[currentTask])
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -213,45 +246,7 @@ const CalendarPage = () => {
             onTabChange={handleTabChange}
           />
         </View>
-        {/* <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.taskCardsContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {tasks?.map((task, index) => {
-            const startDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
-
-            const options = {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: true,
-            };
-            const startTimeFormatted = startDate.toLocaleTimeString(
-              [],
-              options
-            );
-            const endTimeFormatted = endDate.toLocaleTimeString([], options);
-
-            return (
-              <View key={task.id} style={styles.taskSection}>
-                <TaskCard
-                  taskName={task.taskName}
-                  startTime={startTimeFormatted}
-                  endTime={endTimeFormatted}
-                  assignedTo={task.assignedTo}
-                  onPress={() => handleTaskCardPress(task)}
-                  onDelete={() => handleDeleteTask(task.id)}
-                  taskNameColor={Colors.Primary.Purple}
-                  infoColor={Colors.Secondary.Navy[400]}
-                  backgroundColor={Colors.Secondary.Navy[100]}
-                  borderColor={Colors.Secondary.Navy[400]}
-                />
-              </View>
-            );
-          })}
-        </ScrollView> */}
-
+     
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={styles.taskCardsContainer}
@@ -277,6 +272,8 @@ const CalendarPage = () => {
             return (
               <View key={task.id} style={styles.taskSection}>
                 <TaskCard
+                task={task}
+                id={task.id}
                   taskName={task.taskName}
                   startTime={startTimeFormatted}
                   endTime={endTimeFormatted}
@@ -286,13 +283,23 @@ const CalendarPage = () => {
                   timeColor={Colors.Secondary.Navy[400]}
                   backgroundColor={Colors.Secondary.Navy[100]}
                   borderColor={Colors.Secondary.Navy[400]}
+                  selectedCategory={task.category}
+                  setIsVisible={setIsVisible}
+                  setCurrentTask={setCurrentTask}
                 />
               </View>
             );
           })}
         </ScrollView>
+
       </View>
+      {isVisible && (
+      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} Details={currentTask}  />
+        
+      )}
+      
     </View>
+    
   );
 };
 
@@ -327,10 +334,12 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   calendarSection: {
-    height: 30,
+    // height: 30,
     // minHeight: 100,
-    felx: 1,
-    marginVertical: 50,
+    // felx: 1,
+    marginTop:30,
+    marginBottom:20
+    // marginVertical: 20,
 
   },
   tabsContainer: {

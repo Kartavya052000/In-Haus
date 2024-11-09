@@ -325,8 +325,8 @@ export const SaveIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const CleaningIcon = ({ color = "#183AC1" }) => (
-  <Svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const CleaningIcon = ({ color = "#284CDD",width = 19, height = 20 }) => (
+  <Svg width={width} height={height} viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path d="M17.5 0C16.9477 0 16.5 0.447715 16.5 1C16.5 1.55228 16.9477 2 17.5 2H17.51C18.0623 2 18.51 1.55228 18.51 1C18.51 0.447715 18.0623 0 17.51 0H17.5Z" fill={color} />
     <Path d="M14.5 2C13.9477 2 13.5 2.44772 13.5 3C13.5 3.55228 13.9477 4 14.5 4H14.51C15.0623 4 15.51 3.55228 15.51 3C15.51 2.44772 15.0623 2 14.51 2H14.5Z" fill={color} />
     <Path d="M11.5 4C10.9477 4 10.5 4.44772 10.5 5C10.5 5.55228 10.9477 6 11.5 6H11.51C12.0623 6 12.51 5.55228 12.51 5C12.51 4.44772 12.0623 4 11.51 4H11.5Z" fill={color} />
@@ -337,8 +337,8 @@ export const CleaningIcon = ({ color = "#183AC1" }) => (
   </Svg>
 );
 
-export const LaundryIcon = ({ color = "#333232" }) => (
-  <Svg width="17" height="20" viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const LaundryIcon = ({ color = "#284CDD",width=17,height=20 }) => (
+  <Svg width={width} height={height} viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -348,8 +348,8 @@ export const LaundryIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const DishesIcon = ({ color = "#333232" }) => (
-  <Svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const DishesIcon = ({ color = "#284CDD",width=21,height=20 }) => (
+  <Svg width={width} height={height} viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path d="M17.5 10C17.5 13.866 14.366 17 10.5 17C6.63401 17 3.5 13.866 3.5 10C3.5 6.13401 6.63401 3 10.5 3C14.366 3 17.5 6.13401 17.5 10Z" fill={color} />
     <Path
       fillRule="evenodd"
@@ -361,8 +361,8 @@ export const DishesIcon = ({ color = "#333232" }) => (
 );
 
 
-export const HomeworkIcon = ({ color = "#333232" }) => (
-  <Svg width="21" height="18" viewBox="0 0 21 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const HomeworkIcon = ({ color = "#284CDD",width=21,height=18 }) => (
+  <Svg width={width} height={height} viewBox="0 0 21 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -372,8 +372,8 @@ export const HomeworkIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const GroceriesIcon = ({ color = "#333232" }) => (
-  <Svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const GroceriesIcon = ({ color = "#284CDD",width=21,height=20 }) => (
+  <Svg width={width} height={height} viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       d="M2.04415 1.36754C2.31638 0.55086 3.08066 0 3.94152 0H17.0585C17.9193 0 18.6836 0.55086 18.9558 1.36754L20.4203 4.81251C20.4729 4.93623 20.5016 5.06951 20.4949 5.20377C20.4249 6.59862 19.6404 7.80518 18.5 8.46487C18.4691 8.48273 18.438 8.50018 18.4066 8.51722C17.8399 8.82511 17.1904 9 16.5 9C15.6654 9 14.8905 8.74441 14.2494 8.30723C14.2308 8.2946 14.2124 8.28182 14.1941 8.26889C13.9391 8.08868 13.7061 7.87938 13.5 7.64582C13.2791 7.89614 13.0273 8.11859 12.7506 8.30723C12.7405 8.31416 12.7303 8.32104 12.7201 8.32787C12.0849 8.75244 11.3214 9 10.5 9C9.66543 9 8.89055 8.74441 8.24937 8.30723C8.23085 8.2946 8.21244 8.28182 8.19414 8.26889C7.93913 8.08868 7.70614 7.87938 7.5 7.64582C7.27907 7.89614 7.0273 8.11859 6.75063 8.30723C6.74047 8.31416 6.73028 8.32104 6.72005 8.32787C6.08488 8.75244 5.32135 9 4.5 9C3.77143 9 3.08835 8.80521 2.5 8.46487C1.35958 7.80518 0.575091 6.59862 0.505101 5.20377C0.498363 5.06951 0.527107 4.93623 0.579702 4.81251L2.04415 1.36754Z"
       fill={color}
@@ -387,8 +387,8 @@ export const GroceriesIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const BuyIcon = ({ color = "#333232" }) => (
-  <Svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+export const BuyIcon = ({ color = "#284CDD",width=18,height=20 }) => (
+  <Svg width={width} height={height} viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       d="M1.4316 0C0.917093 0 0.5 0.447715 0.5 1C0.5 1.55228 0.917093 2 1.4316 2H2.3632V3H2.3651C2.36384 3.0213 2.3632 3.04279 2.3632 3.06445V14.1707C1.27771 14.5825 0.5 15.6938 0.5 17C0.5 18.6569 1.75128 20 3.29481 20C4.83834 20 6.08961 18.6569 6.08961 17C6.08961 16.6494 6.03357 16.3128 5.93058 16H10.9067C10.8037 16.3128 10.7476 16.6494 10.7476 17C10.7476 18.6569 11.9989 20 13.5424 20C15.086 20 16.3372 18.6569 16.3372 17C16.3372 15.3431 15.086 14 13.5424 14H4.22641V12H15.5034C15.9781 12 16.3769 11.6169 16.4293 11.1104L17.1609 4.04302C17.2196 3.4753 16.8242 2.97017 16.2931 2.93454L4.22641 2.125V1C4.22641 0.447715 3.80932 0 3.29481 0H1.4316Z"
       fill={color}
@@ -396,7 +396,7 @@ export const BuyIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const VacationIcon = ({ color = "#5A518D" }) => (
+export const VacationIcon = ({ color = "#284CDD" }) => (
   <Svg width="15" height="20" viewBox="0 0 15 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       d="M3.5 2C3.5 0.89543 4.39543 0 5.5 0H9.5C10.6046 0 11.5 0.895431 11.5 2V3H12.5C13.6046 3 14.5 3.89543 14.5 5V7H0.5V5C0.5 3.89543 1.39543 3 2.5 3H3.5V2Z"
@@ -410,7 +410,7 @@ export const VacationIcon = ({ color = "#5A518D" }) => (
   </Svg>
 );
 
-export const DinnerIcon = ({ color = "#333232" }) => (
+export const DinnerIcon = ({ color = "#284CDD" }) => (
   <Svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       fillRule="evenodd"
@@ -421,7 +421,7 @@ export const DinnerIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const MovieNightIcon = ({ color = "#333232" }) => (
+export const MovieNightIcon = ({ color = "#284CDD" }) => (
   <Svg width="21" height="19" viewBox="0 0 21 19" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path d="M18.5 6.5C18.5 5.94772 18.0523 5.5 17.5 5.5H3.5C2.94772 5.5 2.5 5.94772 2.5 6.5V15.5C2.5 16.0523 2.94772 16.5 3.5 16.5H17.5C18.0523 16.5 18.5 16.0523 18.5 15.5V6.5Z" fill={color} />
     <Path
@@ -433,7 +433,7 @@ export const MovieNightIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const FootballIcon = ({ color = "#333232" }) => (
+export const FootballIcon = ({ color = "#284CDD" }) => (
   <Svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       fillRule="evenodd"
@@ -444,7 +444,7 @@ export const FootballIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const GameNightIcon = ({ color = "#333232" }) => (
+export const GameNightIcon = ({ color = "#284CDD" }) => (
   <Svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <Path
       d="M16.833 0C18.793 0 20.393 1.537 20.495 3.472L20.5 3.667V16.333C20.5 18.293 18.963 19.893 17.028 19.995L16.833 20H4.167C3.22818 20 2.32509 19.64 1.6438 18.9941C0.962517 18.3481 0.554924 17.4655 0.505 16.528L0.5 16.333V3.667C0.5 1.707 2.037 0.107 3.972 0.00500011L4.167 0H16.833ZM14 12C13.6022 12 13.2206 12.158 12.9393 12.4393C12.658 12.7206 12.5 13.1022 12.5 13.5C12.5 13.8978 12.658 14.2794 12.9393 14.5607C13.2206 14.842 13.6022 15 14 15C14.3978 15 14.7794 14.842 15.0607 14.5607C15.342 14.2794 15.5 13.8978 15.5 13.5C15.5 13.1022 15.342 12.7206 15.0607 12.4393C14.7794 12.158 14.3978 12 14 12ZM7 12C6.60218 12 6.22064 12.158 5.93934 12.4393C5.65804 12.7206 5.5 13.1022 5.5 13.5C5.5 13.8978 5.65804 14.2794 5.93934 14.5607C6.22064 14.842 6.60218 15 7 15C7.39782 15 7.77936 14.842 8.06066 14.5607C8.34196 14.2794 8.5 13.8978 8.5 13.5C8.5 13.1022 8.34196 12.7206 8.06066 12.4393C7.77936 12.158 7.39782 12 7 12ZM7 5C6.60218 5 6.22064 5.15804 5.93934 5.43934C5.65804 5.72064 5.5 6.10218 5.5 6.5C5.5 6.89782 5.65804 7.27936 5.93934 7.56066C6.22064 7.84196 6.60218 8 7 8C7.39782 8 7.77936 7.84196 8.06066 7.56066C8.34196 7.27936 8.5 6.89782 8.5 6.5C8.5 6.10218 8.34196 5.72064 8.06066 5.43934C7.77936 5.15804 7.39782 5 7 5ZM14 5C13.6022 5 13.2206 5.15804 12.9393 5.43934C12.658 5.72064 12.5 6.10218 12.5 6.5C12.5 6.89782 12.658 7.27936 12.9393 7.56066C13.2206 7.84196 13.6022 8 14 8C14.3978 8 14.7794 7.84196 15.0607 7.56066C15.342 7.27936 15.5 6.89782 15.5 6.5C15.5 6.10218 15.342 5.72064 15.0607 5.43934C14.7794 5.15804 14.3978 5 14 5Z"
@@ -453,7 +453,7 @@ export const GameNightIcon = ({ color = "#333232" }) => (
   </Svg>
 );
 
-export const NextIcon = ({ color = "#333232" }) => (
+export const NextIcon = ({ color = "#284CDD" }) => (
   <Svg xmlns="http://www.w3.org/2000/Svg" width="28" height="28" fill="none" style={{ transform: [{ scaleX: -1 }] }}>
   <Path fill={color} fillRule="evenodd" d="M11.667 2.333a9.333 9.333 0 0 0-9.334 9.334v4.666a9.333 9.333 0 0 0 9.334 9.334h4.666a9.333 9.333 0 0 0 9.334-9.334v-4.666a9.333 9.333 0 0 0-9.334-9.334h-4.666Zm4.385 8.343a1.167 1.167 0 0 0-1.771-1.519l-3.5 4.084a1.167 1.167 0 0 0 0 1.518l3.5 4.084a1.167 1.167 0 1 0 1.771-1.519L13.203 14l2.85-3.324Z" clipRule="evenodd" />
 </Svg>
