@@ -25,10 +25,12 @@ const CalendarComponent = ({
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
+    setIsCalendarOpen(!isCalendarOpen);
     const selectedActivity = activities.find(activity => activity.date === day.dateString);
     if (selectedActivity) {
       setSelectedTask(selectedActivity);
       setModalVisible(true);
+      
     }
   };
 
@@ -59,18 +61,18 @@ const CalendarComponent = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      <TouchableOpacity onPress={() => setIsCalendarOpen(!isCalendarOpen)}  style={styles.headerContainer}>
         <View>
           <Text style={styles.title}>
             {selectedDate === today ? 'Today' : 'Day'}
           </Text>
           <Text style={styles.subtitle}>{moment(selectedDate).format('dddd, DD MMM')}</Text>
         </View>
-        <TouchableOpacity onPress={() => setIsCalendarOpen(!isCalendarOpen)} style={styles.filterButton}>
+        <View style={styles.filterButton}>
           <Text style={styles.filterText}>Calendar</Text>
           {isCalendarOpen ? <CloseIcon color={iconColor} /> : <OpenIcon color={iconColor} />}
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
 
       {isCalendarOpen && (
         <Calendar

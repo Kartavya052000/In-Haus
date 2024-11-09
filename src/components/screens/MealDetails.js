@@ -7,7 +7,7 @@ import { useLazyQuery, gql, useMutation  } from '@apollo/client';
 import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
 import { generateRandom } from 'expo-auth-session/build/PKCE';
 import * as SecureStore from 'expo-secure-store';
-
+import { SPOONACULAR_API_KEY } from '@env';
 
 const { height } = Dimensions.get('window');
 
@@ -132,7 +132,7 @@ useEffect(() => {
 // Fetch recipe details from Spoonacular if not found in the database
 const fetchRecipeDetailsFromSpoonacular = async () => {
   try {
-    const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=bead92b5abb949b7b5a0c0a4d585a623`);
+    const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${SPOONACULAR_API_KEY}`);
     const data = await response.json();
 
     if (response.ok && data && !data.status) {

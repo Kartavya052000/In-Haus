@@ -1,6 +1,6 @@
 import * as Font from 'expo-font';
 import React, { useState, useEffect } from 'react';
-
+import { GRAPHQL_URL } from '@env';
 import { StyleSheet, View } from 'react-native';
 
 
@@ -53,14 +53,8 @@ const Stack = createStackNavigator();
 
 // Apollo Client setup
 const client = new ApolloClient({
- // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
 
-
-//  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
-
-  // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  uri: 'http://172.20.10.2:4000/graphql', // Your GraphQL endpoint
+  uri: GRAPHQL_URL, // Your GraphQL endpoint
 
   cache: new InMemoryCache(),
   headers: {
