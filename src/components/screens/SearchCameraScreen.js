@@ -5,7 +5,7 @@ import { CameraView } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import Typography from '../../components/typography/Typography'; // Import Typography
 import CustomLoadingScreen from '../../components/Loading/CustomLoadingScreen'; // Import CustomLoadingScreen
-
+import { OPENAI_URL } from '@env';
 
 export default function SearchCameraScreen({ navigation }) {
     const [facing, setFacing] = useState('back');
@@ -85,7 +85,7 @@ export default function SearchCameraScreen({ navigation }) {
             }
 
             console.log('attempting to ' + api_fetch);
-            const response = await fetch('http://192.168.1.174:3000/api/' + api_fetch, {
+            const response = await fetch(OPENAI_URL + api_fetch, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
