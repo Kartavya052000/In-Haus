@@ -102,10 +102,10 @@ const Login = () => {
         <TouchableOpacity style={styles.continueButton} onPress={handleLogin}>
           <Text style={styles.continueButtonText}>Continue</Text>
         </TouchableOpacity>
+        <GoogleLogIN />
         <TouchableOpacity onPress={() => navigation.replace('SignUp')}>
           <Text style={styles.createAccountText}>Create New Account</Text>
         </TouchableOpacity>
-        <GoogleLogIN />
       </View>
     </ScrollView>
   );

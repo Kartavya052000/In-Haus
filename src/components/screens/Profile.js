@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Typography from '../typography/Typography';
 import Colors from '../Colors/Colors';
+import * as SecureStore from "expo-secure-store";
 
 const { height } = Dimensions.get('window');
 const profileData = {
@@ -35,7 +36,17 @@ export default function Profile({ name = profileData.name, role = profileData.ro
   const handleProfileImagePress = () => {
     navigation.navigate('UserProfile');
   };
-
+  const logOut = async () => {
+    try {
+      // Delete only the authToken from SecureStore
+      await SecureStore.deleteItemAsync("authToken");
+  
+      // Navigate to the WelcomePage after logging out
+      navigation.navigate("WelcomePage");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -77,7 +88,7 @@ export default function Profile({ name = profileData.name, role = profileData.ro
               <Text style={styles.optionIcon}>›</Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.logoutItem}>
+          <TouchableOpacity style={styles.logoutItem} onPress={logOut}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </View>

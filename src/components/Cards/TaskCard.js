@@ -148,7 +148,7 @@
 // });
 
 // export default TaskCard;
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Text, Alert } from "react-native";
 import Typography from "../../components/typography/Typography";
 import Colors from "../../components/Colors/Colors";
@@ -156,8 +156,10 @@ import { useNavigation } from "@react-navigation/native";
 import { useMutation } from "@apollo/client";
 import { TASK_COMPLETE } from "../../graphql/mutations/taskMutations";
 import * as SecureStore from "expo-secure-store";
+import { BuyIcon, CleaningIcon, DishesIcon, GroceriesIcon, HomeworkIcon, LaundryIcon } from "../icons/icons";
 
 const TaskCard = ({
+  task,
   id, // Add the task ID prop
   taskName,
   startTime,
@@ -166,11 +168,30 @@ const TaskCard = ({
   timeColor,
   backgroundColor,
   borderColor,
+  selectedCategory,
+  setIsVisible,
+  setCurrentTask
+
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigation = useNavigation();
   const [token, setToken] = useState(null);
+  const categoryIcons = {
+    Cleaning: CleaningIcon,
+    Laundry: LaundryIcon,
+    Dishes: DishesIcon,
+    Homework: HomeworkIcon,
+    Groceries: GroceriesIcon,
+    Buy: BuyIcon,
+  };
+  const CategoryIcon = categoryIcons[selectedCategory]; // Get icon for the selected category
 
+  // useEffect(() => {
+  //   console.log(task.category,"CAR")
+  //   const matchedCategory = categories.find((cat) => cat.label === task.category);
+  //   console.log(matchedCategory,"NMMM");
+  //   setCategoryIcon(matchedCategory ? matchedCategory.Icon :categories[2].Icon );
+  // }, [task.category]);
   // Fetch token on component mount
   React.useEffect(() => {
     const getToken = async () => {
@@ -197,7 +218,9 @@ const TaskCard = ({
     },
     variables: { taskId: id },
     onCompleted: (data) => {
-      Alert.alert("Task completed!");
+      // Alert.alert("Task completed!");
+      setIsVisible(true);
+      setCurrentTask(task)
       console.log("Task marked as completed:", data.completeTask);
       // Refresh or update the task list as needed
     },
@@ -232,7 +255,11 @@ const TaskCard = ({
       onPress={() => setIsExpanded(!isExpanded)} // Toggle expansion
     >
       <View style={[styles.filledContent, { borderTopColor: borderColor }]}>
-        <View style={styles.icon} />
+      {CategoryIcon && (
+          <View style={styles.icon}>
+            <CategoryIcon />
+          </View>
+        )}
         <View>
           <Typography
             variant="SH3"
