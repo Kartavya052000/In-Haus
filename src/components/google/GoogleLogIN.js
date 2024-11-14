@@ -87,7 +87,7 @@ handleToken()
       <FontAwesome name="google" size={24} color="white" style={{ marginRight: 10 }} />
       <Button
         title="Continue with Google"
-        color={'white'}
+        color={"#476BFB"}
         style={styles.Button}
         disabled={!request}
         onPress={() => {
