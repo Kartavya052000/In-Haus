@@ -5,11 +5,11 @@ import Dropdown from "../Dropdown/Dropdown";
 import { OpenIcon, CloseIcon } from "../icons/icons"; 
 import Typography from '../typography/Typography'; 
 
-const DateTimeComponent = ({ onDateTimeChange, repeat2 }) => {
-  const [startDate, setStartDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+const DateTimeComponent = ({ onDateTimeChange, repeat2,startDateTime,endDateTime }) => {
+  const [startDate, setStartDate] = useState(startDateTime);
+  const [startTime, setStartTime] = useState(startDateTime);
+  const [endDate, setEndDate] = useState(endDateTime);
+  const [endTime, setEndTime] = useState(endDateTime);
   const [isAllDay, setIsAllDay] = useState(false);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
@@ -22,7 +22,10 @@ const DateTimeComponent = ({ onDateTimeChange, repeat2 }) => {
       setRepeat(repeat2);
     }
   }, [repeat2]);
+useEffect(() => {
+console.log(startDateTime,"=====---",endDateTime);
 
+},[startDateTime,endDateTime])
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
