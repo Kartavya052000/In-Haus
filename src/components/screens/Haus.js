@@ -160,50 +160,57 @@ import TaskCard from '../Cards/TaskCard';
         </View>
       
         </View>  
-          <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.taskCardsContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <Typography variant="SH3" style={styles.taskSectionHeading} >Today's Tasks</Typography>
-        {tasks?.map((task, index) => {
-            // Parse ISO string to Date objects
-            const startDate = new Date(task.startDate);
-            const endDate = new Date(task.endDate);
+        <ScrollView
+  style={{ flex: 1 }}
+  contentContainerStyle={styles.taskCardsContainer}
+  showsVerticalScrollIndicator={false}
+>
+  <Typography variant="SH3" style={styles.taskSectionHeading}>Today's Tasks</Typography>
+  {tasks && tasks.length > 0 ? (
+    tasks.map((task, index) => {
+      // Parse ISO string to Date objects
+      const startDate = new Date(task.startDate);
+      const endDate = new Date(task.endDate);
 
-            // Format dates into readable time format 
-            const startTimeFormatted = startDate.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            });
-            const endTimeFormatted = endDate.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            });
+      // Format dates into readable time format 
+      const startTimeFormatted = startDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const endTimeFormatted = endDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
 
-            return (
-              <View key={task.id} style={styles.taskSection}>
-                <TaskCard
-                task={task}
-                id={task.id}
-                  taskName={task.taskName}
-                  startTime={startTimeFormatted}
-                  endTime={endTimeFormatted}
-                  // onEdit={() => handleEdit(task)} 
-                  // onMarkAsDone={() => handleMarkAsDone(task.id)}
-                  taskNameColor={Colors.Secondary.Navy[400]}
-                  timeColor={Colors.Secondary.Navy[400]}
-                  backgroundColor={Colors.Secondary.Navy[100]}
-                  borderColor={Colors.Secondary.Navy[400]}
-                  setIsVisible={setIsVisible}
-                  setCurrentTask={setCurrentTask}
-                />
-              </View>
-            );
-          })}
-        </ScrollView>
+      return (
+        <View key={task.id} style={styles.taskSection}>
+          <TaskCard
+            task={task}
+            id={task.id}
+            taskName={task.taskName}
+            startTime={startTimeFormatted}
+            endTime={endTimeFormatted}
+            // onEdit={() => handleEdit(task)} 
+            // onMarkAsDone={() => handleMarkAsDone(task.id)}
+            taskNameColor={Colors.Secondary.Navy[400]}
+            timeColor={Colors.Secondary.Navy[400]}
+            backgroundColor={Colors.Secondary.Navy[100]}
+            borderColor={Colors.Secondary.Navy[400]}
+            setIsVisible={setIsVisible}
+            setCurrentTask={setCurrentTask}
+          />
+        </View>
+      );
+    })
+  ) : (
+    <Typography variant="SH4" style={styles.noTasksMessage}>
+      No tasks to show
+    </Typography>
+  )}
+</ScrollView>
+
 
       </View>
     );
