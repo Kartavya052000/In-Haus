@@ -176,17 +176,21 @@ const navigation =useNavigation();
 )}
 
    
+
       <MyRewards
        text={activeTab =="My Rewards"?"My":"Assigned"}
        setIsVisible={setIsVisible}
         list ={'myRewards'} 
         setDetails={setDetails}
-        shouldFetchRewards={shouldFetchRewards} // Pass down trigger
-        onFetchRewardsComplete={() => setShouldFetchRewards(false)} // Reset after fetch
+        shouldFetchRewards={shouldFetchRewards} 
+        onFetchRewardsComplete={() => setShouldFetchRewards(false)} 
+        style={styles.rewardCardContainer}
+
         />
 
    
       <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} Details={rewardDetails} rewardPoints={rewardPoints} />
+
       </View>
   )
 }
@@ -259,5 +263,8 @@ const styles = StyleSheet.create({
   },
   rewards_points:{
     backgroundColor:"lightblue"
-  }
+  },
+  rewardCardContainer:{
+    borderRadius:16
+  },
   });
