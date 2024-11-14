@@ -202,6 +202,7 @@ export default function Haus() {
   );
 }
 
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,

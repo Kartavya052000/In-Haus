@@ -57,12 +57,13 @@ const client = new ApolloClient({
 
 
 //  uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
-  // uri: 'http://10.128.226.175:4000/api/graphql', // Your GraphQL endpoint
+  uri: 'http://10.128.226.175:4000/graphql', // Your GraphQL endpoint
 
   // uri: 'http://98.81.234.60/api/graphql', // Your GraphQL endpoint
 
 
   uri: 'http://10.128.243.115:4000/graphql', // Your GraphQL endpoint
+
 
 
   cache: new InMemoryCache(),
