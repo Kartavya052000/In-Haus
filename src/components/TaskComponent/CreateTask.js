@@ -80,7 +80,7 @@ CreateTask = (activetab) => {
     fetchGroup({
       context: {
         headers: {
-          Authorization: `${authToken}`, // Use token in headers
+          Authorization: `${token}`, // Use token in headers
         },
       },
       variables: {
