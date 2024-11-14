@@ -185,7 +185,7 @@ fetchGroupDataWithDate(token,selectedDate)
 },[selectedDate])
 useEffect(()=>{
 console.log(currentTask,"currentTask");
-fetchGroupData(token);
+// fetchGroupData(token);
 fetchUserData(token,activeTabId)
 },[currentTask])
   return (
@@ -337,7 +337,9 @@ const styles = StyleSheet.create({
     // height: 30,
     // minHeight: 100,
     // felx: 1,
-    marginVertical: 20,
+    marginTop:30,
+    marginBottom:20
+    // marginVertical: 20,
 
   },
   tabsContainer: {
