@@ -33,12 +33,24 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { LinearGradient } from "expo-linear-gradient";
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
-
+import { gql } from '@apollo/client';
 
 
 import Colors from "../../components/Colors/Colors";
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
+
+const DELETE_MEALS_FROM_MEAL_PLAN = gql`
+  mutation DeleteMealsFromMealPlan($mealIds: [String!]!, $dates: [String!]!, $mealTypes: [String!]!) {
+    deleteMealsFromMealPlan(mealIds: $mealIds, dates: $dates, mealTypes: $mealTypes) {
+      mealPlanItems {
+        mealId
+        date
+        mealType
+      }
+    }
+  }
+`;
 
 const optionsFromDatabase = [{ name: "My Plan" }, { name: "Shopping List" }];
 
@@ -48,6 +60,8 @@ const MealPlanner = ({ route, userId }) => {
   const navigation = useNavigation();
 
   const { notification } = route.params || {};
+
+  const [deleteMealsFromMealPlan] = useMutation(DELETE_MEALS_FROM_MEAL_PLAN);
 
   console.log("Notification:", notification);
 
@@ -103,6 +117,7 @@ const MealPlanner = ({ route, userId }) => {
   const {
     shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems, selectedDate,  setSelectedDate, selectedMealType, setSelectedMealType 
   } = useContext(ShoppingListContext);
+  const [markedDates, setMarkedDates] = useState({});
   const [mealDates, setMealDates] = React.useState({});
 
   //console.log("Meal plan items:", mealPlanItems); // Verifica el estado de mealPlanItems
@@ -164,6 +179,18 @@ const MealPlanner = ({ route, userId }) => {
     // console.log("Meals organized by type:", mealsByType); // Verifica que las comidas se están organizando por tipo
     setMeals(mealsByType);
   }, [shoppingListItems, selectedDate]);
+
+  useEffect(() => {
+    const datesWithMeals = mealPlanItems.reduce((acc, item) => {
+      acc[item.date] = {
+        marked: true,
+        dotColor: "blue",  // Customize the dot color for each date
+      };
+      return acc;
+    }, {});
+
+    setMarkedDates(datesWithMeals);
+  }, [mealPlanItems]);
 
   const handleTabChange = (optionName) => {
     setSelectedTab(optionName);
@@ -237,27 +264,52 @@ console.log("Meal:", meal);
       ? shoppingListItems.flatMap((meal) => meal.ingredients) // Flatten all ingredients across meals
       : shoppingListItems; // Show by meal when filtered by "Recipe"
 
-  const handleDeleteMeal = (mealId, mealType, selectedDate) => {
-    Alert.alert("Delete Meal", "Are you sure you want to delete this meal?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-         console.log("Deleting Meal ID:", mealId, "Meal Type:", mealType, "Selected Date:", selectedDate);
-         setMealPlanItems((prevMealPlanItems) =>
-          prevMealPlanItems.filter(
-            (meal) =>
-              !(meal.mealId === mealId && meal.mealType === mealType && meal.date === selectedDate)
-          )
-        );
-        },
-      },
-    ]);
-  };
+      const handleDeleteMeal = (mealId, mealType, selectedDate) => {
+        Alert.alert("Delete Meal", "Are you sure you want to delete this meal?", [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              console.log("Deleting Meal ID:", mealId, "Meal Type:", mealType, "Selected Date:", selectedDate);
+              
+              try {
+                // Perform the mutation to delete the meal from the meal plan with headers
+                await deleteMealsFromMealPlan({
+                  variables: {
+                    mealIds: [mealId],          // Pass mealId as an array
+                    dates: [selectedDate],      // Pass selectedDate as an array
+                    mealTypes: [mealType],      // Pass mealType as an array
+                  },
+                  context: {
+                    headers: {
+                      Authorization: `${token}`, // Pass the token in the Authorization header
+                    },
+                  },
+                });
+                console.log("Meal deleted from meal plan");
+      
+                // Update local state to remove the meal
+                setMealPlanItems((prevMealPlanItems) =>
+                  prevMealPlanItems.filter(
+                    (meal) =>
+                      !(meal.mealId === mealId && meal.mealType === mealType && meal.date === selectedDate)
+                  )
+                );
+                console.log("Meal removed from local state");
+              } catch (error) {
+                console.error("Error deleting meal from meal plan:", error.message);
+              }
+            },
+          },
+        ]);
+      };
+      
+      
+      
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen); // Toggle the dropdown visibility
@@ -366,12 +418,15 @@ console.log("Meal:", meal);
                 selectedDayColor="#ff0000" // Ejemplo de color del día seleccionado
                 eventDotColor="#00adf5" // Ejemplo de color para el punto de eventos
                 iconColor="#B74044" // Ejemplo de color de los iconos
+                dotColor="#ff5a5f"
+                markedDates={markedDates} 
                 themeColors={{
                   backgroundColor: '#F2F2F2',
                   calendarBackground: '#F2F2F2',
                   todayTextColor: '#333',
                   arrowColor: '#333',
                   monthTextColor: '#000',
+                  dotColor: '#ff5a5f',
                 }}
               />
             </View>
@@ -388,7 +443,7 @@ console.log("Meal:", meal);
                         item.date === selectedDate && item.mealType === mealType
                     );
                     return (
-                      <View key={index} style={styles.mealSection}>
+                      <View key={mealType} style={styles.mealSection}>
                         <Typography variant="SH4" style={styles.mealTitle}>
                           {mealType}
                         </Typography>

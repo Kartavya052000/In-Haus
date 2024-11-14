@@ -35,29 +35,25 @@ const CalendarComponent = ({
   };
 
   const generateMarkedDates = () => {
-    const marked = { ...markedDates };
-    activities.forEach(activity => {
-      if (activity && activity.date) {
-        marked[activity.date] = {
-          marked: true,
-          dotColor: eventDotColor, // Usa el color del punto para eventos
-        };
-      }
-    });
-
+    const marked = { ...markedDates }; // Start with passed-in marked dates
+  
+    // Ensure `selectedDate` is marked as selected without overwriting event markings
     marked[selectedDate] = {
+      ...(marked[selectedDate] || {}), // Preserve existing event markings if they exist
       selected: true,
-      selectedColor: selectedDayColor, // Color del día seleccionado
-      dotColor: marked[selectedDate]?.marked ? eventDotColor : undefined, // Muestra el punto solo si hay un evento
-      marked: !!marked[selectedDate]?.marked, // Marca el día si tiene un evento
+      selectedColor: selectedDayColor,
+      dotColor: marked[selectedDate]?.marked ? eventDotColor : undefined,
+      marked: !!marked[selectedDate]?.marked,
     };
-
+  
+    // Ensure today is marked, if not already
     if (!marked[today]) {
       marked[today] = { selected: true, selectedColor: '#D3D3D3' };
     }
-
+  
     return marked;
   };
+  
 
   return (
     <View style={styles.container}>
