@@ -85,7 +85,7 @@ export default function SearchCameraScreen({ navigation }) {
             }
 
             console.log('attempting to ' + api_fetch);
-            const response = await fetch('http://192.168.1.174:3000/api/' + api_fetch, {
+            const response = await fetch('http://10.128.243.115:3000/api/' + api_fetch, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
