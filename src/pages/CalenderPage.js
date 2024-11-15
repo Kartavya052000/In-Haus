@@ -185,7 +185,7 @@ fetchGroupDataWithDate(token,selectedDate)
 },[selectedDate])
 useEffect(()=>{
 console.log(currentTask,"currentTask");
-fetchGroupData(token);
+// fetchGroupData(token);
 fetchUserData(token,activeTabId)
 },[currentTask])
   return (

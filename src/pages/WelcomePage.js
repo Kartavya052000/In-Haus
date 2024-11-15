@@ -79,7 +79,7 @@ export default function WelcomePage() {
           </TouchableOpacity>
           <Text style={styles.loginText}>
             Already have an account?
-            <TouchableOpacity onPress={()=> navigation.replace("Login")}>
+            <TouchableOpacity onPress={()=> navigation.replace("Login")} >
               <Text style={styles.loginLink}> Log In here</Text>
             </TouchableOpacity>
           </Text>
@@ -95,12 +95,15 @@ const styles = StyleSheet.create({
     flex: 1,
     // height: '100%',
   },
+//   loginText:{
+// paddingTop:30
+//   },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 20,
+    paddingHorizontal: "1%",
   },
   heading: {
     marginTop: 40,
@@ -117,6 +120,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     height: 140 ,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
@@ -156,7 +160,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   bottomContainer:{
-  marginBottom:100,
+  marginBottom:60,
   },
   button: {
     backgroundColor: '#497DF6',

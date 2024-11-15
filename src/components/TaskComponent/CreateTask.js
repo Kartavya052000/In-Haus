@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import InputField from "../Inputs/InputField";
 import Dropdown from "../Dropdown/Dropdown";
 import DropDownTask from "../Dropdown/DropDownTask";
@@ -20,8 +20,11 @@ import Typography from "../typography/Typography";
 import PrimaryButton from "../buttons/PrimaryButton";
 import CategorySelection from "../CategoryComponent/CategorySelection";
 import CategorySelectionEvent from "../CategoryComponent/CategotySelectionEvent";
+import Voice from '@react-native-voice/voice';
+import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
 
-CreateTask = (activetab) => {
+const CreateTask = (activetab) => {
   const [title, setTitle] = useState("");
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
@@ -32,21 +35,18 @@ CreateTask = (activetab) => {
   const [members, setMembers] = useState([]);
   const [description, setDescription] = useState("");
   const navigation = useNavigation();
-
+  const [isListening, setIsListening] = useState(false);
   const [authToken, setAuthToken] = useState(null);
+  const [recognizeText, setRecognizeText] = useState("");
+  const [showAnimation, setShowAnimation] = useState(false); // New state for animation visibility
 
-  // Fetch auth token
   useEffect(() => {
-    // Alert.alert(activetab)
-    console.log(activetab, "ACCC");
-
     const getToken = async () => {
       try {
         const token = await SecureStore.getItemAsync("authToken");
         if (token) {
           setAuthToken(token);
           fetchGroupData(token);
-          console.log("Token retrieved:", token);
         } else {
           console.error("No auth token found");
         }
@@ -58,52 +58,160 @@ CreateTask = (activetab) => {
     getToken();
   }, []);
 
-  const [
-    createTask,
-    { loading: taskLoading, error: taskError, data: taskData },
-  ] = useMutation(CREATE_TASK);
+  useEffect(() => {
+    Voice.onSpeechStart = onSpeechStartHandler;
+    Voice.onSpeechEnd = stopListening;
+    Voice.onSpeechResults = onSpeechResultsHandler;
 
-  // Fetch group data
-  const [fetchGroup, { loading, error, data }] = useLazyQuery(GET_GROUP, {
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+  const onSpeechStartHandler = () => {
+    console.log("recording started");
+  };
+
+  const onSpeechResultsHandler = (event) => {
+    const text = event.value[0];
+    setRecognizeText(text);
+  };
+
+  const startListening = async () => {
+    setIsListening(true);
+    try {
+      await Voice.start("en-US");
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
+
+  const stopListening = async () => {
+    try {
+      await Voice.stop();
+      console.log("recording stopped");
+      // if (recognizeText) {
+    let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
+
+      // }
+      setIsListening(false);
+      
+      // Show animation for 2 seconds
+      setShowAnimation(true);
+      setTimeout(() => {
+        setShowAnimation(false);
+        extractDetailsFromSpeech(text); // Call extraction after speech ends
+
+      }, 2000);
+      
+    } catch (error) {
+      console.log(error, "error");
+    }
+  };
+
+  useEffect(() => {
+    // let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
+    // extractDetailsFromSpeech(text);
+    console.log(startDateTime,"startDT")
+    console.log(endDateTime,"endDT")
+  }, [startDateTime,endDateTime]);
+
+  const extractDetailsFromSpeech = (text) => {
+    let taskName = "";
+
+    const taskNameMatch = text.match(/add a task as (.+?) to/i);
+    if (taskNameMatch) {
+      taskName = taskNameMatch[1].trim();
+      setTitle(taskName);
+      console.log("Parsed task name:", taskName);
+    }
+
+    const nameMatch = text.match(/to (\w+)/i);
+    if (nameMatch) {
+      const name = nameMatch[1];
+      const member = members.find(member => member.username.toLowerCase() === name.toLowerCase());
+      if (member) {
+        const assignedTo = member.id;
+        setAssignedTo(assignedTo);
+      } else {
+        console.log("No matching member found for:", name);
+      }
+    } else {
+      console.log("Name not found");
+    }
+
+    const dateMatch = text.match(/(\d{1,2} \w+ \d{1,2} (?:AM|PM)) to (\d{1,2} \w+ \d{1,2}(?::\d{2})? (?:AM|PM))/i);
+    if (dateMatch) {
+      const start = parseDate(dateMatch[1]);
+      const end = parseDate(dateMatch[2]);
+      // console.log(dat)
+      setStartDateTime(start);
+      setEndDateTime(end);
+    } else {
+      console.log("Could not extract date and time from speech");
+    }
+
+    const rewardPointsMatch = text.match(/reward points of (\d+)/i);
+    if (rewardPointsMatch) {
+      const rewardPoints = parseInt(rewardPointsMatch[1], 10);
+      setPoints(rewardPoints);
+    } else {
+      console.log("Reward points not found");
+    }
+  };
+
+  const parseDate = (dateStr) => {
+    const months = { January: 0, February: 1, March: 2, April: 3, May: 4, June: 5, July: 6, August: 7, September: 8, October: 9, November: 10, December: 11 };
+    
+    const dateTimeMatch = dateStr.match(/(\d{1,2}) (\w+) (\d{1,2})(?::(\d{2}))? (AM|PM)/i);
+    if (!dateTimeMatch) {
+      return null;
+    }
+
+    const [_, day, month, hour, minutes = '0', period] = dateTimeMatch;
+
+    let hour24 = parseInt(hour, 10);
+    if (period === "PM" && hour24 !== 12) {
+      hour24 += 12;
+    } else if (period === "AM" && hour24 === 12) {
+      hour24 = 0;
+    }
+
+    const year = new Date().getFullYear();
+    const date = new Date(year, months[month], parseInt(day, 10), hour24, parseInt(minutes, 10), 0);
+    return date;
+  };
+
+  const [createTask] = useMutation(CREATE_TASK);
+  const [fetchGroup, { data }] = useLazyQuery(GET_GROUP, {
     onCompleted: (data) => {
-      console.log(data.getGroup.members);
-
-      // setTasks(data.getGroup.filteredTasks)
       setMembers(data.getGroup.members);
-      // console.log(members);
     },
     onError: (error) => {
       console.error("Error fetching group:", error.message);
     },
   });
+
   const fetchGroupData = async (token) => {
     fetchGroup({
       context: {
         headers: {
-          Authorization: `${authToken}`, // Use token in headers
+          Authorization: `${token}`,
         },
       },
       variables: {
-        groupID: "test", // Replace with actual groupID if necessary
+        groupID: "test",
       },
     });
-  };
-  const handleDateTimeChange = (startDateTime, endDateTime, repeatValue) => {
-    setStartDateTime(startDateTime);
-    setEndDateTime(endDateTime);
-    setRepeat(repeatValue);
-    console.log("Repeat value in CreateTask:", repeatValue);
   };
 
   const handleSave = async () => {
     try {
       const startDateTimeISO = startDateTime.toISOString();
       const endDateTimeISO = endDateTime.toISOString();
-console.log(category,"CCCCC")
-// return
-      // Log values
       let variables = {};
-      if (activetab.activeTab == "Task") {
+
+      if (activetab.activeTab === "Task") {
         variables = {
           taskName: title,
           startDate: startDateTimeISO,
@@ -111,7 +219,7 @@ console.log(category,"CCCCC")
           repeat: repeat,
           assignedTo: assignedTo,
           points: points,
-          category:category,
+          category: category,
           type: "task",
         };
       } else {
@@ -122,9 +230,8 @@ console.log(category,"CCCCC")
           repeat: repeat,
           assignedTo: assignedTo,
           description: description,
-          category:category,
+          category: category,
           type: "event",
-
         };
       }
 
@@ -138,203 +245,203 @@ console.log(category,"CCCCC")
       });
       Alert.alert(activetab.activeTab + " Saved Successfully");
       navigation.navigate("CalenderPage");
-
-      console.log("Task saved:", response.data);
     } catch (error) {
       console.error("Error saving task:", error);
     }
   };
 
   return (
-    <View style={styles.mainContentContainer}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.fieldContainer}>
-          {/* Task Name */}
-          <InputField
-            label="Task name"
-            placeholder="Task Name"
-            value={title}
-            onChangeText={setTitle}
-            style={styles.inputField}
-            inputWidth={"100%"}
-          />
-        </View>
-
-        <View style={styles.fieldContainer}>
-          <View style={styles.dateTimeComponent}>
-            {/* DateTimeComponent */}
-            <DateTimeComponent onDateTimeChange={handleDateTimeChange} />
+    <>
+      {showAnimation && (
+      <View style={styles.overlayContainer}>
+      <View style={styles.overlay}>
+        <LottieView
+          autoPlay
+          loop={false}
+          style={styles.animation}
+          source={require('../../../assets/animations/wave.json')} // Replace with your Lottie file
+        />
+      </View>
+    </View>
+      )}
+      <View style={styles.mainContentContainer}>
+        <TouchableOpacity onPress={() => (isListening ? stopListening() : startListening())}>
+          <View>
+            <Ionicons name="mic" size={24} color="black" />
           </View>
-        </View>
-        {activetab.activeTab === "Task" && (
-          // Category for Task
-          <View style={styles.fieldContainer}>
-            <View style={styles.categoryComponent}>
-              <CategorySelection
-                onSelect={(selectedCategory) => setCategory(selectedCategory)}
-                setCategory={setCategory}
-
-              />
-            </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={stopListening}>
+          <View>
+            <Text>Stop</Text>
           </View>
-        )}
-
-        {activetab.activeTab === "Event" && (
-          // Category for Event
-          <View style={styles.fieldContainer}>
-            <View style={styles.categoryComponent}>
-              <CategorySelectionEvent
-                onSelect={(selectedCategory) => setCategory(selectedCategory)}
-                setCategory={setCategory}
-
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Assign To */}
-        <View style={styles.fieldContainer}>
-          <Typography variant="SH4" style={styles.label}>
-            Assign to
-          </Typography>
-          <DropDownTask
-            options={members}
-            selectedValue={assignedTo}
-            onValueChange={(value) => {
-              console.log("Selected user ID:", value); // Debugging log
-              setAssignedTo(value);
-            }}
-            labelExtractor={(item) => item.username}
-            valueExtractor={(item) => item.id}
-          />
+        </TouchableOpacity>
+        <View>
+          <Text>{recognizeText}</Text>
         </View>
-
-        {/* Points */}
-        {activetab.activeTab === "Task" && (
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.fieldContainer}>
-            <Typography variant="SH4" style={styles.label}>
-              Amount of Points
-            </Typography>
             <InputField
-              placeholder="Points"
-              value={points.toString()} // Convert points to string for display
-              onChangeText={(value) => setPoints(Number(value) || 0)} // Convert input to a number
+              label="Task name"
+              placeholder="Task Name"
+              value={title}
+              onChangeText={setTitle}
               style={styles.inputField}
               inputWidth={"100%"}
             />
-
-            {/* <Dropdown
-      options={[100, 200, 300]} // Ensure these are numbers if points expects a number
-      selectedValue={points} // points should be a number here
-      onValueChange={setPoints} // Set points as a numeric value
-    /> */}
           </View>
-        )}
-        {activetab.activeTab === "Event" && (
+
           <View style={styles.fieldContainer}>
-            <Typography variant="SH4" style={styles.label}>
-              Description
-            </Typography>
-            <InputField
-              placeholder="Event description"
-              value={description}
-              onChangeText={setDescription}
-              style={[styles.inputField, styles.textArea]}
-              inputWidth={"100%"}
+            <View style={styles.dateTimeComponent}>
+              <DateTimeComponent onDateTimeChange={(start, end) => {
+                setStartDateTime(start);
+                setEndDateTime(end);
+              }} 
+              startDateTime={startDateTime}
+              endDateTime={endDateTime}/>
+            </View>
+          </View>
+
+          {activetab.activeTab === "Task" && (
+            <View style={styles.fieldContainer}>
+              <CategorySelection onSelect={setCategory} />
+            </View>
+          )}
+
+          {activetab.activeTab === "Event" && (
+            <View style={styles.fieldContainer}>
+              <CategorySelectionEvent onSelect={setCategory} />
+            </View>
+          )}
+
+          <View style={styles.fieldContainer}>
+            <Typography variant="SH4" style={styles.label}>Assign to</Typography>
+            <DropDownTask
+              options={members}
+              selectedValue={assignedTo}
+              onValueChange={setAssignedTo}
+              labelExtractor={(item) => item.username}
+              valueExtractor={(item) => item.id}
             />
           </View>
-        )}
 
-        {/* Discard and Save Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.discardButton}
-            onPress={() => console.log("Task discarded")}
-          >
-            <Text style={[styles.discardText, { color: "#476BFB" }]}>
-              Discard
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={[styles.saveText, { color: "#FFFFFF" }]}>Save</Text>
-          </TouchableOpacity>
-        </View>
+          {activetab.activeTab === "Task" && (
+            <View style={styles.fieldContainer}>
+              <Typography variant="SH4" style={styles.label}>Amount of Points</Typography>
+              <InputField
+                placeholder="Points"
+                value={points.toString()}
+                onChangeText={(value) => setPoints(Number(value) || 0)}
+                style={styles.inputField}
+                inputWidth={"100%"}
+              />
+            </View>
+          )}
+          {activetab.activeTab === "Event" && (
+            <View style={styles.fieldContainer}>
+              <Typography variant="SH4" style={styles.label}>Description</Typography>
+              <InputField
+                placeholder="Event description"
+                value={description}
+                onChangeText={setDescription}
+                style={[styles.inputField, styles.textArea]}
+                inputWidth={"100%"}
+              />
+            </View>
+          )}
 
-        {/* <View style={styles.buttonContainer}>
-        <PrimaryButton
-          backgroundColor="#476BFB"
-          textColor="#FFFFFF"
-          buttonText="Save"
-          size="large"
-          disabled={false}
-          hasIcon={false}
-          hasText={true}
-          textAlignment="center"
-          onPress={() => {}}
-        />
-      </View> */}
-
-        {/* Loading/Error Handling */}
-        {loading && <Text>Saving...</Text>}
-        {error && <Text>Error saving task: {error.message}</Text>}
-      </ScrollView>
-    </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.discardButton} onPress={() => console.log("Task discarded")}>
+              <Text style={[styles.discardText, { color: "#476BFB" }]}>Discard</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={[styles.saveText, { color: "#FFFFFF" }]}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+    // Fullscreen overlay to cover the screen
+    overlayContainer: {
+      position: "absolute",  // Position overlay absolutely relative to the screen
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black overlay
+      justifyContent: "center", // Center content vertically
+      alignItems: "center", // Center content horizontally
+      zIndex: 1000, // Ensure the overlay appears on top of all components
+    },
+    overlay: {
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",  // Full width of the screen
+      height: "100%",  // Full height of the screen
+    },
+    animation: {
+      width: 200, // Set the size of the animation
+      height: 200, // Set the size of the animation
+    },
   mainContentContainer: {
     flex: 1,
     backgroundColor: "#ffffff",
     borderRadius: 12,
     marginBottom: 20,
-    // borderTopRightRadius: 20,
-    // marginTop: -20,
-    // paddingBottom: 16,
-    // marginHorizontal: 16,
   },
   container: {
     padding: 20,
   },
   fieldContainer: {
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  dateTimeComponent: {
-    marginBottom: 20,
-  },
-  categoryComponent: {
-    marginBottom: 20,
+  inputField: {
+    width: "100%",
   },
   label: {
-    fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 4,
   },
   buttonContainer: {
-    marginTop: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
   },
   discardButton: {
-    borderColor: "#476BFB",
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    marginBottom: 15,
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
   discardText: {
-    color: "black",
     fontSize: 16,
-    textAlign: "center",
+    fontWeight: "bold",
   },
   saveButton: {
     backgroundColor: "#476BFB",
-    borderRadius: 16,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
   saveText: {
-    color: "white",
     fontSize: 16,
-    textAlign: "center",
+    fontWeight: "bold",
+  },
+  animationContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  fullScreenAnimation: {
+    width: "100%",
+    height: "100%",
   },
 });
 

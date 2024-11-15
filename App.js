@@ -54,6 +54,7 @@ const Stack = createStackNavigator();
 // Apollo Client setup
 const client = new ApolloClient({
 
+
   uri: GRAPHQL_URL, // Your GraphQL endpoint
 
   cache: new InMemoryCache(),
