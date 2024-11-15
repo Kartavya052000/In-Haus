@@ -55,7 +55,8 @@ const Stack = createStackNavigator();
 const client = new ApolloClient({
 
 
-  uri: GRAPHQL_URL, // Your GraphQL endpoint
+  // uri: GRAPHQL_URL, // Your GraphQL endpoint
+  uri:"http://192.168.1.249:4000/graphql",
 
   cache: new InMemoryCache(),
   headers: {
