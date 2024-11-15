@@ -45,12 +45,12 @@ const screenOptions = {
 
 //     left: 0,
 //     right: 0,
-//     height: height * 0.1, // Responsive height
+    height: height * 0.10, // Responsive height
 
-    height: 60, // Increase if needed for consistency
+    height: height*0.10, // Increase if needed for consistency
 
     backgroundColor: '#ffffff',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,/
     alignItems: 'center',
     justifyContent: 'center',
   },

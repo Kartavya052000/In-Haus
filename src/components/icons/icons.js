@@ -54,7 +54,7 @@ export const AddIcon = ({ color = "#333232" }) => (
 
 export const IndianIcon = ({ color = "#333232" }) => (
 <Svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="http://www.w3.org/2000/Svg"
       width={25}
       height={24}
       fill="none"
@@ -80,7 +80,7 @@ export const IndianIcon = ({ color = "#333232" }) => (
 
  export const JapaneseIcon  = ({ color = "#333232" }) => (
   <Svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="http://www.w3.org/2000/Svg"
       width={25}
       height={24}
       fill="none"
@@ -121,7 +121,7 @@ export const IndianIcon = ({ color = "#333232" }) => (
 );
  export const LatamIcon  = ({ color = "#333232" }) => ( 
   <Svg
-  xmlns="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/Svg"
   width={25}
   height={24}
   fill="none"
@@ -134,7 +134,7 @@ export const IndianIcon = ({ color = "#333232" }) => (
 );
  export const ItalianIcon  = ({ color = "#333232" }) => (  
   <Svg
-  xmlns="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/Svg"
   width={25}
   height={24}
   fill="none"
@@ -149,7 +149,7 @@ export const IndianIcon = ({ color = "#333232" }) => (
 );
  export const VietnameseIcon  = ({ color = "#333232" }) => (
   <Svg
-  xmlns="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/Svg"
   width={25}
   height={24}
   fill="none"
@@ -162,7 +162,7 @@ export const IndianIcon = ({ color = "#333232" }) => (
 );
 export const FiltersIcon = ({ color = "#333232" }) => (
   <Svg
-  xmlns="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/Svg"
   width={24}
   height={24}
   fill="none"
@@ -176,7 +176,7 @@ export const FiltersIcon = ({ color = "#333232" }) => (
 
 export const ChineseIcon = ({ color = "#333232" }) => (
 <Svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="http://www.w3.org/2000/Svg"
       width={25}
       height={24}
       fill="none"
@@ -216,8 +216,13 @@ export const smileIcon = ({ color = "#333232" }) => (
 );
 
 export const mehIcon = ({ color = "#333232" }) => (
-  <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/Svg">
-    <Path fillRule="evenodd" clipRule="evenodd" d="M10 20C15.5228 20 20 15.5229 20 10C20 4.47714 15.5228 0 10 0C4.47717 0 0 4.47714 0 10C0 15.5229 4.47717 20 10 20ZM14 10C15.1046 10 16 9.10458 16 8C16 6.89542 15.1046 6 14 6C12.8954 6 12 6.89542 12 8C12 9.10458 12.8954 10 14 10ZM8 8C8 9.10458 7.10455 10 6 10C4.89545 10 4 9.10458 4 8C4 6.89542 4.89545 6 6 6C7.10455 6 8 6.89542 8 8ZM13.2191 15.5472C13.5641 15.9784 14.1934 16.0484 14.6246 15.7033C15.0559 15.3583 15.1259 14.729 14.7808 14.2978C12.3298 11.234 7.6701 11.234 5.21912 14.2978C4.87408 14.729 4.94403 15.3583 5.37524 15.7033C5.80652 16.0484 6.43585 15.9784 6.78082 15.5472C8.43115 13.4843 11.5687 13.4843 13.2191 15.5472Z" fill={color}/>
+  <Svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <Path 
+      fillRule="evenodd" 
+      clipRule="evenodd" 
+      d="M10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0ZM6 6C7.10457 6 8 6.89543 8 8C8 9.10457 7.10457 10 6 10C4.89543 10 4 9.10457 4 8C4 6.89543 4.89543 6 6 6ZM14 6C15.1046 6 16 6.89543 16 8C16 9.10457 15.1046 10 14 10C12.8954 10 12 9.10457 12 8C12 6.89543 12.8954 6 14 6ZM6 13C5.44771 13 5 13.4477 5 14C5 14.5523 5.44771 15 6 15H14C14.5523 15 15 14.5523 15 14C15 13.4477 14.5523 13 14 13H6Z" 
+      fill={color}
+    />
   </Svg>
 );
 
@@ -258,7 +263,7 @@ export const HausIcon = ({ color = "#333232" }) => (
 
 export const MealIcon = ({ color = "#333232" }) => (
   <Svg
-      xmlns="http://www.w3.org/2000/svg"
+      xmlns="http://www.w3.org/2000/Svg"
       width={25}
       height={24}
       fill="none"
@@ -287,7 +292,7 @@ export const BreakfastIcon = ({ color = "#333232" }) => (
 
 export const SnacksIcon = ({ color = "#333232" }) => (
   <Svg
-  xmlns="http://www.w3.org/2000/svg"
+  xmlns="http://www.w3.org/2000/Svg"
   width={25}
   height={24}
   fill="none"
@@ -465,3 +470,12 @@ export const NextIcon = ({ color = "#284CDD" }) => (
 // </Svg>
 // );
 
+export const GoogleIcon = ({
+}) => (
+  <Svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <Path d="M25 13.0006c0-.8413-.0766-1.6629-.2164-2.4596H12.7587v4.9192h7.2776c-.4726 1.7025-1.4647 3.1585-2.7926 4.1642l3.7551 3.0441c2.4752-2.3796 4.0022-5.8282 4.0022-9.6679H25Z" fill="#3284FF"/>
+  <Path d="M12.9159 5.27072c1.8291 0 3.4775.67496 4.7544 1.79816l3.4755-3.59112C18.9748 1.3208 16.0454 0 12.7587 0 7.86039 0 3.49282 2.93176 1.3667 7.19784l4.26652 3.31446c1.09113-3.0555 3.9889-5.24158 7.28168-5.24158h.001Z" fill="#FF3424"/>
+  <Path d="m1.44735 18.9595 4.11444-3.3342c-.25007-.7717-.38888-1.5933-.38888-2.4482 0-.9349.16433-1.8314.46135-2.6634L1.36774 7.19922C.497081 8.94538 0 10.9141 0 13.0003c0 2.0863.527702 4.1736 1.44735 5.9592Z" fill="#FFBB00"/>
+  <Path d="m5.56079 15.6241-4.11444 3.3342c2.15368 4.1808 6.4743 7.0408 11.31135 7.0408 3.2122 0 6.0855-1.2605 8.2391-3.3321l-3.7551-3.0441c-1.2085.9152-2.6936 1.457-4.3278 1.457-3.36932 0-6.32526-2.289-7.35515-5.4569l.00204.0011Z" fill="#26B14C"/>
+</Svg>
+);

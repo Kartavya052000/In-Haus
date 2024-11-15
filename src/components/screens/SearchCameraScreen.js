@@ -85,7 +85,9 @@ export default function SearchCameraScreen({ navigation }) {
             }
 
             console.log('attempting to ' + api_fetch);
+
             const response = await fetch(OPENAI_URL + api_fetch, {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
