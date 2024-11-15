@@ -21,7 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 const { height } = Dimensions.get("window");
 import Colors from "../../components/Colors/Colors";
 import RewardsCards1 from '../Cards/RewardsCards1';
-import { ScrollView } from 'react-native-gesture-handler';
+// import { ScrollView } from 'react-native-gesture-handler';
 import { MY_PROFILE } from '../../graphql/mutations/authMutations';
 
 export default function Rewards() {
