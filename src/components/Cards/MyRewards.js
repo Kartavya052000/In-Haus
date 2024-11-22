@@ -52,7 +52,7 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
   const [fetchRewards] = useLazyQuery(GET_USER_REWARD_LIST, {
     fetchPolicy: "network-only", // Forces fresh data fetch from network
     onCompleted: (data) => {
-      console.log(data.getUserRewardList,"USERRR")
+      // console.log(data.getUserRewardList,"USERRR")
       setRewards(data.getUserRewardList);
     },
     onError: (error) => {
@@ -61,6 +61,7 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
   });
 
   const fetchUserRewards = async (token) => {
+    console.log(token)
     fetchRewards({
       context: {
         headers: {
