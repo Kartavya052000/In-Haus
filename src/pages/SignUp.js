@@ -13,9 +13,11 @@ import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 const { width } = Dimensions.get('window');
 
-const storeToken = async (token) => {
+const storeToken = async (token,id) => {
   try {
     await SecureStore.setItemAsync('authToken', token);
+    await SecureStore.setItemAsync('userid', id);
+
     console.log('Token stored successfully');
   } catch (error) {
     console.error('Error storing token:', error);
@@ -33,7 +35,7 @@ const SignUp = () => {
   const [signUp] = useMutation(SIGN_UP_MUTATION, {
     onCompleted: (data) => {
       console.log('Signup successful:', data.signup.token);
-      storeToken(data.signup.token);
+      storeToken(data.signup.token,data.signup.id);
       navigation.replace('Onboarding');
       Alert.alert('Signup Successful', 'You have successfully signed up!');
     },

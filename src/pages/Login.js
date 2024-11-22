@@ -15,10 +15,11 @@ import Typography from '../components/typography/Typography';
 const { height } = Dimensions.get('window');
 const { width } = Dimensions.get('window');
 
-const storeToken = async (token, points) => {
+const storeToken = async (token, points,id) => {
   try {
     await SecureStore.setItemAsync('authToken', token);
     await SecureStore.setItemAsync('points', points.toString());
+    await SecureStore.setItemAsync('userid', id);
     console.log('Token stored successfully');
   } catch (error) {
     console.error('Error storing token:', error);
@@ -27,14 +28,14 @@ const storeToken = async (token, points) => {
 };
 
 const Login = () => {
-  const [email, setEmail] = useState('Mateo@gmail.com');
+  const [email, setEmail] = useState('Aryan@gmail.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false); // Estado para controlar visibilidad de la contraseña
   const navigation = useNavigation();
   const [logIn] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
-      console.log('Login successful:', data.login.token, data.login.points);
-      storeToken(data.login.token, data.login.points);
+      console.log('Login successful:', data.login.token, data.login.points,data.login.id);
+      storeToken(data.login.token, data.login.points,data.login.id);
       navigation.replace('HomePage');
     },
     onError: (error) => {
