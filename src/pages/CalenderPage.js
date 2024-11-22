@@ -252,7 +252,8 @@ fetchUserData(token,activeTabId)
           contentContainerStyle={styles.taskCardsContainer}
           showsVerticalScrollIndicator={false}
         >
-          {tasks?.map((task, index) => {
+                  {tasks && tasks.length > 0 ? (
+          tasks?.map((task, index) => {
             // Parse ISO string to Date objects
             const startDate = new Date(task.startDate);
             const endDate = new Date(task.endDate);
@@ -289,7 +290,11 @@ fetchUserData(token,activeTabId)
                 />
               </View>
             );
-          })}
+          })): (
+            <Typography variant="SH4" style={styles.noTasksMessage}>
+              No tasks for today
+            </Typography>
+          )}
         </ScrollView>
 
       </View>
@@ -406,7 +411,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     lineHeight: 28,
   },
-  
+  noTasksMessage: {
+    height: 800,
+    marginVertical:200,
+    flex: 1, // Takes up the remaining space
+    justifyContent: "center", // Centers content vertically
+    alignItems: "center", // Centers content horizontally
+    textAlign: "center", // Centers the text within the Text component
+    color: "#333", // Optional: for styling text color
+  },
 });
 
 export default CalendarPage;

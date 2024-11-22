@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  PermissionsAndroid
 } from "react-native";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import InputField from "../Inputs/InputField";
@@ -23,12 +24,14 @@ import CategorySelectionEvent from "../CategoryComponent/CategotySelectionEvent"
 import Voice from '@react-native-voice/voice';
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
+import axios from 'axios';
 
 const CreateTask = (activetab) => {
   const [title, setTitle] = useState("");
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("cleaning");
+  const [categorypass, setCategoryPass] = useState("");
   const [assignedTo, setAssignedTo] = useState(null);
   const [points, setPoints] = useState(100);
   const [repeat, setRepeat] = useState("Never");
@@ -39,7 +42,24 @@ const CreateTask = (activetab) => {
   const [authToken, setAuthToken] = useState(null);
   const [recognizeText, setRecognizeText] = useState("");
   const [showAnimation, setShowAnimation] = useState(false); // New state for animation visibility
-
+  const requestPermissions = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Microphone Permission',
+          message: 'We need access to your microphone to recognize speech.',
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Microphone permission granted');
+      } else {
+        console.log('Microphone permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
   useEffect(() => {
     const getToken = async () => {
       try {
@@ -57,7 +77,15 @@ const CreateTask = (activetab) => {
 
     getToken();
   }, []);
-
+useEffect(()=>{
+  // Alert.alert(showMicAnimation)
+  console.log(activetab.showMicAnimation,"AAAAAA")
+if(activetab.showMicAnimation){
+  startListening()
+}else if (!activetab.showMicAnimation && isListening){
+  stopListening()
+}
+},[activetab.showMicAnimation])
   useEffect(() => {
     Voice.onSpeechStart = onSpeechStartHandler;
     Voice.onSpeechEnd = stopListening;
@@ -75,40 +103,81 @@ const CreateTask = (activetab) => {
   const onSpeechResultsHandler = (event) => {
     const text = event.value[0];
     setRecognizeText(text);
+    // Alert.alert("Stop")
   };
 
   const startListening = async () => {
+    console.log("Attempting to start voice recognition...");
     setIsListening(true);
     try {
       await Voice.start("en-US");
+      console.log("Voice recognition started successfully!");
     } catch (error) {
-      console.log(error, "error");
+      console.error("Error starting voice recognition:", error);
     }
   };
+  
+  const capitalizeFirstLetter=(string)=> {
+    if (!string) return ''; // Handle empty or null strings
+    const cleanedString = string.trim(); // Remove leading/trailing whitespace
+    return cleanedString.charAt(0).toUpperCase() + cleanedString.slice(1);
+  }
 
-  const stopListening = async () => {
-    try {
-      await Voice.stop();
-      console.log("recording stopped");
-      // if (recognizeText) {
+
+const stopListening = async () => {
+  try {
+    await Voice.stop();
+    console.log("Recording stopped");
+
+    // Sample transcription text
     let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
 
-      // }
-      setIsListening(false);
-      
-      // Show animation for 2 seconds
-      setShowAnimation(true);
-      setTimeout(() => {
-        setShowAnimation(false);
-        extractDetailsFromSpeech(text); // Call extraction after speech ends
+    // Set the animation while the API call is in progress
+    setIsListening(false);
+    setShowAnimation(true);
+    activetab.getAnimation(true)
 
-      }, 2000);
-      
-    } catch (error) {
-      console.log(error, "error");
-    }
-  };
+    // Call the API with the transcription text
+    const response = await axios.post('http://192.168.1.249:3000/api/process-transcription', {
+      transcription: text,
+      key: 'text'  // Assuming the API requires a key
+    });
+// console.log(response)
+    // Process the API response
+    const {
+      Taskname,
+      'StartDate and startTime': startDateTime,
+      'endDate and endTime': endDateTime,
+      repeat,
+      category,
+      'assign to': assignedTo,
+      points
+    } = response.data;
+// console.log(members,"AAAA")
+    // Set the state with the parsed data
+    const matchingMember = members.find(member => member.username === assignedTo);
+// console.log(matchingMember,"MMMMMMMM")
+    setTitle(Taskname);
+    setStartDateTime(new Date(startDateTime));
+    setEndDateTime(new Date(endDateTime));
+    setPoints(points);
+    setCategory(category); // set category
+    setCategoryPass(capitalizeFirstLetter(category)); // show category
+    setAssignedTo(matchingMember.id)
+    // Handle repeat, category, and assignedTo based on the response if needed
+    console.log("Task details nextracted:", response.data);
 
+    // Hide animation after 2 seconds
+    // setTimeout(() => {
+      setShowAnimation(false);
+      activetab.getAnimation(false)
+    // }, 2000);
+
+  } catch (error) {
+    console.log("Error in processing transcription:", error);
+    setShowAnimation(false);
+  }
+};
   useEffect(() => {
     // let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
     // extractDetailsFromSpeech(text);
@@ -116,72 +185,9 @@ const CreateTask = (activetab) => {
     console.log(endDateTime,"endDT")
   }, [startDateTime,endDateTime]);
 
-  const extractDetailsFromSpeech = (text) => {
-    let taskName = "";
+ 
 
-    const taskNameMatch = text.match(/add a task as (.+?) to/i);
-    if (taskNameMatch) {
-      taskName = taskNameMatch[1].trim();
-      setTitle(taskName);
-      console.log("Parsed task name:", taskName);
-    }
-
-    const nameMatch = text.match(/to (\w+)/i);
-    if (nameMatch) {
-      const name = nameMatch[1];
-      const member = members.find(member => member.username.toLowerCase() === name.toLowerCase());
-      if (member) {
-        const assignedTo = member.id;
-        setAssignedTo(assignedTo);
-      } else {
-        console.log("No matching member found for:", name);
-      }
-    } else {
-      console.log("Name not found");
-    }
-
-    const dateMatch = text.match(/(\d{1,2} \w+ \d{1,2} (?:AM|PM)) to (\d{1,2} \w+ \d{1,2}(?::\d{2})? (?:AM|PM))/i);
-    if (dateMatch) {
-      const start = parseDate(dateMatch[1]);
-      const end = parseDate(dateMatch[2]);
-      // console.log(dat)
-      setStartDateTime(start);
-      setEndDateTime(end);
-    } else {
-      console.log("Could not extract date and time from speech");
-    }
-
-    const rewardPointsMatch = text.match(/reward points of (\d+)/i);
-    if (rewardPointsMatch) {
-      const rewardPoints = parseInt(rewardPointsMatch[1], 10);
-      setPoints(rewardPoints);
-    } else {
-      console.log("Reward points not found");
-    }
-  };
-
-  const parseDate = (dateStr) => {
-    const months = { January: 0, February: 1, March: 2, April: 3, May: 4, June: 5, July: 6, August: 7, September: 8, October: 9, November: 10, December: 11 };
-    
-    const dateTimeMatch = dateStr.match(/(\d{1,2}) (\w+) (\d{1,2})(?::(\d{2}))? (AM|PM)/i);
-    if (!dateTimeMatch) {
-      return null;
-    }
-
-    const [_, day, month, hour, minutes = '0', period] = dateTimeMatch;
-
-    let hour24 = parseInt(hour, 10);
-    if (period === "PM" && hour24 !== 12) {
-      hour24 += 12;
-    } else if (period === "AM" && hour24 === 12) {
-      hour24 = 0;
-    }
-
-    const year = new Date().getFullYear();
-    const date = new Date(year, months[month], parseInt(day, 10), hour24, parseInt(minutes, 10), 0);
-    return date;
-  };
-
+ 
   const [createTask] = useMutation(CREATE_TASK);
   const [fetchGroup, { data }] = useLazyQuery(GET_GROUP, {
     onCompleted: (data) => {
@@ -252,20 +258,20 @@ const CreateTask = (activetab) => {
 
   return (
     <>
-      {showAnimation && (
+      {/* {showAnimation && (
       <View style={styles.overlayContainer}>
       <View style={styles.overlay}>
         <LottieView
           autoPlay
-          loop={false}
+          loop={true}
           style={styles.animation}
-          source={require('../../../assets/animations/wave.json')} // Replace with your Lottie file
+          source={require('../../../assets/animations/wave1.json')} // Replace with your Lottie file
         />
       </View>
     </View>
-      )}
+       )}  */}
       <View style={styles.mainContentContainer}>
-        <TouchableOpacity onPress={() => (isListening ? stopListening() : startListening())}>
+        {/* <TouchableOpacity onPress={() => (isListening ? stopListening() : startListening())}>
           <View>
             <Ionicons name="mic" size={24} color="black" />
           </View>
@@ -274,7 +280,7 @@ const CreateTask = (activetab) => {
           <View>
             <Text>Stop</Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View>
           <Text>{recognizeText}</Text>
         </View>
@@ -297,13 +303,15 @@ const CreateTask = (activetab) => {
                 setEndDateTime(end);
               }} 
               startDateTime={startDateTime}
-              endDateTime={endDateTime}/>
+              endDateTime={endDateTime}
+              // repeatvalue ={repeat}
+              />
             </View>
           </View>
 
           {activetab.activeTab === "Task" && (
             <View style={styles.fieldContainer}>
-              <CategorySelection onSelect={setCategory} />
+              <CategorySelection onSelect={setCategory} categorypass={categorypass} />
             </View>
           )}
 
@@ -383,8 +391,9 @@ const styles = StyleSheet.create({
       height: "100%",  // Full height of the screen
     },
     animation: {
-      width: 200, // Set the size of the animation
-      height: 200, // Set the size of the animation
+      width: "100%",  // Make the animation fill the width of the screen
+      height: "100%",  // Make the animation fill the height of the screen
+      resizeMode: "cover",  // Ensure the animation maintains aspect ratio
     },
   mainContentContainer: {
     flex: 1,

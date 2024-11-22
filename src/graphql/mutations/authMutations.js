@@ -45,3 +45,12 @@ export const MY_PROFILE = gql`
   }
 `;
 
+export const CREATE_GROUP = gql`
+  mutation createGroup($groupName: String!, $email: String!) {
+    createGroup(groupName: $groupName, email: $email) {
+      id
+      groupName
+      
+    }
+  }
+`;
