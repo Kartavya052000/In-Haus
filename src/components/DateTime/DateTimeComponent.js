@@ -14,7 +14,7 @@ const DateTimeComponent = ({ onDateTimeChange, repeat2,startDateTime,endDateTime
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-  const [repeat, setRepeat] = useState("Never");
+  const [repeat, setRepeat] = useState("Daily");
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,10 @@ const DateTimeComponent = ({ onDateTimeChange, repeat2,startDateTime,endDateTime
   }, [repeat2]);
 useEffect(() => {
 console.log(startDateTime,"=====---",endDateTime);
+// console.log();
 
+// setStartDate(startDateTime);
+// setStartTime(startDateTime)
 },[startDateTime,endDateTime])
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -124,7 +127,7 @@ console.log(startDateTime,"=====---",endDateTime);
             <DateTimePicker
               value={startDate}
               mode="date"
-              display="default"
+              display="default"x
               onChange={handleStartDateChange}
             />
           )}

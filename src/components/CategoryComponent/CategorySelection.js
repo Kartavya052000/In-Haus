@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { CleaningIcon, LaundryIcon, DishesIcon, HomeworkIcon, GroceriesIcon, BuyIcon, CloseIcon, OpenIcon } from '../icons/icons';
 import Typography from '../typography/Typography'; // Ensure the path is correct
@@ -17,7 +17,7 @@ const CategoryButton = ({ label, Icon, isSelected, onPress }) => {
   );
 };
 
-const CategorySelection = ({setCategory}) => {
+const CategorySelection = ({setCategory,categorypass}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -29,7 +29,11 @@ const CategorySelection = ({setCategory}) => {
     { label: 'Groceries', Icon: GroceriesIcon },
     { label: 'Buy', Icon: BuyIcon },
   ];
-
+useEffect(()=>{
+if(categorypass !==""){
+  setSelectedCategory(categorypass);
+}
+},[categorypass])
   return (
     <View style={styles.container}>
       {/* Header with expand/collapse icon */}

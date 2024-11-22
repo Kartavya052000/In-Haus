@@ -1,6 +1,4 @@
-import { View, Text ,StyleSheet, Platform, Alert, Dimensions,StatusBar} from 'react-native'
-
-
+import { View, Text, StyleSheet, Platform, Alert, Dimensions, StatusBar, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Typography from '../typography/Typography';
 import { TouchableOpacity } from 'react-native';
@@ -14,111 +12,85 @@ import { Button } from 'react-native-web';
 import BottomSwipeableDrawer from '../Drawer/BottomSwipeableDrawer';
 import { useNavigation } from '@react-navigation/native';
 import { GET_GROUP } from '../../graphql/mutations/taskMutations';
-import * as SecureStore from 'expo-secure-store'; 
+import * as SecureStore from 'expo-secure-store';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { REDEEM_REWARD } from '../../graphql/mutations/rewardsMutations';
 import { LinearGradient } from "expo-linear-gradient";
+import LottieView from 'lottie-react-native';  // Import Lottie
 const { height } = Dimensions.get("window");
 import Colors from "../../components/Colors/Colors";
 import RewardsCards1 from '../Cards/RewardsCards1';
-// import { ScrollView } from 'react-native-gesture-handler';
 import { MY_PROFILE } from '../../graphql/mutations/authMutations';
+import { io } from 'socket.io-client';
 
 export default function Rewards() {
   const [drawerVisible, setDrawerVisible] = useState(true);
-const [isVisible,setIsVisible]=useState(false)
-const[activeTab,setActiveTab]=useState("My Rewards")
-const [rewardDetails,setDetails] =useState([])
-const [token,setToken]=useState('')
-const [rewardPoints,setRewardPoints]=useState(0)
-const [shouldFetchRewards, setShouldFetchRewards] = useState(false); // New state to trigger fetch
+  const [isVisible, setIsVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("My Rewards");
+  const [rewardDetails, setDetails] = useState([]);
+  const [token, setToken] = useState('');
+  const [rewardPoints, setRewardPoints] = useState(0);
+  const [userid, SetUserId] = useState("");
+  const [shouldFetchRewards, setShouldFetchRewards] = useState(false);
+  const [loading, setLoading] = useState(false); // State for loader visibility
 
-// -----OPTION TABS ----
-  const optionsFromDatabase = [
-    { name: 'My Rewards' },
-    { name: 'Edit Rewards' },
-  ];
-  useEffect(() => { 
-    const getToken = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('authToken'); 
-        const points = await SecureStore.getItemAsync('points'); 
-        if(points){
-          setRewardPoints(points)
-        }
-        if (token) {
-          setToken(token);
-          fetchPoints(token)
-          console.log('Token retrieved:', token);
-        } else {
-          console.error('No auth token found');
-        }
-      } catch (error) {
-        console.error('Error retrieving auth token:', error);
-      }
-    };
+  // Socket connection
+  const socket = io('http://api.in-haus.ca:4000', {
+    transports: ['websocket', 'polling'],
+  });
 
-    getToken();
-  }, []);
   useEffect(() => {
-    console.log(rewardDetails,"list")
-    if (rewardDetails && Object.keys(rewardDetails).length > 0) {
-      // Alert.alert("Rewards details updated!");
-      redeemRewardsData(token)
+    if (userid) {
+      socket.on('connect', () => {
+        console.log('Connected to Socket.IO server');
+        socket.emit('joinRoom', userid);
+      });
+
+      socket.on('rewardCreated', (reward) => {
+        console.log('New reward created:', reward);
+        setLoading(true); // Show loader when reward is created
+        setTimeout(() => {
+          setShouldFetchRewards(true); // Trigger fetch rewards
+          setLoading(false); // Hide loader after 3 seconds
+        }, 3000);
+      });
+
+      return () => {
+        socket.off('connect');
+        socket.off('rewardCreated');
+      };
     }
-  }, [rewardDetails]);
+  }, [userid]);
 
-  const [redeemRewards, { loading: RewardLoading, error: RewardError, data: RewardData }] = useMutation(REDEEM_REWARD, {
+  // Fetch user points
+  const [fetchUserPoints, { loading: fetchLoading, error }] = useLazyQuery(MY_PROFILE, {
+    fetchPolicy: "network-only", 
     onCompleted: (data) => {
-      // Handle successful completion here
-      console.log("Reward redeemed successfully!", data);
-      setShouldFetchRewards(true)
-      fetchUserPoints(token)
-      // You can also show a success message or update local state
-    },
-    onError: (error) => {
-      // Handle any errors that occur during the mutation
-      Alert.alert("Error while redeeming the reward")
-      console.error("Error redeeming reward:", error);
-      // You can show an error message or handle it accordingly
-    }
-  });  
-  const redeemRewardsData = async (token) => {
-    redeemRewards({
-      context: {
-        headers: {
-          Authorization: `${token}`, // Use token passed as argument
-        },
-      },
-      variables: {
-        rewardId: rewardDetails?.id, // Replace with actual groupID if necessary
-      },
-    });
-  };
-  
-const navigation =useNavigation();
-  const handleTabChange = (optionName) => {
-    
-    setActiveTab(optionName)
-  };
-
-  const handleCreate = () => {
-    navigation.navigate('CreateReward',{undefined})
-   
-  };
-
-// -- to get user points---
-  const [fetchUserPoints, { loading, error }] = useLazyQuery(MY_PROFILE, {
-    fetchPolicy: "network-only", // Forces fresh data fetch from network
-
-    onCompleted: (data) => {
-      // console.log("+++++++++++",data.myProfile.points)
-      setRewardPoints(data.myProfile.points)  
+      setRewardPoints(data.myProfile.points);
     },
     onError: (error) => {
       console.error('Error fetching group:', error.message);
     },
   });
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('authToken');
+        const points = await SecureStore.getItemAsync('points');
+        const id = await SecureStore.getItemAsync('userid');
+        if (id) SetUserId(id);
+        if (points) setRewardPoints(points);
+        if (token) {
+          setToken(token);
+          fetchPoints(token);
+        }
+      } catch (error) {
+        console.error('Error retrieving auth token:', error);
+      }
+    };
+    getToken();
+  }, []);
 
   const fetchPoints = async (token) => {
     if (token) {
@@ -131,10 +103,23 @@ const navigation =useNavigation();
       });
     }
   };
+
+  const redeemRewardsData = async (token) => {
+    // Redeem the reward when needed
+  };
+
+  const handleTabChange = (optionName) => {
+    setActiveTab(optionName);
+  };
+
+  const handleCreate = () => {
+    navigation.navigate('CreateReward');
+  };
+
   return (
     <View style={styles.container}>
-       <LinearGradient
-        colors={[ "rgba(255, 223, 247, 1)","rgba(253, 183, 235, 1)"]}
+      <LinearGradient
+        colors={["rgba(255, 223, 247, 1)", "rgba(253, 183, 235, 1)"]}
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={styles.headerBackground}
@@ -142,10 +127,7 @@ const navigation =useNavigation();
       <View style={styles.contentContainer}>
         <Typography
           variant="H4"
-          style={[
-            styles.headerTitle,
-            { textAlign: "center", color: "#891E6E" },
-          ]} // Ajusta el color para igualar el diseño
+          style={[styles.headerTitle, { textAlign: "center", color: "#891E6E" }]}
         >
           Rewards
         </Typography>
@@ -159,49 +141,58 @@ const navigation =useNavigation();
         </TouchableOpacity>
       </View>
 
-         <View style={styles.optionTabsContainer}>
-          <OptionTabs
-            options={optionsFromDatabase}
-            containerColor={Colors.Secondary.Gray[100]} // Cambia el color del contenedor
-            activeColor={"#FFDFF7"} // Color activo igual que en `Haus`
-            inactiveColor={"#FFF"} // Color inactivo si es necesario (opcional)
-            textColor={"#B74044"} // Color de texto igual que en `Haus`
-            onTabChange={handleTabChange} // Manejador de cambio de pestaña
-          />
-        </View>
-      
-{activeTab =="My Rewards"&&(
+      <View style={styles.optionTabsContainer}>
+        <OptionTabs
+          options={[{ name: 'My Rewards' }, { name: 'Edit Rewards' }]}
+          containerColor={Colors.Secondary.Gray[100]}
+          activeColor={"#FFDFF7"}
+          inactiveColor={"#FFF"}
+          textColor={"#B74044"}
+          onTabChange={handleTabChange}
+        />
+      </View>
 
-<RewardsCards1 currentPoints={rewardPoints}/>
-)}
-
-   
+      {activeTab === "My Rewards" && (
+        <RewardsCards1 currentPoints={rewardPoints} />
+      )}
 
       <MyRewards
-       text={activeTab =="My Rewards"?"My":"Assigned"}
-       setIsVisible={setIsVisible}
-        list ={'myRewards'} 
+        text={activeTab === "My Rewards" ? "My" : "Assigned"}
+        setIsVisible={setIsVisible}
+        list={'myRewards'}
         setDetails={setDetails}
-        shouldFetchRewards={shouldFetchRewards} 
-        onFetchRewardsComplete={() => setShouldFetchRewards(false)} 
+        shouldFetchRewards={shouldFetchRewards}
+        onFetchRewardsComplete={() => setShouldFetchRewards(false)}
         style={styles.rewardCardContainer}
+      />
 
-        />
+      {/* Show loader with JSON animation */}
+      {loading && (
+  <View style={styles.loaderContainer}>
+    <LottieView 
+      source={require('../../../assets/animations/wave1.json')} // Your JSON animation file
+      autoPlay
+      loop
+      style={styles.loaderAnimation}
+    />
+    <Image
+      source={require('../../../assets/Images/alexa3.png')} // Alexa image behind the animation
+      style={styles.loaderImage}
+    />
+  </View>
+)}
 
-   
-      <BottomSwipeableDrawer isVisible={isVisible} setIsVisible={setIsVisible} Details={rewardDetails} rewardPoints={rewardPoints} />
-
-      </View>
-  )
+      <BottomSwipeableDrawer
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        Details={rewardDetails}
+        rewardPoints={rewardPoints}
+      />
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
-  // container: {
-  //   flex: 1,
-  //   paddingHorizontal: 16,
-  //   paddingVertical: 24,
-  //   backgroundColor: '#fff',
-  //   paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60, // Add padding to avoid the notch or island
-  // },
   container: {
     backgroundColor: "#F2F2F2",
     flex: 1,
@@ -211,20 +202,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: height * 0.12,
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-    marginTop: 16,
-  },
-  headerBackground: {
-    height: height * 0.19,
-    left: 0,
-    position: "absolute",
-    top: 0,
-    width: "120%",
-  },
   headerTitle: {
     fontWeight: 'bold',
   },
@@ -232,7 +209,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: -10,
-    // padding: 8,
   },
   addMealContainer: {
     width: 40,
@@ -242,29 +218,43 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: Colors.Secondary.Pink[500],
   },
-  addMealContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: -2, // Adjust alignment to match the text and icon height
-  },
-  addMealText: {
-    lineHeight: 17, // Align the text vertically with the icon
-  },
-  addIcon: {
-    marginBottom: -2, // Adjust icon alignment to match the text height
-  },
   optionTabsContainer: {
     alignItems: "center",
     width: "100%",
     marginVertical: 16,
   },
-  rewardCardContainer:{
-    borderRadius:16
+  rewardCardContainer: {
+    borderRadius: 16,
   },
-  rewards_points:{
-    backgroundColor:"lightblue"
+  headerBackground: {
+    height: height * 0.19,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "120%",
   },
-  rewardCardContainer:{
-    borderRadius:16
+  loaderContainer: {
+    position: 'absolute',
+    top: '50%',   // Center the loader vertically
+    left: '50%',  // Center the loader horizontally
+    transform: [{ translateX: -150 }, { translateY: -150 }], // Offset to make sure it's perfectly centered
+    width: 300,  // Define a width for the container
+    height: 300, // Define a height for the container
+    justifyContent: 'center',  // Center the content vertically
+    alignItems: 'center',      // Center the content horizontally
+    zIndex: 1, // Ensure loader is on top
   },
-  });
+  loaderImage: {
+    width: 150,  // Adjust the size of the image
+    height: 150, // Adjust the size of the image
+    resizeMode: 'contain',
+    position: 'absolute', // Image should be behind the animation
+    zIndex: 0, // Image goes behind the animation
+  },
+  loaderAnimation: {
+    width: 900,  // Adjust the size of the animation to your preference
+    height: 400, // Adjust the size of the animation to your preference
+    position: 'absolute',  // Ensure animation stays in the center
+    zIndex: 1,  // Animation goes above the image
+  },
+});
