@@ -199,9 +199,18 @@ export const ChineseIcon = ({ color = "#333232" }) => (
 );
 
 export const SearchIcon = ({ color = "#8E8D8D" }) => (
-  <Svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/Svg">
-    <Path fill={color} fillRule="evenodd" d="M8.333 1.667a6.667 6.667 0 0 0-6.666 6.666v3.334a6.667 6.667 0 0 0 6.666 6.666h3.334a6.667 6.667 0 0 0 6.666-6.666V8.333a6.667 6.667 0 0 0-6.666-6.666H8.333Zm4.375 8.02c0 .652-.207 1.257-.559 1.75l1.037 1.037a.503.503 0 1 1-.712.712l-1.037-1.037a3.02 3.02 0 1 1 1.27-2.462Z"  clipRule="evenodd" />
-  </Svg>
+
+  <Svg
+  width={30}
+  height={30}
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+><Path fill={color}
+    fillRule="evenodd"
+    clipRule="evenodd"
+    d="M12.5 2.5c-5.523 0-10 4.477-10 10v5c0 5.523 4.477 10 10 10h5c5.523 0 10-4.477 10-10v-5c0-5.523-4.477-10-10-10h-5zm6.562 12.03a4.51 4.51 0 01-.838 2.626l1.555 1.555a.755.755 0 11-1.068 1.068l-1.555-1.555a4.53 4.53 0 111.906-3.693z"
+  />
+</Svg>
 );
 export const GoBackIcon = ({ color = "#333232" }) => (
   <Svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/Svg">

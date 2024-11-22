@@ -156,7 +156,7 @@ const SearchMeal = ({ navigation }) => {
       <View style={styles.mainContentContainer}>
         <View style={styles.searchInputCameraContainer}>
         <View style={styles.searchInputContainer}>
-  <SearchIcon size={24} style={styles.searchIcon} />
+  <SearchIcon size={30} style={styles.searchIcon} />
   <TextInput
     variant="BodyL"
     style={styles.searchInput}
@@ -372,10 +372,12 @@ paddingRight:5,
     flex: 1,
     fontSize: 16,
     marginLeft: 8,
+    height:50,
     // width: '100%',
   },
   searchIcon: {
     marginRight: 8,
+ 
   },
   cameraButton: {
     borderColor: '#FF5A5F',

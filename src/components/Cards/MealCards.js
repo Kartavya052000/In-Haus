@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     height: 96,
   },
   filledCard: {
-    height: 72,
+
   },
   filledContent: {
     flexDirection: 'row',
