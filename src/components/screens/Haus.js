@@ -44,7 +44,7 @@ export default function Haus() {
         if (token) {
           setToken(token);
           fetchPoints(token);
-          fetchUserData(token);
+          // fetchUserData(token);   // no need to hit
           console.log('Token retrieved:', token);
         } else {
           console.error('No auth token found');
