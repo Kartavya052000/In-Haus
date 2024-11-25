@@ -87,7 +87,7 @@ const MealPlanner = ({ route, userId }) => {
 
         if (token) {
           setToken(token);
-          console.log('Token retrieved meal planner:', token);
+          console.log('Token retrieved meal planner:', token); 
         } else {
           console.error('No auth token found');
         }
@@ -200,7 +200,7 @@ const MealPlanner = ({ route, userId }) => {
   
 const handleMealCardPress = (meal) => {
   if (meal) {
-console.log("Meal:", meal);
+//console.log("Meal:", meal);
      navigation.navigate('MealDetails', {
        id: +meal.mealId,
        title: meal.mealTitle,
@@ -365,8 +365,8 @@ console.log("Meal:", meal);
  //console log ingredients
  console.log("Selected date:" , selectedDate);
  console.log("Meal Type: ", selectedMealType);
-  console.log("Shopping List Items:", shoppingListItems);
-  return (
+ //console.log("Shopping List Items:", JSON.stringify(shoppingListItems, null, 2)); 
+  return ( 
     <View style={styles.container}>
       <LinearGradient
         colors={["rgba(243, 200, 202, 1)", "rgba(226, 127, 130, 1)"]}
@@ -897,6 +897,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 0,
     paddingRight: 8,
+    paddingBottom: 60,
+    marginBottom: 60,
   },
   calendarSection: {
     marginBottom: 10,

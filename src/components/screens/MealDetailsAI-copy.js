@@ -1,276 +1,82 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ImageBackground, ScrollView, TouchableOpacity, StatusBar, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import CalendarComponent from '../../components/calendar/CalendarComponent'; // Import CalendarComponent
+import Dropdown from '../../components/Dropdown/Dropdown'; // Import Dropdown
 import { Picker } from '@react-native-picker/picker';
 import Typography from '../../components/typography/Typography';
-import CalendarComponent from '../../components/calendar/CalendarComponent';
 import { useLazyQuery, gql, useMutation } from '@apollo/client';
 import { ShoppingListContext } from '../../components/contexts/ShoppingListContext';
 import { generateRandom } from 'expo-auth-session/build/PKCE';
-import * as SecureStore from 'expo-secure-store';
-import { SPOONACULAR_API_KEY } from '@env';
 import { GoBackIcon, SaveIcon, PlusIcon, MinusIcon } from "../../components/icons/icons";
-
+import * as SecureStore from 'expo-secure-store';
 const { height } = Dimensions.get('window');
 
-const GET_RECIPE = gql`
-  query getRecipeById($id: Int!) {
-    getRecipeById(id: $id) {
-      id
-      title
-      image
-      summary
-      readyInMinutes
-      healthScore
-      cuisines
-      servings
-      instructions
-      ingredients {
-        name
-        amount
-        unit
-      }
-      steps {
-        step
-      }
-    }
-  }
-`;
+const MealDetailsAI = ({ route, navigation }) => {
 
-// GraphQL mutation to save a recipe to the database
-const SAVE_RECIPE = gql`
-  mutation addRecipe($recipe: RecipeInput!) {
-    addRecipe(recipe: $recipe) {
-      id
-      title
-    }
-  }
-`;
+  // const { isRecognized, isMeal, mealId, image, title, fullDescription, recipe, servings, ingredients, readyInMinutes, healthScore } = route.params;
+  const {
+    response
+  } = route.params || {};
 
+  const fullDescription = response.fullDescription;
+  const title = response.title;
+  const recipe = response.recipe;
+  const servings = response.servings;
+  const ingredients = response.ingredients;
+  const readyInMinutes = response.readyInMinutes;
+  const healthScore = response.healthScore;
 
-const MealDetails = ({ route, navigation }) => {
-  const { id, image, title, selectedServings } = route.params;
-//  console.log('Parameters received:', route.params);
-  const [recipeDetails, setRecipeDetails] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [currentServings, setCurrentServings] = useState(1);
-  const [token, setToken] = useState(null);
+  const mealId = response.mealId;
 
-  console.log("id - params:", id);
-  console.log("image - params:", (image? "ok":"No image"));
-  console.log("title - params:", title); 
-  console.log("selectedServings - params:", selectedServings);
+  const image = route.params.image;
+  console.log("fullDescription:", fullDescription);
+  console.log("Image URI:", image);
 
-
-
+  const [currentServings, setCurrentServings] = useState(servings || 1);
   const {
     shoppingListItems, setShoppingListItems, mealPlanItems, setMealPlanItems, selectedDate, setSelectedDate, selectedMealType, setSelectedMealType
   } = useContext(ShoppingListContext);
 
   const [mealType, setMealType] = useState(selectedMealType);
 
-
-
-  //console.log("selectedMealType - mealDetails:", selectedMealType);
-  //console.log("selectedDate  - mealDetails:", selectedDate);
-
-  // Retrieve recipe from database
-  const [fetchRecipe, { data: recipeData, loading: queryLoading, error }] = useLazyQuery(GET_RECIPE, {
-    context: {
-      headers: {
-        Authorization: `${token}`,
-      },
-    },
-    fetchPolicy: 'network-only', // Make sure to fetch the latest from server
-  });
-
-  // Mutation to save recipe
-  const [saveRecipe] = useMutation(SAVE_RECIPE, {
-    context: {
-      headers: {
-        Authorization: `${token}`,
-      },
-    },
-  });
-
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        const authToken = await SecureStore.getItemAsync('authToken');
-        if (authToken) {
-          console.log('Token found:', authToken);
-          setToken(authToken);
-        
-        } else {
-          console.error('No token found');
-        }
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-      }
-    };
-    getToken();
-  }, []);
-  
-
-  useEffect(() => {
-    if (token && id) {
-      console.log('Both token and ID are available. Fetching recipe...');
-      fetchRecipe({
-        variables: { id: parseInt(id, 10) }, // Ensure the ID is an integer
-      });
-    }
-  }, [token, id]);
-  
-
-  const fetchRecipeFromDatabase = () => {
-    fetchRecipe({
-      variables: { id: parseInt(id, 10) }, // Ensure the ID is an integer
-    });
-    
+  const adjustServings = (type) => {
+    if (type === 'increment') setCurrentServings(currentServings + 1);
+    else if (type === 'decrement' && currentServings > 1) setCurrentServings(currentServings - 1);
   };
-
-  // Check the response from the database query
-
-  useEffect(() => {
-    if (recipeData) {
-   //   console.log('Query Response:', recipeData);
-    }
-    if (error) {
-      console.error('GraphQL Error:', error);
-    }
-  }, [recipeData, error]);
-  useEffect(() => {
-    if (recipeData && recipeData.getRecipeById) {
-      console.log("Data retrieved from database.");
-      setRecipeDetails(recipeData.getRecipeById);
-      setCurrentServings(+selectedServings);
-      setLoading(false);
-    } else if (recipeData && !recipeData.getRecipeById) {
-      console.log("Recipe not found in database. Fetching from Spoonacular...");
-      fetchRecipeDetailsFromSpoonacular();
-    }
-  }, [recipeData]);
-
-  // Fetch recipe details from Spoonacular if not found in the database
-  const fetchRecipeDetailsFromSpoonacular = async () => {
-    try {
-      const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${SPOONACULAR_API_KEY}`);
-      const data = await response.json();
-
-      if (response.ok && data && !data.status) {
-        console.log("Data retrieved from Spoonacular API");
-
-        // Save the fetched recipe to the database
-        console.log("Saving recipe to database... - ID:"+ data.id);
-        await saveRecipe({
-          variables: {
-            recipe: {
-              id: data.id,
-              title: data.title,
-              image: data.image,
-              summary: data.summary,
-              readyInMinutes: data.readyInMinutes.toString(),
-              healthScore: data.healthScore.toString(),
-              cuisines: data.cuisines,
-              servings: data.servings.toString(),
-              instructions: data.analyzedInstructions[0]?.steps.map((step) => step.step).join('\n'), // Save steps as a single string
-              ingredients: data.extendedIngredients.map((ing) => ({
-                name: ing.name,
-                amount: ing.amount,
-                unit: ing.unit,
-              })),
-              steps: data.analyzedInstructions[0]?.steps.map((step) => ({
-                step: step.step,
-              })),
-            },
-          },
-        });
-
-        console.log("Data saved to database");
-
-        // Fetch the saved data from the database for consistency
-        fetchRecipeFromDatabase();
-      } else {
-        console.log('Failed to fetch recipe from Spoonacular');
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching recipe details from Spoonacular:', error);
-      setLoading(false);
-    }
-  };
-
   const handleBack = () => {
     navigation.goBack();
   };
 
-
-  const adjustServings = (type) => {
-    if (type === 'increment') {
-      setCurrentServings(currentServings + 1);
-    } else if (type === 'decrement' && currentServings > 1) {
-      setCurrentServings(currentServings - 1);
-    }
+  const addToPlan = () => {
+    // Add your functionality here. For example:
+    console.log('Meal added to plan');
+    // You can also implement navigation, state updates, or other actions as needed.
   };
 
   const addToShoppingList = () => {
-    const timestamp = Date.now(); // Generate a unique timestamp for each addition
     const newMeal = {
-      mealId: recipeDetails.id, // Original recipe ID for API calls
-      uniqueKey: `${recipeDetails.id}-${timestamp}-${generateRandom(5)}`, // Unique key for rendering
-      mealTitle: recipeDetails.title,
-      mealImage: '',
-      ingredients: recipeDetails.ingredients.map(ingredient => ({
-        id: `${ingredient.id}`, // Unique ID for each ingredient
-        uniqueKey: `${ingredient.id}-${timestamp}-${generateRandom(5)}`, // Unique key for rendering
+      mealId: mealId || `IA-${Math.floor(1000 + Math.random() * 9000)}`, // Generates IA-XXXX where XXXX is a random 4-digit number
+      mealTitle: title, // Ensure that the title is correctly set as mealTitle
+      ingredients: ingredients.map(ingredient => ({
         name: ingredient.name,
-        amount: parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2)),
+        amount: parseFloat((ingredient.amount * currentServings / servings).toFixed(2)),
         unit: ingredient.unit || '',
-        checked: false,
-      }))
+        checked: false, // Initially unchecked
+      })),
     };
 
+    // Add the new meal to the shopping list and navigate
     setShoppingListItems([...shoppingListItems, newMeal]);
-
-
-
-    navigation.navigate('MealPlanner', { selectedTab: 'Shopping List', notification: 'Ingredients added to the shopping list!' });
+    navigation.navigate('MealPlanner', { selectedTab: 'Shopping List' });
   };
 
-  const addToPlan = async () => {
-    const newMeal = {
-      mealId: recipeDetails.id,
-      mealTitle: title,
-      servings: currentServings,
-      date: selectedDate,
-      mealType: mealType,
-      image: image,
-    };
 
-    setMealPlanItems((prevItems) => {
-      const existingItemIndex = prevItems.findIndex(item => item.date === selectedDate && item.mealType === mealType);
-      if (existingItemIndex !== -1) {
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex] = newMeal;
-        return updatedItems;
-      } else {
-        return [...prevItems, newMeal];
-      }
-    });
+  console.log("Received data in MealDetailsAI:", route.params.response);
 
-    addToShoppingList();
-    navigation.navigate('MealPlanner', { selectedTab: 'My Plan', notification: 'The recipe is now in your plan and shopping list' });
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}><Text>Loading...</Text>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
-  }
 
   return (
+
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -290,14 +96,16 @@ const MealDetails = ({ route, navigation }) => {
         <ImageBackground source={{ uri: image }} style={styles.mealImage} resizeMode="cover">
 
         </ImageBackground>
-
         <View style={styles.mealInfoContainer}>
           <Typography variant="H4" style={styles.mealTitle}>{title}</Typography>
           <View style={styles.mealDetails}>
-            <Typography variant='BodyS' style={styles.mealDetailText}> <Text style={styles.mealTitleText}>Time:</Text> {recipeDetails.readyInMinutes} min</Typography>
-            <Typography variant='BodyS' style={styles.mealDetailText}><Text style={styles.mealTitleText}>Health Score:</Text> {recipeDetails.healthScore} / 100</Typography>
+            <Typography variant='BodyS' style={styles.mealDetailText}> <Text style={styles.mealTitleText}>Time:</Text>  {readyInMinutes ? `${readyInMinutes} min` : 'N/A'}
+            </Typography>
+            <Typography variant='BodyS' style={styles.mealDetailText}><Text style={styles.mealTitleText}>Health Score:</Text>  {healthScore ? healthScore + ' / 100' : 'N/A'}
+            </Typography>
           </View>
           {/* Dropdown for Date Selection */}
+
           <View style={styles.mealDateContainer}>
             <CalendarComponent
               markedDates={{}}
@@ -335,13 +143,15 @@ const MealDetails = ({ route, navigation }) => {
           </View>
 
           {/* ingredients*/}
+
+
           <Typography variant='SH4' style={styles.ingredientsTitle}>Ingredients:</Typography>
           <View style={styles.ingredientList}>
-            {recipeDetails.ingredients && recipeDetails.ingredients.length > 0 ? (
-              recipeDetails.ingredients.map((ingredient, index) => (
+            {ingredients && ingredients.length > 0 ? (
+              ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
                   <Typography variant='BodyS' >
-                    {parseFloat((ingredient.amount * (currentServings / recipeDetails.servings)).toFixed(2))} {ingredient.unit}
+                    {(ingredient.amount * currentServings / servings).toFixed(2)} {ingredient.unit}
                   </Typography>
                   <Typography variant='BodyS' >{ingredient.name}</Typography>
                 </View>
@@ -349,26 +159,21 @@ const MealDetails = ({ route, navigation }) => {
             ) : (
               <Typography variant='BodyS' style={styles.noInstructionsText}>No ingredients available.</Typography>
             )}
-
           </View>
-
 
           <TouchableOpacity style={styles.addButton} onPress={addToShoppingList} activeOpacity={0.7}>
             <Typography variant='BodyS' style={styles.addButtonText}>Add Ingredients to Shopping List</Typography>
           </TouchableOpacity>
 
           {/* Instructions */}
+
           <View style={styles.instructionsContainer}>
             <Typography variant='SH4' style={styles.instructionsTitle}>Cooking Instructions</Typography>
             <View style={styles.instructionsDetails}>
-              {recipeDetails.steps && recipeDetails.steps.length > 0 ? (
-                recipeDetails.steps.map((step, index) => (
-                  <Typography variant='BodyS' style={styles.instructionText} key={index} >
-                    <Text style={styles.fontBold} >Step {index + 1}: </Text> {step.step}
-                  </Typography>
-                ))
+              {recipe ? (
+                <Text style={styles.instructionText}>{recipe}</Text>
               ) : (
-                <Typography variant='BodyS' style={styles.noInstructionsText}>No instructions available.</Typography>
+                <Text style={styles.noInstructionsText}>No instructions available.</Text>
               )}
             </View>
           </View>
@@ -558,4 +363,5 @@ const styles = StyleSheet.create({
   }
 });
 
-export default MealDetails;
+
+export default MealDetailsAI;
