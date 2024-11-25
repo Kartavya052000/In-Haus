@@ -34,6 +34,50 @@ const SAVE_MEAL_PLAN = gql`
   }
 `;
 
+const GET_SHOPPING_LIST_BY_GROUP = gql`
+  query GetShoppingLists {
+    getShoppingLists {
+      groupId
+      shoppingListItems {
+        mealId
+        uniqueKey
+        mealTitle
+        mealImage
+        ingredients {
+          id
+          uniqueKey
+          name
+          amount
+          unit
+          checked
+        }
+      }
+    }
+  }
+`;
+
+const SAVE_SHOPPING_LIST = gql`
+  mutation SaveShoppingList($shoppingListItems: [ShoppingListInput]!) {
+    saveShoppingList(shoppingListItems: $shoppingListItems) {
+      groupId
+      shoppingListItems {
+        mealId
+        uniqueKey
+        mealTitle
+        mealImage
+        ingredients {
+          id
+          uniqueKey
+          name
+          amount
+          unit
+          checked
+        }
+      }
+    }
+  }
+`;
+
 // Create a context
 export const ShoppingListContext = createContext();
 
@@ -45,7 +89,24 @@ export const ShoppingListProvider = ({ children }) => {
   const [selectedMealType, setSelectedMealType] = useState([]);
   const [token, setToken] = useState(null);
 
-  
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const authToken = await SecureStore.getItemAsync('authToken');
+        if (authToken) {
+          console.log('Token context:', authToken);
+          setToken(authToken);
+
+        } else {
+          console.log('No token found');
+        }
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+      }
+    };
+    getToken();
+  }, []);
+
   // Fetch the user's meal plan items on initial load
   const [fetchMealPlan] = useLazyQuery(GET_MEAL_PLAN_BY_GROUP, {
     context: {
@@ -62,34 +123,39 @@ export const ShoppingListProvider = ({ children }) => {
     },
   });
 
-  
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        const authToken = await SecureStore.getItemAsync('authToken');
-        if (authToken) {
-          setToken(authToken);
-        } else {
-          console.log('No token found');
+    // Fetch the user's shopping list items on initial load
+    const [fetchShoppingList, { data, loading, error }] = useLazyQuery(GET_SHOPPING_LIST_BY_GROUP, {
+      fetchPolicy: 'network-only',
+      context: {
+        headers: {
+          Authorization: token ? `${token}` : '',
         }
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-        Alert.alert('Retrieval Error', 'Failed to retrieve authentication token.');
-      }
-    };
-    getToken();
-  }, []);
+      },
+    });
+  
+
 
   useEffect(() => {
     if (token) {
       console.log('Fetching meal plan... with token:', token);
+      console.log('Fetching shopping list... with token:', token);
       fetchMealPlan();
+      fetchShoppingList();
     }
-  }, [token, fetchMealPlan]);
+  }, [token, fetchMealPlan, fetchShoppingList]);
 
 
   // Define the mutation for saving the meal plan
   const [saveMealPlan] = useMutation(SAVE_MEAL_PLAN, {
+    context: {
+      headers: {
+        Authorization: token ? `${token}` : "",
+      },
+    },
+  });
+
+   // Define the mutation for saving the shopping list
+   const [saveShoppingList] = useMutation(SAVE_SHOPPING_LIST, {
     context: {
       headers: {
         Authorization: token ? `${token}` : "",
@@ -113,6 +179,25 @@ export const ShoppingListProvider = ({ children }) => {
     }
   };
 
+  // Function to save shopping list items to the backend
+  const saveShoppingListItems = async () => {
+    try {
+      const cleanedShoppingListItems = shoppingListItems.map(({ __typename, ...item }) => ({
+        ...item,
+        ingredients: item.ingredients.map(({ __typename, ...ingredient }) => ingredient),
+      }));
+
+      await saveShoppingList({
+        variables: {
+          shoppingListItems: cleanedShoppingListItems,
+        },
+      });
+      console.log("Shopping list saved successfully!");
+    } catch (error) {
+      console.error("Error saving shopping list:", error.message);
+    }
+  };
+
   // Save mealPlanItems whenever it changes
   useEffect(() => {
     if (mealPlanItems.length > 0) {
@@ -120,7 +205,29 @@ export const ShoppingListProvider = ({ children }) => {
     }
   }, [mealPlanItems]);
 
-  console.log('mealPlanItems:', mealPlanItems);
+
+   // Save shoppingListItems whenever it changes
+   useEffect(() => {
+    if (shoppingListItems.length > 0) {
+      saveShoppingListItems();
+    }
+  }, [shoppingListItems]);
+
+    // Handle shopping list data when fetched
+    useEffect(() => {
+      if (data) {
+        console.log('Fetched data:', data);
+        const fetchedItems = data.getShoppingLists?.[0]?.shoppingListItems || [];
+        console.log('Shopping list items to set:', fetchedItems);
+        setShoppingListItems(fetchedItems);
+      }
+      if (error) {
+        console.error('Error fetching shopping list:', error.message);
+      }
+    }, [data, error]);
+  
+  console.log('shoppingListItems:', shoppingListItems);
+  //console.log('mealPlanItems:', mealPlanItems);
 
   return (
     <ShoppingListContext.Provider

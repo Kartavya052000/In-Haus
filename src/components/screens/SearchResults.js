@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList, Platform, StatusBar, Alert, Dimensions } from 'react-native';
 import Typography from '../../components/typography/Typography';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useRoute } from '@react-navigation/native';
 import { useLazyQuery, gql } from '@apollo/client';
 import * as SecureStore from 'expo-secure-store';
