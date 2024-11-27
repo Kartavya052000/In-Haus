@@ -33,6 +33,7 @@ export default function Rewards() {
   const [userid, SetUserId] = useState("");
   const [shouldFetchRewards, setShouldFetchRewards] = useState(false);
   const [loading, setLoading] = useState(false); // State for loader visibility
+  const navigation = useNavigation();
 
   // Socket connection
   const socket = io('http://api.in-haus.ca:4000', {
@@ -113,7 +114,7 @@ export default function Rewards() {
   };
 
   const handleCreate = () => {
-    navigation.navigate('CreateReward');
+    navigation.navigate("CreateReward");
   };
 
   return (
@@ -204,6 +205,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontWeight: 'bold',
+    lineHeight: 28,
+    fontSize: 24,
   },
   addMealButton: {
     position: 'absolute',

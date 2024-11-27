@@ -10,7 +10,15 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import { GET_GROUP } from '../graphql/mutations/taskMutations';
 import * as SecureStore from 'expo-secure-store'; 
 import CatDropdown from '../components/Dropdown/CatDropDown';
+import Typography from "../components/typography/Typography";
+import { LinearGradient } from "expo-linear-gradient";
+import { BackIcon } from "../components/icons/icons";
 import { CREATE_REWARD } from '../graphql/mutations/rewardsMutations';
+import { Dimensions } from "react-native";
+const { height } = Dimensions.get("window");
+import { useNavigation } from '@react-navigation/native';
+import Colors from "../components/Colors/Colors";
+
 
 export default function CreateRewards() {
   const [rewardName, setRewardName] = useState('Reward01');
@@ -19,10 +27,15 @@ export default function CreateRewards() {
   const [expiryDate, setExpiryDate] = useState(new Date());
   const [category, setCategory] = useState('');
   const route = useRoute(); // Get the route object
-  const { text } = route.params; // Destructure taskId from route.params
+  const navigation = useNavigation(); 
+  const { text } = route.params|| {}; // Destructure taskId from route.params
   const [authToken, setAuthToken] = useState(null);
   const [members,setMembers] = useState([]);
   const [createReward, { loading: taskLoading, error: taskError, data: taskData }] = useMutation(CREATE_REWARD);
+
+  const handleBack = () => {
+    navigation.goBack();
+  };
 
   const handleSave = async () => {
     // Handle the save logic here if needed
@@ -33,6 +46,7 @@ export default function CreateRewards() {
       expiryDate,
       category
     });
+
     const expiryDateISO = expiryDate.toISOString();
     let variables={}
       variables= {
@@ -96,10 +110,39 @@ console.log("Task saved:", response.data);
       },
     });
   };
+
+  
   
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>{!text?"Create Reward":"Edit Reward"}</Text>
+    
+       <View style={styles.container}>
+       <LinearGradient
+        colors={["rgba(255, 223, 247, 1)", "rgba(253, 183, 235, 1)"]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.headerBackground}
+      />
+      <View style={styles.contentContainer}>
+      <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => handleBack()}
+        >
+          <View style={styles.addContainer}>
+            <BackIcon color="#FFFFFF" style={styles.addIcon} />
+          </View>
+        </TouchableOpacity>
+        <Typography
+          variant="H4"
+          style={[
+            styles.headerTitle,
+            { textAlign: "center", color: "#891E6E" },
+          ]}
+        >
+          Add Reward
+        </Typography>
+      </View>
+    <View style={styles.mainContentContainer}>
+    <ScrollView style={styles.containerIn} showsVerticalScrollIndicator={false}>
 
       {/* Reward Name */}
       <InputField
@@ -120,7 +163,7 @@ console.log("Task saved:", response.data);
 
       {/* Assigned To */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Assign to</Text>
+        <Typography style={styles.label}>Assign to</Typography>
       
           <DropDownTask
     options={members}
@@ -143,7 +186,7 @@ console.log("Task saved:", response.data);
 
       {/* Category */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Category</Text>
+        <Typography style={styles.label}>Category</Typography>
         <CatDropdown
           options={['Shopping', 'Gift Cards', 'Coupons']}
           selectedValue={category}
@@ -151,19 +194,69 @@ console.log("Task saved:", response.data);
           />
       </View>
 
-      <TouchableOpacity style={styles.cancelButton} onPress={handleSave}>
-        <Text style={styles.cancelText}>Cancel</Text>
-      </TouchableOpacity>
-      {/* Save Button */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveText}>Submit</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.discardButton} onPress={() => console.log("Task discarded")}>
+              <Typography style={[styles.discardText, { color: "#476BFB" }]}>Discard</Typography>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Typography style={[styles.saveText, { color: "#FFFFFF" }]}>Save</Typography>
+            </TouchableOpacity>
+      </View>
     </ScrollView>
+    </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    backgroundColor: "#F2F2F2F",
+  },
+  contentContainer: {
+    alignItems: "center",
+    marginTop: height * 0.12,
+    marginBottom: 20
+  },
+  headerBackground: {
+    height: height * 0.19,
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "120%",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    lineHeight: 28,
+  },
+  addButton: {
+    position: "absolute",
+    left: 0,
+    top: -10,
+  },
+  addContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.Secondary.Pink[500],
+  },
+  addIcon: {
+    marginBottom: -2,
+  },
+  mainContentContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    marginBottom: 30,
+    // marginTop: 30,
+    paddingTop: 10,
+    paddingBottom: 20
+  },
+  containerIn: {
     padding: 20,
   },
   header: {
@@ -177,28 +270,33 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    marginBottom: 5,
+    // marginBottom: 5,
+  },
+  buttonContainer: {
+    marginTop: 30,
+  },
+  discardButton: {
+    borderColor: "#476BFB",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    marginBottom: 15,
+  },
+  discardText: {
+    color: "black",
+    fontSize: 16,
+    textAlign: "center",
   },
   saveButton: {
-    backgroundColor: '#476BFB',
-    borderRadius: 5,
-    padding: 15,
-    marginTop: 5,
-  }, 
-  cancelButton: {
-    backgroundColor: '#C7D2FF',
-    borderRadius: 5,
-    padding: 15,
-    // marginTop: 5,
+    backgroundColor: "#476BFB",
+    borderRadius: 8,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
   },
   saveText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
-  cancelText:{
-    // color:"#C7D2FF",
-    fontSize: 16,
-    textAlign: 'center',
-  }
 });
