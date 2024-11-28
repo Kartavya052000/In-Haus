@@ -126,7 +126,9 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
   const renderRewardItem = ({ item }) => (
     <View style={styles.rewardContainer}>
       <Image
-        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
+        // source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
+        source={{uri:"https://cdn.icon-icons.com/icons2/3249/PNG/512/gift_card_filled_icon_199839.png"}}
+
         style={styles.rewardImage}
       />
       <View style={styles.rewardDetails}>
@@ -147,7 +149,8 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
   const renderRedeemRewardItem = ({ item }) => (
     <View style={styles.rewardContainer}>
       <Image
-        source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
+        // source={{ uri: 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
+        source={{uri:"https://cdn.icon-icons.com/icons2/3249/PNG/512/gift_card_filled_icon_199839.png"}}
         style={styles.rewardImage}
       />
       <View style={styles.rewardDetails}>
@@ -158,8 +161,9 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-      {(members.length > 0 && text !== "My") && (
+    // <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <> 
+    {(members.length > 0 && text !== "My") && (
         <TabsNavigation
           users={members}
           activeColor="black"
@@ -211,7 +215,8 @@ export default function MyRewards({ text, setIsVisible, list, setDetails,shouldF
           }
         />
       </View>
-    </ScrollView>
+       </> 
+    //  {/* </ScrollView> */}
   );
 }
 
