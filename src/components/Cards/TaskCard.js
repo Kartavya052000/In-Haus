@@ -241,6 +241,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    marginLeft:5
   },
   taskName: {
     fontFamily: "BostonRegular",

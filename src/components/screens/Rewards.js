@@ -33,7 +33,7 @@ export default function Rewards() {
   const [userid, SetUserId] = useState("");
   const [shouldFetchRewards, setShouldFetchRewards] = useState(false);
   const [loading, setLoading] = useState(false); // State for loader visibility
-
+  const navigation = useNavigation()
   // Socket connection
   const socket = io('http://api.in-haus.ca:4000', {
     transports: ['websocket', 'polling'],
@@ -103,17 +103,48 @@ export default function Rewards() {
       });
     }
   };
-
+  useEffect(() => {
+    console.log(rewardDetails,"list")
+    if (rewardDetails && Object.keys(rewardDetails).length > 0) {
+      // Alert.alert("Rewards details updated!");
+      redeemRewardsData(token)
+    }
+  }, [rewardDetails]);
+  const [redeemRewards, { loading: RewardLoading, error: RewardError, data: RewardData }] = useMutation(REDEEM_REWARD, {
+    onCompleted: (data) => {
+      // Handle successful completion here
+      console.log("Reward redeemed successfully!", data);
+      setShouldFetchRewards(true)
+      fetchUserPoints(token)
+      // You can also show a success message or update local state
+    },
+    onError: (error) => {
+      // Handle any errors that occur during the mutation
+      Alert.alert("Error while redeeming the reward")
+      console.error("Error redeeming reward:", error);
+      // You can show an error message or handle it accordingly
+    }
+  });  
   const redeemRewardsData = async (token) => {
-    // Redeem the reward when needed
+    redeemRewards({
+      context: {
+        headers: {
+          Authorization: `${token}`, // Use token passed as argument
+        },
+      },
+      variables: {
+        rewardId: rewardDetails?.id, // Replace with actual groupID if necessary
+      },
+    });
   };
+ 
 
   const handleTabChange = (optionName) => {
     setActiveTab(optionName);
   };
 
   const handleCreate = () => {
-    navigation.navigate('CreateReward');
+    navigation.navigate('CreateReward',"text");
   };
 
   return (

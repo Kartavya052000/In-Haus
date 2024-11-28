@@ -130,20 +130,20 @@ const TabNavigator = () => {
 };
 
 export default function HomePage({ navigation }) {
-  const handleLogout = async () => {
-    try {
-      if (Keychain) {
-        await Keychain.resetGenericPassword();
-        Alert.alert('Logout Successful', 'You have been logged out.');
-        navigation.replace('Login');
-      } else {
-        Alert.alert('Error', 'Keychain is not available.');
-      }
-    } catch (error) {
-      console.error('Error logging out', error);
-      Alert.alert('Logout Error', 'Failed to log out. Please try again.');
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     if (Keychain) {
+  //       await Keychain.resetGenericPassword();
+  //       Alert.alert('Logout Successful', 'You have been logged out.');
+  //       navigation.replace('Login');
+  //     } else {
+  //       Alert.alert('Error', 'Keychain is not available.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error logging out', error);
+  //     Alert.alert('Logout Error', 'Failed to log out. Please try again.');
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
