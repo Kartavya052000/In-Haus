@@ -56,7 +56,8 @@ const client = new ApolloClient({
 
 
   // uri: GRAPHQL_URL, // Your GraphQL endpoint
-  uri:"http://10.128.207.242:4000/graphql",
+  // uri:"http://10.128.226.175:4000/graphql",
+  uri:"https://api.in-haus.ca/graphql",
 
   cache: new InMemoryCache(),
   headers: {
@@ -76,7 +77,7 @@ const screenOptions = {
     right: 0,
     elevation: 0,
     height: 60,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ffffff', 
   },
 };
 
@@ -114,7 +115,8 @@ export default function App() {
             <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
             <Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false }} />
             <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }} />
-            <Stack.Screen name="CalenderPage" component={CalendarPage} />
+            <Stack.Screen name="CalenderPage" component={CalendarPage}    options={{ headerShown: false }}
+            />
             <Stack.Screen name="CreateTaskEvent" component={CreateTaskEvent} options={{ headerShown: false }}/>
             <Stack.Screen name="EditTaskEvent" component={EditTaskEvent} options={{ headerShown: false }}/>
             <Stack.Screen name="CreateReward" component={CreateRewards} />

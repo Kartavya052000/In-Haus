@@ -29,10 +29,14 @@ const BottomSwipeableDrawer = ({ isVisible, setIsVisible, Details, rewardPoints 
   //   setCategoryIcon(matchedCategory ? matchedCategory.Icon :categories[2].Icon );
   // }, [Details.category]);
   useEffect(() => {
+    console.log('Animation Ref:', animation.current); // Should not be null
+    console.log(isVisible)
+
     if (isVisible) {
       animation.current?.play();
     } else {
       animation.current?.reset();
+      // setIsVisible(true)
     }
   }, [isVisible]);
 
@@ -53,14 +57,14 @@ const BottomSwipeableDrawer = ({ isVisible, setIsVisible, Details, rewardPoints 
         <View style={styles.animationContainer}>
           <LottieView
             ref={animation}
-            autoPlay
+            autoPlay={isVisible} // Ensure this is set to false so manual play works
             loop={false}
             style={styles.fullScreenAnimation}
             source={require('../../../assets/animations/Animation - 1731035201409.json')} // Replace with your Lottie file
           />
         </View>
         <Image
-          source={{ uri: Details.imageUrl || 'https://download.logo.wine/logo/PlayStation/PlayStation-Logo.wine.png' }}
+          source={{ uri: Details.imageUrl || 'https://cdn.icon-icons.com/icons2/3249/PNG/512/gift_card_filled_icon_199839.png' }}
           style={styles.rewardImage}
         />
         <Typography variant="H5" style={styles.titleText}>Congratulations!</Typography>
@@ -93,7 +97,7 @@ const BottomSwipeableDrawer = ({ isVisible, setIsVisible, Details, rewardPoints 
         <View style={styles.animationContainer}>
           <LottieView
             ref={animation}
-            autoPlay
+            autoPlay={isVisible} // Ensure this is set to false so manual play works
             loop={false}
             style={styles.fullScreenAnimation}
             source={require('../../../assets/animations/Animation - 1731035201409.json')} // Replace with your Lottie file

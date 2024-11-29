@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Button, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
-import { OpenIcon, CloseIcon } from '../icons/icons';
+import { OpenIcon, CloseIcon, CalendarIcon } from '../icons/icons';
 
 const CalendarComponent = ({
   markedDates = {},
@@ -10,9 +10,11 @@ const CalendarComponent = ({
   themeColors = {},
   selectedDate,
   setSelectedDate,
+  displayMode = 'full', // 'day' or 'week'
   selectedDayColor = '#00adf5', // Color del día seleccionado
   eventDotColor = '#00adf5', // Color del punto para eventos
   iconColor = '#000', // Color de los iconos
+
 }) => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -58,14 +60,23 @@ const CalendarComponent = ({
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => setIsCalendarOpen(!isCalendarOpen)}  style={styles.headerContainer}>
-        <View>
-          <Text style={styles.title}>
-            {selectedDate === today ? 'Today' : 'Day'}
-          </Text>
+        <View style={styles.dateDetail}>
+        {displayMode === 'full' && (
+  <Text style={styles.title}>
+    {selectedDate === today ? 'Today' : 'Day'}
+  </Text>
+)}
+ {displayMode === 'date' && (
+ <CalendarIcon size={24} color="#000" />
+)}
+
           <Text style={styles.subtitle}>{moment(selectedDate).format('dddd, DD MMM')}</Text>
         </View>
         <View style={styles.filterButton}>
-          <Text style={styles.filterText}>Calendar</Text>
+        {displayMode === 'full' && (
+  <Text style={styles.filterText}>Calendar</Text>
+)}
+
           {isCalendarOpen ? <CloseIcon color={iconColor} /> : <OpenIcon color={iconColor} />}
         </View>
       </TouchableOpacity>
@@ -76,8 +87,8 @@ const CalendarComponent = ({
           markedDates={generateMarkedDates()}
           style={styles.calendar}
           theme={{
-            backgroundColor: themeColors.backgroundColor || '#ffffff',
-            calendarBackground: themeColors.calendarBackground || '#ffffff',
+            backgroundColor:'transparent',
+            calendarBackground:'transparent',
             selectedDayBackgroundColor: selectedDayColor,
             selectedDayTextColor: '#ffffff',
             todayTextColor: themeColors.todayTextColor || '#333',
@@ -126,6 +137,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  dateDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
   },
   title: {
     fontFamily: 'BostonSemiBold',
