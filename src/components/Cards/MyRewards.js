@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginTop: 16,
     padding: 10,
+    borderRadius: 16,
   },
   rewardContainer: {
     flexDirection: 'row',

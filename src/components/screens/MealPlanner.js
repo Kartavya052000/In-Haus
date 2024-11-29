@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     alignItems: "center",
-    marginTop: 60,
+    marginTop: height * 0.105,
   },
   deleteAction: {
     alignItems: "center",
@@ -795,11 +795,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerBackground: {
-    height: 140,
+    height: height * 0.19,
     left: 0,
     position: "absolute",
     top: 0,
-    width: width,
+    width: "120%",
   },
   headerContainer: {
     alignItems: "center",

@@ -88,7 +88,7 @@ handleToken()
       <GoogleIcon style={styles.GoogleContainerButton}/>
       <Button
         title="Continue with Google"
-        color={"#fff"}
+        color={"#476BFB"}
         style={styles.Button}
         disabled={!request}
         onPress={() => {
