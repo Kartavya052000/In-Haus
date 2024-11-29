@@ -5,8 +5,8 @@ import { CameraView } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import Typography from '../../components/typography/Typography'; // Import Typography
 import CustomLoadingScreen from '../../components/Loading/CustomLoadingScreen'; // Import CustomLoadingScreen
-import { OPENAI_URL } from '@env';
-
+//import { OPENAI_URL } from '@env';
+const OPENAI_URL = 'http://192.168.147.150:3000/api/';
 export default function SearchCameraScreen({ navigation }) {
     const [facing, setFacing] = useState('back');
     const [loading, setLoading] = useState(false);
@@ -20,14 +20,14 @@ export default function SearchCameraScreen({ navigation }) {
     const takePicture = async () => {
         setLoading(true); // Start loading
         if (cameraRef.current) {
-            const options = { quality: 0.5, base64: false };
+            const options = { quality: 0.7, base64: false };
             const photo = await cameraRef.current.takePictureAsync(options);
 
             // Resize the image to a maximum of 500x500 pixels
             const resizedImage = await ImageManipulator.manipulateAsync(
                 photo.uri,
                 [{ resize: { width: 500, height: 500 } }],
-                { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+                { compress: .7, format: ImageManipulator.SaveFormat.JPEG }
             );
 
 
@@ -84,7 +84,7 @@ export default function SearchCameraScreen({ navigation }) {
                 api_fetch = 'recognize-meal';
             }
 
-            console.log('attempting to ' + api_fetch);
+            console.log('attempting to ' + api_fetch + ' with image:', imageUri + ' to ' + OPENAI_URL + api_fetch);
 
             const response = await fetch(OPENAI_URL + api_fetch, {
 
