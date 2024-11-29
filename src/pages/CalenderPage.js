@@ -196,14 +196,10 @@ fetchUserData(token,activeTabId)
         end={{ x: 0, y: 0 }}
         style={styles.headerBackground}
       />
-      <View style={styles.contentContainer}>
+    <View style={styles.contentContainer}>
         <Typography
           variant="H4"
-          style={[
-            styles.headerTitle,
-            { textAlign: "center", color: "#183AC1" },
-
-          ]}
+          style={[styles.headerTitle]}
         >
           Calendar
         </Typography>
@@ -312,7 +308,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    // paddingVertical: 24,
+    paddingVertical: 16,
     backgroundColor: "#F2F2F2",
     // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 60,
   },
@@ -393,13 +389,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#333",
   },
-  headerBackground: {
-    height: height * 0.19,
-    left: 0,
-    position: "absolute",
-    top: 0,
-    width: "120%",
-  },
+  // headerBackground: {
+  //   height: height * 0.19,
+  //   left: 0,
+  //   position: "absolute",
+  //   top: 0,
+  //   width: "120%",
+  // },
   headerContainer: {
     alignItems: "center",
     flexDirection: "row",
@@ -419,6 +415,13 @@ const styles = StyleSheet.create({
     alignItems: "center", // Centers content horizontally
     textAlign: "center", // Centers the text within the Text component
     color: "#333", // Optional: for styling text color
+  },
+  headerTitle: {
+    fontSize: 24,
+    lineHeight: 28,
+    textAlign: "center",
+    color: "#183AC1",
+    marginBottom: 10,
   },
 });
 

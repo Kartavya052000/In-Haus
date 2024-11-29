@@ -83,12 +83,14 @@ useEffect(()=>{
 if(activetab.showMicAnimation){
   startListening()
 }else if (!activetab.showMicAnimation && isListening){
-  stopListening()
+  // stopListening()
+  backUpFunctionForVoiceToText()
 }
 },[activetab.showMicAnimation])
   useEffect(() => {
     Voice.onSpeechStart = onSpeechStartHandler;
-    Voice.onSpeechEnd = stopListening;
+    // Voice.onSpeechEnd = stopListening;
+    Voice.onSpeechEnd = backUpFunctionForVoiceToText;
     Voice.onSpeechResults = onSpeechResultsHandler;
 
     return () => {
@@ -101,8 +103,8 @@ if(activetab.showMicAnimation){
   };
 
   const onSpeechResultsHandler = (event) => {
-    const text = event.value[0];
-    setRecognizeText(text);
+    // const text = event.value[0];
+    // setRecognizeText(text);
     // Alert.alert("Stop")
   };
 
@@ -110,7 +112,7 @@ if(activetab.showMicAnimation){
     console.log("Attempting to start voice recognition...");
     setIsListening(true);
     try {
-      await Voice.start("en-US");
+      // await Voice.start("en-US");
       console.log("Voice recognition started successfully!");
     } catch (error) {
       console.error("Error starting voice recognition:", error);
@@ -126,7 +128,7 @@ if(activetab.showMicAnimation){
 
 const stopListening = async () => {
   try {
-    await Voice.stop();
+    // await Voice.stop();
     console.log("Recording stopped");
 
     // Sample transcription text
@@ -136,9 +138,9 @@ const stopListening = async () => {
     setIsListening(false);
     setShowAnimation(true);
     activetab.getAnimation(true)
-
+// console.log(recognizeText,"RRRRR")
     // Call the API with the transcription text
-    const response = await axios.post('http://192.168.1.249:3000/api/process-transcription', {
+    const response = await axios.post('http://172.20.10.3:3000/api/process-transcription', {
       transcription: text,
       key: 'text'  // Assuming the API requires a key
     });
@@ -156,7 +158,7 @@ const stopListening = async () => {
 // console.log(members,"AAAA")
     // Set the state with the parsed data
     const matchingMember = members.find(member => member.username === assignedTo);
-// console.log(matchingMember,"MMMMMMMM")
+
     setTitle(Taskname);
     setStartDateTime(new Date(startDateTime));
     setEndDateTime(new Date(endDateTime));
@@ -165,19 +167,61 @@ const stopListening = async () => {
     setCategoryPass(capitalizeFirstLetter(category)); // show category
     setAssignedTo(matchingMember.id)
     // Handle repeat, category, and assignedTo based on the response if needed
-    console.log("Task details nextracted:", response.data);
+    // console.log("Task details nextracted:", response.data);
 
     // Hide animation after 2 seconds
-    // setTimeout(() => {
+    setTimeout(() => {
       setShowAnimation(false);
       activetab.getAnimation(false)
-    // }, 2000);
+    }, 2000);
 
   } catch (error) {
     console.log("Error in processing transcription:", error);
     setShowAnimation(false);
+    activetab.getAnimation(false)
+
   }
 };
+
+const backUpFunctionForVoiceToText =() =>{
+  // animation Starts
+console.log("Backup works")
+  setShowAnimation(true);
+  activetab.getAnimation(true)
+
+  const {
+    Taskname,
+    'StartDate and startTime': startDateTime,
+    'endDate and endTime': endDateTime,
+    repeat,
+    category,
+    'assign to': assignedTo,
+    points
+  } ={
+  "Taskname": "cleaning dishes",
+  "StartDate and startTime": new Date().toISOString(),
+  "endDate and endTime": new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+  "repeat": "Never",
+  "category": "cleaning",
+  "assign to": "Mateo",
+  "points": 10
+}
+const matchingMember = members.find(member => member.username === assignedTo);
+
+  setTitle(Taskname);
+  setStartDateTime(new Date(startDateTime));
+  setEndDateTime(new Date(endDateTime));
+  setPoints(points);
+  setCategory(category); // set category
+  setCategoryPass(capitalizeFirstLetter(category)); // show category
+  setAssignedTo(matchingMember.id)
+
+   // Hide animation after 2 seconds
+   setTimeout(() => {
+    setShowAnimation(false);
+    activetab.getAnimation(false)
+  }, 2000);
+}
   useEffect(() => {
     // let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
     // extractDetailsFromSpeech(text);
@@ -225,7 +269,7 @@ const stopListening = async () => {
           repeat: repeat,
           assignedTo: assignedTo,
           points: points,
-          category: category,
+          category: capitalizeFirstLetter(category),
           type: "task",
         };
       } else {
@@ -236,7 +280,7 @@ const stopListening = async () => {
           repeat: repeat,
           assignedTo: assignedTo,
           description: description,
-          category: category,
+          category: capitalizeFirstLetter(category),
           type: "event",
         };
       }
@@ -255,6 +299,10 @@ const stopListening = async () => {
       console.error("Error saving task:", error);
     }
   };
+
+
+  // ------- static voice functions-------
+
 
   return (
     <>
@@ -282,7 +330,7 @@ const stopListening = async () => {
           </View>
         </TouchableOpacity> */}
         <View>
-          <Text>{recognizeText}</Text>
+          {/* <Text>{recognizeText}</Text> */}
         </View>
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.fieldContainer}>
