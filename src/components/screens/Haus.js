@@ -3,7 +3,7 @@ import { View, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import OptionTabs from '../../components/TabsNavigators/OptionTabs/OptionTabs';
 import CalendarGraph from '../calendar/calendarGraph';
-import Typography from '../typography/Typography';
+import Typography from "../../components/typography/Typography";
 import RewardsCards1 from '../Cards/RewardsCards1';
 import * as SecureStore from 'expo-secure-store';
 import { useLazyQuery } from '@apollo/client';
@@ -127,10 +127,10 @@ export default function Haus() {
       />
       <View style={styles.contentContainer}>
         <Typography
-          variant="H5"
+          variant="H4"
           color={Colors.Secondary.Purple[500]}
           align="center"
-          style={styles.headerText}
+          style={styles.headerTitle}
         >
           Dashboard
         </Typography>
@@ -214,15 +214,13 @@ export default function Haus() {
       borderRadius: 16,
       paddingTop: 15,
       paddingBottom: 15,
-
       marginHorizontal:16,
       marginTop:16,
       paddingHorizontal:16
     },
     taskSectionHeading:{
-marginBottom: 12,
+    marginBottom: 12,
     },
-
     headerBackground: {
       position: 'absolute',
       top: 0,
@@ -235,14 +233,16 @@ marginBottom: 12,
       alignItems: 'center',
       paddingHorizontal: 16,
     },
-    headerText: {
-      marginBottom: 20,
-      fontWeight: '700',
+    headerTitle: {
       fontSize: 24,
       lineHeight: 28,
+      textAlign: "center",
+      // color: "#B4525E",
+      marginBottom: 10,
     },
     graphContainer: {
       paddingTop: 20,
+      
     },
     noTasksMessage: {
       textAlign: 'center',

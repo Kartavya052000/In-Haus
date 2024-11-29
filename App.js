@@ -56,7 +56,7 @@ const client = new ApolloClient({
 
 
   // uri: GRAPHQL_URL, // Your GraphQL endpoint
-  uri:"http://192.168.1.249:4000/graphql",
+  uri:"http://10.128.207.242:4000/graphql",
 
   cache: new InMemoryCache(),
   headers: {
