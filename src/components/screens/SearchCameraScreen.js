@@ -1,73 +1,121 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { CameraView } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import Typography from '../../components/typography/Typography'; // Import Typography
 import CustomLoadingScreen from '../../components/Loading/CustomLoadingScreen'; // Import CustomLoadingScreen
+import Toast from 'react-native-toast-message';
 //import { OPENAI_URL } from '@env';
-const OPENAI_URL = 'http://192.168.147.150:3000/api/';
+const OPENAI_URL = 'https://inhaus.wmdd4950.com/api/';
 export default function SearchCameraScreen({ navigation }) {
     const [facing, setFacing] = useState('back');
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState('Recognize'); // New state for mode toggle (Recognize/Suggest)
     const cameraRef = useRef(null);
-
+    const [notification, setNotification] = useState(null); // State to handle notifications
     const toggleCameraFacing = () => {
         setFacing((current) => (current === 'back' ? 'front' : 'back'));
     };
 
+    // const takePicture = async () => {
+    //     setLoading(true); // Start loading
+    //     if (cameraRef.current) {
+    //         const options = { quality: 0.7, base64: false };
+    //         const photo = await cameraRef.current.takePictureAsync(options);
+
+    //         // Resize the image to a maximum of 500x500 pixels
+    //         const resizedImage = await ImageManipulator.manipulateAsync(
+    //             photo.uri,
+    //             [{ resize: { width: 500, height: 500 } }],
+    //             { compress: .7, format: ImageManipulator.SaveFormat.JPEG }
+    //         );
+
+
+    //         try {
+    //             const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
+
+    //             const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
+
+    //           //  const response = apiResponse.response;
+
+    //             console.log('API Response:', apiResponse);
+
+    //             console.log('AI processes Response:',  processedResponse);
+    //             navigation.navigate('MealDetailsAI', {
+    //                 response: processedResponse,
+    //                   image: resizedImage.uri, 
+    //             });
+
+                
+    //             // navigation.navigate('MealDetailsAI', {
+    //             //     response: {
+    //             //       isRecognized: response.isRecognized,
+    //             //       isMeal: response.isMeal,
+    //             //       fullDescription: response.fullDescription,
+    //             //       title: response.title,
+    //             //       recipe: response.recipe,
+    //             //       readyInMinutes: response.readyInMinutes,
+    //             //       healthScore: response.healthScore,
+    //             //       servings: response.servings,
+    //             //       ingredients: response.ingredients,
+    //             //     }
+    //             //   });
+    //         } catch (error) {
+    //             console.error('Failed to recognize image', error);
+    //         }
+
+    //         setLoading(false);
+    //     }
+    // };
+
+    useEffect(() => {
+        // Show Toast when `notification` changes
+        if (notification) {
+            Toast.show({
+                type: 'error', // Type of message (error, success, etc.)
+                text1: notification, // Main message
+                position: 'top', // Position on screen
+            });
+        }
+    }, [notification]);
+
     const takePicture = async () => {
-        setLoading(true); // Start loading
+        setLoading(true);
         if (cameraRef.current) {
             const options = { quality: 0.7, base64: false };
             const photo = await cameraRef.current.takePictureAsync(options);
 
-            // Resize the image to a maximum of 500x500 pixels
             const resizedImage = await ImageManipulator.manipulateAsync(
                 photo.uri,
                 [{ resize: { width: 500, height: 500 } }],
-                { compress: .7, format: ImageManipulator.SaveFormat.JPEG }
+                { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
             );
-
 
             try {
                 const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
-
                 const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
 
-              //  const response = apiResponse.response;
+                const isRecognized = processedResponse.isRecognized === true || processedResponse.isRecognized === 'true';
 
-                console.log('API Response:', apiResponse);
+                if (!isRecognized) {
+                    setNotification('Unable to recognize the meal. Please try again.'); // Set notification message
+                    setLoading(false);
+                    return;
+                }
 
-                console.log('AI processes Response:',  processedResponse);
                 navigation.navigate('MealDetailsAI', {
                     response: processedResponse,
-                      image: resizedImage.uri, 
+                    image: resizedImage.uri,
                 });
-
-                
-                // navigation.navigate('MealDetailsAI', {
-                //     response: {
-                //       isRecognized: response.isRecognized,
-                //       isMeal: response.isMeal,
-                //       fullDescription: response.fullDescription,
-                //       title: response.title,
-                //       recipe: response.recipe,
-                //       readyInMinutes: response.readyInMinutes,
-                //       healthScore: response.healthScore,
-                //       servings: response.servings,
-                //       ingredients: response.ingredients,
-                //     }
-                //   });
             } catch (error) {
-                console.error('Failed to recognize image', error);
+                setNotification('An error occurred. Please try again.'); // Set error notification
+                console.error('Failed to recognize image:', error);
             }
-
             setLoading(false);
         }
     };
-
+    
 
     const fetchOpenAIWithImage = async (imageUri) => {
         try {

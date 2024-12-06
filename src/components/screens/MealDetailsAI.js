@@ -25,6 +25,19 @@ const convertImageToBase64 = async (imageUri) => {
   }
 };
 
+const sanitizeIngredients = (ingredients) => {
+  return ingredients.map((ing) => {
+    // Convert non-numeric amount values to 0
+    const sanitizedAmount = isNaN(parseFloat(ing.amount)) ? 0 : parseFloat(ing.amount);
+
+    return {
+      name: ing.name,
+      amount: sanitizedAmount, // Ensure amount is always numeric
+      unit: ing.unit || 'to taste', // Default to 'to taste' if unit is missing
+    };
+  });
+};
+
 const MealDetailsAI = ({ route, navigation }) => {
   const { response, image } = route.params || {};
   const { title, fullDescription, recipe, servings, ingredients, readyInMinutes, healthScore } = response;
@@ -70,6 +83,9 @@ const MealDetailsAI = ({ route, navigation }) => {
         const convertedImage = await convertImageToBase64(image);
         setBase64Image(convertedImage); // Save converted image to state
 
+        // Sanitize ingredients
+        const sanitizedIngredients = sanitizeIngredients(ingredients);
+        
         // Execute mutation
         const aiID = parseInt('1001' + String(Math.floor(Math.random() * 1000000)).padStart(6, '0'));
         await saveRecipe({
@@ -88,13 +104,11 @@ const MealDetailsAI = ({ route, navigation }) => {
               healthScore: healthScore.toString(),
               cuisines: ['international'],
               servings: servings.toString(),
-              instructions: recipe,
-              ingredients: ingredients.map((ing) => ({
-                name: ing.name,
-                amount: ing.amount,
-                unit: ing.unit,
-              })),
-              steps: recipe.split('\n').map((step) => ({ step })),
+              instructions: Array.isArray(recipe)
+              ? recipe.map((stepObj, index) => `${index + 1}. ${stepObj.step}`).join('\n')
+              : '',
+              ingredients: sanitizedIngredients, 
+              steps: recipe,
             },
           },
         });

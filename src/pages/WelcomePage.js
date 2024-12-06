@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity  } from 'react-native';
+
 import Carousel from 'react-native-reanimated-carousel';
 import Daughter from "../../assets/WelcomeImages/Daughter.jpg";
 import Dad from "../../assets/WelcomeImages/Dad.jpg";
@@ -8,8 +9,13 @@ import Son from "../../assets/WelcomeImages/Son.jpg";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Typography from '../components/typography/Typography';
 import { useNavigation } from '@react-navigation/native';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs(true); // Disable all warnings
+console.disableYellowBox = true; // Legacy way to disable warnings
 
 export default function WelcomePage() {
+
   const [activeIndex, setActiveIndex] = useState(0); // Track the active slide
   const navigation = useNavigation();
   const slides = [
@@ -31,6 +37,7 @@ export default function WelcomePage() {
     },
   ];
 
+  
   const renderItem = ({ item }) => (
     <View style={styles.slide}>
       <View style={styles.titleContainer}>
