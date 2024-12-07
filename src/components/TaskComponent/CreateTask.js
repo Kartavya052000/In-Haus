@@ -132,7 +132,7 @@ const stopListening = async () => {
     console.log("Recording stopped");
 
     // Sample transcription text
-    let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
+    // let text = "add a task as cleaning dishes to Mateo in a category of cleaning with a start date and time to 15 November 12 am to 15 November 12:30 am with reward points of 10";
 
     // Set the animation while the API call is in progress
     setIsListening(false);
