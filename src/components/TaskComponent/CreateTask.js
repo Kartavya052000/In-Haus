@@ -203,7 +203,7 @@ console.log("Backup works")
   "endDate and endTime": new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   "repeat": "Never",
   "category": "cleaning",
-  "assign to": "Mateo",
+  "assign to": "Aryan",
   "points": 10
 }
 const matchingMember = members.find(member => member.username === assignedTo);

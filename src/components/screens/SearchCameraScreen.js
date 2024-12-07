@@ -16,7 +16,69 @@ export default function SearchCameraScreen({ navigation }) {
     const [notification, setNotification] = useState(null); // State to handle notifications
     const toggleCameraFacing = () => {
         setFacing((current) => (current === 'back' ? 'front' : 'back'));
-    };
+};
+
+    // const takePicture = async () => {
+    //     setLoading(true); // Start loading
+    //     if (cameraRef.current) {
+    //         const options = { quality: 0.7, base64: false };
+    //         const photo = await cameraRef.current.takePictureAsync(options);
+
+    //         // Resize the image to a maximum of 500x500 pixels
+    //         const resizedImage = await ImageManipulator.manipulateAsync(
+    //             photo.uri,
+    //             [{ resize: { width: 500, height: 500 } }],
+    //             { compress: .7, format: ImageManipulator.SaveFormat.JPEG }
+    //         );
+
+
+    //         try {
+    //             const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
+
+    //             const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
+
+    //           //  const response = apiResponse.response;
+
+    //             console.log('API Response:', apiResponse);
+
+    //             console.log('AI processes Response:',  processedResponse);
+    //             navigation.navigate('MealDetailsAI', {
+    //                 response: processedResponse,
+    //                   image: resizedImage.uri, 
+    //             });
+
+                
+    //             // navigation.navigate('MealDetailsAI', {
+    //             //     response: {
+    //             //       isRecognized: response.isRecognized,
+    //             //       isMeal: response.isMeal,
+    //             //       fullDescription: response.fullDescription,
+    //             //       title: response.title,
+    //             //       recipe: response.recipe,
+    //             //       readyInMinutes: response.readyInMinutes,
+    //             //       healthScore: response.healthScore,
+    //             //       servings: response.servings,
+    //             //       ingredients: response.ingredients,
+    //             //     }
+    //             //   });
+    //         } catch (error) {
+    //             console.error('Failed to recognize image', error);
+    //         }
+
+    //         setLoading(false);
+    //     }
+    // };
+
+    useEffect(() => {
+        // Show Toast when `notification` changes
+        if (notification) {
+            Toast.show({
+                type: 'error', // Type of message (error, success, etc.)
+                text1: notification, // Main message
+                position: 'bottom', // Position on screen
+            });
+        }
+    }, [notification]);
 
     // const takePicture = async () => {
     //     setLoading(true); // Start loading
