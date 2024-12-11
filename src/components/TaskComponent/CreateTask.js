@@ -198,28 +198,29 @@ console.log("Backup works")
     'assign to': assignedTo,
     points
   } ={
-  "Taskname": "cleaning dishes",
+  "Taskname": "Get the Shopping Bag from car",
   "StartDate and startTime": new Date().toISOString(),
   "endDate and endTime": new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   "repeat": "Never",
-  "category": "cleaning",
-  "assign to": "Aryan",
+  "category": "groceries",
+  "assign to": "JuanDi",
   "points": 10
 }
 const matchingMember = members.find(member => member.username === assignedTo);
 
-  setTitle(Taskname);
-  setStartDateTime(new Date(startDateTime));
-  setEndDateTime(new Date(endDateTime));
-  setPoints(points);
-  setCategory(category); // set category
-  setCategoryPass(capitalizeFirstLetter(category)); // show category
-  setAssignedTo(matchingMember.id)
+
 
    // Hide animation after 2 seconds
    setTimeout(() => {
     setShowAnimation(false);
     activetab.getAnimation(false)
+    setTitle(Taskname);
+    setStartDateTime(new Date(startDateTime));
+    setEndDateTime(new Date(endDateTime));
+    setPoints(points);
+    setCategory(category); // set category
+    setCategoryPass(capitalizeFirstLetter(category)); // show category
+    setAssignedTo(matchingMember.id)
   }, 2000);
 }
   useEffect(() => {
@@ -294,7 +295,8 @@ const matchingMember = members.find(member => member.username === assignedTo);
         },
       });
       Alert.alert(activetab.activeTab + " Saved Successfully");
-      navigation.navigate("CalenderPage");
+      // navigation.navigate("CalenderPage"); 
+      navigation.goBack(); //Alternate
     } catch (error) {
       console.error("Error saving task:", error);
     }
