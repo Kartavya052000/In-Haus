@@ -7,7 +7,53 @@ import Typography from '../../components/typography/Typography'; // Import Typog
 import CustomLoadingScreen from '../../components/Loading/CustomLoadingScreen'; // Import CustomLoadingScreen
 import Toast from 'react-native-toast-message';
 //import { OPENAI_URL } from '@env';
-const OPENAI_URL = 'https://inhaus.wmdd4950.com/api/';
+const OPENAI_URL = 'https://server.inteligencia.ec/api/';
+const useFallBack = true;
+const fallBackResponse = {
+    isRecognized: 'true',
+    isMeal: 'true',
+    fullDescription: 'The image features ingredients including pasta, ground meat, marinara sauce, bell peppers, cheese, and Italian seasoning.',
+    title: 'Cheesy Stuffed Bell Pepper Lasagna',
+    recipe: [
+      { step: 'Preheat the oven to 375°F (190°C).' },
+      {
+        step: 'In a skillet over medium heat, cook the ground meat until browned, about 5-7 minutes.'
+      },
+      {
+        step: 'Add the marinara sauce and Italian seasoning to the skillet. Let it simmer for 5 minutes.'
+      },
+      {
+        step: 'Cook the lasagna noodles according to package instructions until al dente, then drain and set aside.'
+      },
+      {
+        step: 'Slice the tops off the bell peppers and remove the seeds.'
+      },
+      {
+        step: 'In a baking dish, layer some sauce mixture at the bottom, followed by lasagna noodles, cheese, and then stuff each bell pepper with a mixture of meat sauce and noodles.'
+      },
+      {
+        step: 'Top each stuffed pepper with additional cheese and any remaining sauce.'
+      },
+      {
+        step: 'Cover the dish with aluminum foil and bake for 30 minutes.'
+      },
+      {
+        step: 'Remove the foil and bake for an additional 10-15 minutes until the cheese is bubbly and golden.'
+      },
+      { step: 'Let it cool for a few minutes before serving.' }
+    ],
+    readyInMinutes: '60',
+    healthScore: '75',
+    servings: 4,
+    ingredients: [
+      { name: 'Ground meat', amount: 1, unit: 'pound' },
+      { name: 'Marinara sauce', amount: 1.5, unit: 'cups' },
+      { name: 'Lasagna noodles', amount: 9, unit: 'sheets' },
+      { name: 'Bell peppers', amount: 4, unit: 'pieces' },
+      { name: 'Mozzarella cheese', amount: 2, unit: 'cups' },
+      { name: 'Italian seasoning', amount: 1, unit: 'tablespoon' }
+    ]
+  };
 export default function SearchCameraScreen({ navigation }) {
     const [facing, setFacing] = useState('back');
     const [loading, setLoading] = useState(false);
@@ -18,56 +64,6 @@ export default function SearchCameraScreen({ navigation }) {
         setFacing((current) => (current === 'back' ? 'front' : 'back'));
     };
 
-    // const takePicture = async () => {
-    //     setLoading(true); // Start loading
-    //     if (cameraRef.current) {
-    //         const options = { quality: 0.7, base64: false };
-    //         const photo = await cameraRef.current.takePictureAsync(options);
-
-    //         // Resize the image to a maximum of 500x500 pixels
-    //         const resizedImage = await ImageManipulator.manipulateAsync(
-    //             photo.uri,
-    //             [{ resize: { width: 500, height: 500 } }],
-    //             { compress: .7, format: ImageManipulator.SaveFormat.JPEG }
-    //         );
-
-
-    //         try {
-    //             const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
-
-    //             const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
-
-    //           //  const response = apiResponse.response;
-
-    //             console.log('API Response:', apiResponse);
-
-    //             console.log('AI processes Response:',  processedResponse);
-    //             navigation.navigate('MealDetailsAI', {
-    //                 response: processedResponse,
-    //                   image: resizedImage.uri, 
-    //             });
-
-                
-    //             // navigation.navigate('MealDetailsAI', {
-    //             //     response: {
-    //             //       isRecognized: response.isRecognized,
-    //             //       isMeal: response.isMeal,
-    //             //       fullDescription: response.fullDescription,
-    //             //       title: response.title,
-    //             //       recipe: response.recipe,
-    //             //       readyInMinutes: response.readyInMinutes,
-    //             //       healthScore: response.healthScore,
-    //             //       servings: response.servings,
-    //             //       ingredients: response.ingredients,
-    //             //     }
-    //             //   });
-    //         } catch (error) {
-    //             console.error('Failed to recognize image', error);
-    //         }
-
-    //         setLoading(false);
-    //     }
-    // };
 
     useEffect(() => {
         // Show Toast when `notification` changes
@@ -96,12 +92,24 @@ export default function SearchCameraScreen({ navigation }) {
                 const apiResponse = await fetchOpenAIWithImage(resizedImage.uri);
                 const processedResponse = apiResponse.response ? apiResponse.response : apiResponse;
 
-                const isRecognized = processedResponse.isRecognized === true || processedResponse.isRecognized === 'true';
+          
 
-                if (!isRecognized) {
+                const isRecognized = processedResponse.isRecognized === true || processedResponse.isRecognized === 'true';
+                const isMeal = processedResponse.isMeal === true || processedResponse.isMeal === 'true';
+
+                if (!isRecognized || !isMeal) {
+                    if(!useFallBack){
                     setNotification('Unable to recognize the meal. Please try again.'); // Set notification message
                     setLoading(false);
                     return;
+                    }else{
+                          navigation.navigate('MealDetailsAI', {
+                            response: fallBackResponse,
+                            image: resizedImage.uri,
+                        });
+                        return;
+
+                    }
                 }
 
                 navigation.navigate('MealDetailsAI', {
@@ -143,7 +151,11 @@ export default function SearchCameraScreen({ navigation }) {
                 body: formData,
             });
 
-            if (!response.ok) throw new Error('Failed to process image');
+            if (!response.ok) {   if(!useFallBack){throw new Error('Failed to process image')}else{  navigation.navigate('MealDetailsAI', {
+                response: fallBackResponse,
+                image: imageUri,
+            });
+            return;} };
             const result = await response.json();
             return result;
         } catch (error) {

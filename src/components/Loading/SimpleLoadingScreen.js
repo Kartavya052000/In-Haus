@@ -76,19 +76,9 @@ export default function CustomLoadingScreen() {
       end={[0, 1]}
     >
       {/* <Text style={styles.emoji}>{currentEmoji}</Text> */}
-      <View style={styles.imageContainer}>
-        <Image source={currentFamily} style={styles.image} />
-      </View>
+  
       
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        joke && (
-          <Text style={styles.joke}>
-            {joke}
-          </Text>
-        )
-      )}
+      
 <View style={styles.lottieContainer}>
 <LottieView
     source={loadingAnimation}

@@ -6,6 +6,7 @@ import { useLazyQuery, gql } from '@apollo/client';
 import * as SecureStore from 'expo-secure-store';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoBackIcon, FiltersIcon } from "../../components/icons/icons";
+import CustomLoadingScreen from '../../components/Loading/SimpleLoadingScreen'; // Import CustomLoadingScreen
 const { height } = Dimensions.get("window");
 const { width } = Dimensions.get("window");
 
@@ -137,6 +138,15 @@ const handleMealDetails = (meal) => {
 
   return (
     <View style={styles.container}>
+      
+      {loading && (
+
+<View style={styles.loadingOverlay}>
+    <CustomLoadingScreen style={styles.loadingText} />
+
+</View>
+
+)}
       <LinearGradient
         colors={['#F3C8CA', '#E27F82']}
         start={{ x: 0, y: 1 }}
@@ -175,11 +185,7 @@ const handleMealDetails = (meal) => {
           </Typography>
         )}
 <View style={styles.scrollContainer}>
-  {loading ? (
-    <View style={styles.loadingContainer}>
-      <Text style={styles.loadingText}>Loading...</Text>
-    </View>
-  ) : error ? (
+  { error ? (
     <View style={styles.errorContainer}>
       <Text style={styles.errorText}>Error loading meals: {error.message}</Text>
     </View>
@@ -312,16 +318,41 @@ position: "absolute",
     fontWeight: 'bold',
     color: '#333',
   },
-  loadingContainer: {
-    flex: 1,
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 20,
-  },
-  loadingText: {
+    zIndex: 10,
+
+},
+
+loadingText: {
+
+    marginTop: 10,
+
+    color: '#fff',
+
+    fontSize: 18,
+},
+topBar: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 1,
+},
+topText: {
+    color: 'white',
     fontSize: 16,
-    color: '#999',
-  },
+},
+closeBtn: {
+    padding: 8,
+},
   errorContainer: {
     flex: 1,
     justifyContent: 'center',

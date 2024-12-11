@@ -8,6 +8,7 @@ import { ShoppingListContext } from '../../components/contexts/ShoppingListConte
 import { generateRandom } from 'expo-auth-session/build/PKCE';
 import * as SecureStore from 'expo-secure-store';
 import { SPOONACULAR_API_KEY } from '@env';
+import CustomLoadingScreen from '../../components/Loading/SimpleLoadingScreen'; // Import CustomLoadingScreen
 import { GoBackIcon, SaveIcon, PlusIcon, MinusIcon } from "../../components/icons/icons";
 
 const { height } = Dimensions.get('window');
@@ -262,16 +263,19 @@ const MealDetails = ({ route, navigation }) => {
     navigation.navigate('MealPlanner', { selectedTab: 'My Plan', notification: 'The recipe is now in your plan and shopping list' });
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}><Text>Loading...</Text>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
-  }
+
 
   return (
     <View style={styles.container}>
+            
+            {loading && (
+
+<View style={styles.loadingOverlay}>
+    <CustomLoadingScreen style={styles.loadingText} />
+
+</View>
+
+)}
       <View style={styles.headerContainer}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <View style={styles.backButtonContainer}>
@@ -383,11 +387,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  loadingContainer: {
-    flex: 1,
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
+    zIndex: 10,
+
+},
+
+loadingText: {
+
+    marginTop: 10,
+
+    color: '#fff',
+
+    fontSize: 18,
+},
   mealImage: {
     width: '100%',
     height: height * 0.5,

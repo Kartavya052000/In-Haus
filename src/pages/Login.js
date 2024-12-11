@@ -28,7 +28,7 @@ const storeToken = async (token, points,id) => {
 };
 
 const Login = () => {
-  const [email, setEmail] = useState('Aryan@gmail.com');
+  const [email, setEmail] = useState('JuanDi@gmail.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false); // Estado para controlar visibilidad de la contraseña
   const navigation = useNavigation();
